@@ -56,11 +56,6 @@ async function loadTemplate(id, file) {
     const res = await fetch(file);
     if (!res.ok) throw new Error(`Failed to load ${file}`);
     document.getElementById(id).innerHTML = await res.text();
-
-    // After header loads, build breadcrumbs
-    if (id === "header") {
-      buildBreadcrumbs("", ["public", "views"]);
-    }
   } catch (err) {
     console.error(err);
   }
@@ -73,4 +68,6 @@ document.addEventListener("DOMContentLoaded", () => {
   loadTemplate("bread", "../components/breadcrumbs.html");
   loadTemplate("header", "../templates/header.html");
   loadTemplate("footer", "../templates/footer.html");
+  // Only now build breadcrumbs
+  buildBreadcrumbs("", ["public", "views"]);
 });
