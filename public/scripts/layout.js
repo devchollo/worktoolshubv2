@@ -15,6 +15,7 @@ async function loadTemplate(id, file) {
 }
 
 // Build breadcrumbs automatically
+document.addEventListener("DOMContentLoaded", () => {
 function buildBreadcrumbs(baseFolder = "", ignoreFolders = []) {
   const container = document.getElementById("breadcrumbs");
   if (!container) return;
@@ -59,7 +60,7 @@ function buildBreadcrumbs(baseFolder = "", ignoreFolders = []) {
 
   container.innerHTML = breadcrumbHTML;
 }
-
+});
 // Run after DOM loads
 document.addEventListener("DOMContentLoaded", () => {
   loadTemplate("bread", "../components/breadcrumbs.html");
