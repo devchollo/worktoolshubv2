@@ -2,6 +2,8 @@
   "version": 2,
   "rewrites": [
     { "source": "/tools/:slug", "destination": "/tools/:slug.html" },
-    { "source": "/tools/:slug/:rest*", "destination": "/tools/:slug/:rest*.html" }
+    { "source": "/tools/:slug/:rest*", "destination": "/tools/:slug/:rest*.html" },
+    { "source": "/", "destination": "/public/view/index.html" },
+    { "source": "/(.*)", "destination": "/public/view/$1" }
   ]
 }
