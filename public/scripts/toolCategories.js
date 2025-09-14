@@ -9,7 +9,7 @@ export const toolCategories = {
     description: "Create professional notes quickly and efficiently",
     color: "#10b981",
     tools: [
-      { name: "OSAD Note Generator", path: "views/tools/osad-note-generator/index.html" },
+      { name: "OSAD Note Generator", path: "views/tools/osad-note-generator.html" },
       { name: "Alt Text Generator", path: "views/tools/alt-text" },
       { name: "Meta Description Tool", path: "views/tools/meta-description" },
       { name: "Blog Post Outlines", path: "views/tools/blog-outline" },
