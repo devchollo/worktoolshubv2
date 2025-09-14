@@ -64,10 +64,10 @@ async function loadTemplate(id, file) {
 // =============================
 // Init
 // =============================
-document.addEventListener("DOMContentLoaded", () => {
-  loadTemplate("bread", "../components/breadcrumbs.html");
-  loadTemplate("header", "../templates/header.html");
-  loadTemplate("footer", "../templates/footer.html");
-  // Only now build breadcrumbs
+document.addEventListener("DOMContentLoaded", async () => {
+  await loadTemplate("bread", "../components/breadcrumbs.html");
+  await loadTemplate("header", "../templates/header.html");
+  await loadTemplate("footer", "../templates/footer.html");
+
   buildBreadcrumbs("", ["public", "views"]);
 });
