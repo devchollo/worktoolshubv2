@@ -1,23 +1,9 @@
 // layout.js
 
-// Load external header/footer templates
-async function loadTemplate(id, file) {
-  try {
-    const res = await fetch(file);
-    if (!res.ok) throw new Error(`Failed to load ${file}`);
-    document.getElementById(id).innerHTML = await res.text();
-
-    // After header loads, build breadcrumbs
-    if (id === "header") buildBreadcrumbs("", ["public", "views"]);
-  } catch (err) {
-    console.error(err);
-  }
-}
-
-// Build breadcrumbs automatically
-document.addEventListener("DOMContentLoaded", () => {
-  if (typeof buildBreadcrumbs === "function") {
-buildBreadcrumbs(baseFolder = "", ignoreFolders = []) {
+// =============================
+// Breadcrumb Builder
+// =============================
+function buildBreadcrumbs(baseFolder = "", ignoreFolders = []) {
   const container = document.getElementById("breadcrumbs");
   if (!container) return;
 
@@ -37,7 +23,7 @@ buildBreadcrumbs(baseFolder = "", ignoreFolders = []) {
   }
 
   // Always start with Home
-  let breadcrumbHTML = `<a href="${baseFolder ? '/' + baseFolder : '/'}">Home</a>`;
+  let breadcrumbHTML = `<a href="${baseFolder ? "/" + baseFolder : "/"}">Home</a>`;
   let cumulativePath = baseFolder ? "/" + baseFolder : "";
 
   pathParts.forEach((part, i) => {
@@ -49,7 +35,7 @@ buildBreadcrumbs(baseFolder = "", ignoreFolders = []) {
     label = label.replace(/[-_]/g, " ");       
     label = label.replace(/\b\w/g, c => c.toUpperCase()); 
 
-    // Special case: "category" should never be a link
+    // Special case: "tools" should never be a link
     if (part.toLowerCase() === "tools") {
       breadcrumbHTML += ` &raquo; <span class="bread_link">${label}</span>`;
     } else {
@@ -61,9 +47,28 @@ buildBreadcrumbs(baseFolder = "", ignoreFolders = []) {
 
   container.innerHTML = breadcrumbHTML;
 }
+
+// =============================
+// Load external header/footer/templates
+// =============================
+async function loadTemplate(id, file) {
+  try {
+    const res = await fetch(file);
+    if (!res.ok) throw new Error(`Failed to load ${file}`);
+    document.getElementById(id).innerHTML = await res.text();
+
+    // After header loads, build breadcrumbs
+    if (id === "header") {
+      buildBreadcrumbs("", ["public", "views"]);
+    }
+  } catch (err) {
+    console.error(err);
   }
-});
-// Run after DOM loads
+}
+
+// =============================
+// Init
+// =============================
 document.addEventListener("DOMContentLoaded", () => {
   loadTemplate("bread", "../components/breadcrumbs.html");
   loadTemplate("header", "../templates/header.html");

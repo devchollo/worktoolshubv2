@@ -1,7 +1,7 @@
 // =============================
 // Theme Management
 // =============================
-console.log("📦 ThemeManager file loaded"); // top of themeManager.js
+console.log("📦 ThemeManager file loaded"); 
 export class ThemeManager {
   constructor() {
     console.log("ThemeManager ctor — document.readyState:", document.readyState);
