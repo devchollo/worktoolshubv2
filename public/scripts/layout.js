@@ -48,7 +48,7 @@ function buildBreadcrumbs(baseFolder = "", ignoreFolders = []) {
     label = label.replace(/\b\w/g, c => c.toUpperCase()); 
 
     // Special case: "category" should never be a link
-    if (part.toLowerCase() === "category") {
+    if (part.toLowerCase() === "tools") {
       breadcrumbHTML += ` &raquo; <span class="bread_link">${label}</span>`;
     } else {
       breadcrumbHTML += isLast
