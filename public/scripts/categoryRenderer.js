@@ -45,7 +45,7 @@ export class CategoryRenderer {
       <p class="category-description">${category.description}</p>
       <ul class="tool-list">
           ${category.tools
-            .map((tool) => `<li class="tool-item">${tool.name}</li>`)
+            .map((tool) => `<li class="tool-item"><a href="${tool.path}" target="_self" style="text-decoration: none; color: inherit;">${tool.name}</a></li>`)
             .join("")}
       </ul>
     `;

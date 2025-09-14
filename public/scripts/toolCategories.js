@@ -3,13 +3,13 @@
 // Tool Categories Data
 // =============================
 export const toolCategories = {
-  "content-generators": {
-    name: "Content Generators",
+  "note-generators": {
+    name: "Note Generators",
     icon: "📝",
-    description: "Create professional content quickly and efficiently",
+    description: "Create professional notes quickly and efficiently",
     color: "#10b981",
     tools: [
-      { name: "OSAD Note Generator", path: "/tool/osad-note" },
+      { name: "OSAD Note Generator", path: "/tools/osad-note-generator" },
       { name: "Alt Text Generator", path: "/tool/alt-text" },
       { name: "Meta Description Tool", path: "/tool/meta-description" },
       { name: "Blog Post Outlines", path: "/tool/blog-outline" },

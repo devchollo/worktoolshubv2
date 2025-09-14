@@ -47,9 +47,14 @@ function buildBreadcrumbs(baseFolder = "", ignoreFolders = []) {
     label = label.replace(/[-_]/g, " ");       
     label = label.replace(/\b\w/g, c => c.toUpperCase()); 
 
-    breadcrumbHTML += isLast
-      ? ` &raquo; <span class="bread_link">${label}</span>`
-      : ` &raquo; <a href="${cumulativePath}" class="bread_link">${label}</a>`;
+    // Special case: "category" should never be a link
+    if (part.toLowerCase() === "category") {
+      breadcrumbHTML += ` &raquo; <span class="bread_link">${label}</span>`;
+    } else {
+      breadcrumbHTML += isLast
+        ? ` &raquo; <span class="bread_link">${label}</span>`
+        : ` &raquo; <a href="${cumulativePath}" class="bread_link">${label}</a>`;
+    }
   });
 
   container.innerHTML = breadcrumbHTML;
