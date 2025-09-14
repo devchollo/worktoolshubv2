@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Free online tools for professionals - Generate notes, emails, codes, and more with WorkToolsHub"
+    />
+    <meta
+      name="keywords"
+      content="online tools, generators, OSAD notes, email templates, QR codes, professional tools"
+    />
+    <meta name="author" content="WorkToolsHub" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://worktoolshub.info/" />
+    <meta
+      property="og:title"
+      content="WorkToolsHub - Free Professional Online Tools"
+    />
+    <meta
+      property="og:description"
+      content="Generate notes, emails, codes, and more with our collection of free professional tools"
+    />
+    <meta
+      property="og:image"
+      content="https://worktoolshub.info/assets/og-image.jpg"
+    />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://worktoolshub.info/" />
+    <meta
+      property="twitter:title"
+      content="WorkToolsHub - Free Professional Online Tools"
+    />
+    <meta
+      property="twitter:description"
+      content="Generate notes, emails, codes, and more with our collection of free professional tools"
+    />
+    <meta
+      property="twitter:image"
+      content="https://worktoolshub.info/assets/og-image.jpg"
+    />
+
+    <title>WorkToolsHub - Free Professional Online Tools</title>
+
+    <!-- Preload critical resources -->
+    <!-- <link
+      rel="preload"
+      href="/assets/fonts/inter-var.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    /> -->
+    <link rel="preconnect" href="https://api.worktoolshub.info" />
+
+    <!-- Favicon -->
+    <!-- <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" href="/assets/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" /> -->
+    <!-- <link rel="manifest" href="/manifest.json" /> -->
+
+    <!-- Styling / CSS -->
+    <link rel="stylesheet" href="../styles/main.css" />
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "WorkToolsHub",
+        "description": "Free online tools for professionals - Generate notes, emails, codes, and more",
+        "url": "https://worktoolshub.info",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Any",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "author": {
+          "@type": "Organization",
+          "name": "WorkToolsHub"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div id="header"></div>
+    <main>
+      <section class="hero">
+        <div class="container">
+          <div class="hero-content">
+            <h1>Free Professional Online Tools</h1>
+            <p class="hero-description">
+              Generate notes, emails, codes, and more with our powerful
+              collection of professional tools designed for efficiency and
+              quality.
+            </p>
+            <div class="search-container">
+              <input
+                type="search"
+                class="search-input"
+                placeholder="Search tools... (e.g., email generator, QR code)"
+                id="toolSearch"
+                aria-label="Search for tools"
+                autocomplete="off"
+              />
+              <div class="search-icon" aria-hidden="true">🔍</div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <div id="bread"></div>
+      
+
+         <!-- Categories Section -->
+    <section class="categories-section">
+        <div class="container-wide">
+            <h2 class="section-title">Tool Categories</h2>
+            <div class="categories-grid" id="categoriesGrid">
+                <!-- Categories will be loaded dynamically -->
+            </div>
+        </div>
+    </section>
+
+
+      <!-- Stats Section -->
+      <section class="stats-section">
+        <div class="container">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <span class="stat-number" id="toolCount">50+</span>
+              <span class="stat-label">Professional Tools</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-number" id="userCount">10k+</span>
+              <span class="stat-label">Monthly Users</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-number" id="generatedCount">100k+</span>
+              <span class="stat-label">Files Generated</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-number">99.9%</span>
+              <span class="stat-label">Uptime</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <div id="footer"></div>
+    <script src="../scripts/layout.js"></script>
+    <script type="module" src="../scripts/main.js" defer></script>
+  </body>
+</html>
