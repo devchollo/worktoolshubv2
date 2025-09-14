@@ -1,7 +1,7 @@
 {
   "version": 2,
   "rewrites": [
-    { "source": "/tools/:slug", "destination": "/tools/:slug.html" },
+    { "source": "views/tools/:slug", "destination": "views/tools/:slug.html" },
     { "source": "/tools/:slug/:rest*", "destination": "/tools/:slug/:rest*.html" },
     { "source": "/", "destination": "/views/index.html" },
     { "source": "/(.*)", "destination": "/views/$1" }
