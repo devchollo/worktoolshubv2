@@ -22,7 +22,7 @@ function buildBreadcrumbs(baseFolder = "", ignoreFolders = []) {
     pathParts.pop();
   }
 
-  // Always start with Home
+
   let breadcrumbHTML = `<a href="${baseFolder ? "/" + baseFolder : "/"}">Home</a>`;
   let cumulativePath = baseFolder ? "/" + baseFolder : "";
 
@@ -30,12 +30,12 @@ function buildBreadcrumbs(baseFolder = "", ignoreFolders = []) {
     cumulativePath += "/" + part;
     const isLast = i === pathParts.length - 1;
 
-    // Format nicely
+
     let label = part.replace(/\.[^/.]+$/, ""); 
     label = label.replace(/[-_]/g, " ");       
     label = label.replace(/\b\w/g, c => c.toUpperCase()); 
 
-    // Special case: "tools" should never be a link
+ 
     if (part.toLowerCase() === "tools") {
       breadcrumbHTML += ` &raquo; <span class="bread_link">${label}</span>`;
     } else {

@@ -9,7 +9,7 @@ export const toolCategories = {
     description: "Create professional notes quickly and efficiently",
     color: "#10b981",
     tools: [
-      { name: "OSAD Note Generator", path: "/tools/osad-note-generator" },
+      { name: "OSAD Note Generator", path: "/tools/osad-note-generator", internal: true  },
       { name: "Alt Text Generator", path: "/tools/alt-text" },
       { name: "Meta Description Tool", path: "/tools/meta-description" },
       { name: "Blog Post Outlines", path: "/tools/blog-outline" },
@@ -21,9 +21,9 @@ export const toolCategories = {
     description: "Professional email templates and generators",
     color: "#3b82f6",
     tools: [
-      { name: "Escalation Email Generator", path: "/tool/escalation-email" },
-      { name: "OBCX Email Creator", path: "/tool/obcx-email" },
-      { name: "Launch Announcement", path: "/tool/launch-announcement" },
+      { name: "Escalation Email Generator", path: "/tool/escalation-email", internal: true },
+      { name: "OBCX Email Creator", path: "/tool/obcx-email", internal: true },
+      { name: "Launch Announcement", path: "/tool/launch-announcement", internal: true },
       { name: "Follow-up Templates", path: "/tool/follow-up" },
     ],
   },
@@ -57,7 +57,7 @@ export const toolCategories = {
     description: "Local business and marketing utilities",
     color: "#ef4444",
     tools: [
-      { name: "Business Listing Update", path: "/tool/business-listing" },
+      { name: "Business Listing Update", path: "/tool/business-listing", internal: true },
       { name: "Schema Generator", path: "/tool/schema-generator" },
       { name: "Invoice Creator", path: "/tool/invoice-creator" },
       { name: "Report Templates", path: "/tool/report-templates" },
