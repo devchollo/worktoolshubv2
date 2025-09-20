@@ -26,7 +26,7 @@ export class InternalToolAuth {
 
 async validateEmail(email) {
   try {
-    const response = await fetch('/api/auth/verify-email', {
+    const response = await fetch('https://worktoolshubv2.onrender.com/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -439,7 +439,7 @@ async validateEmail(email) {
 
  async validateEmail(email) {
   try {
-    const response = await fetch('/api/auth/verify-email', {
+    const response = await fetch('https://worktoolshubv2.onrender.com/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
