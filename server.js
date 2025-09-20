@@ -12,13 +12,11 @@ app.use(cors({
   origin: [
     'http://localhost:3000', 
     'https://wthv2.vercel.app', // Add your Vercel URL
-    'https://*.vercel.app' // Or allow all Vercel subdomains
   ],
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type']
 }));
 app.use(express.json());
-app.use(express.static('public'));
 
 // API Routes
 // Email verification endpoint
@@ -64,9 +62,12 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Serve your main HTML file
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'views', 'index.html'));
+  res.json({ 
+    message: 'WorkToolsHub API Server',
+    status: 'running',
+    endpoints: ['/api/health', '/api/auth/verify-email']
+  });
 });
 
 // Handle 404 for API routes
@@ -77,10 +78,7 @@ app.use('/api/*', (req, res) => {
   });
 });
 
-// Handle all other routes by serving index.html (for SPA routing if needed)
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'views', 'index.html'));
-});
+
 
 // Error handling middleware
 app.use((error, req, res, next) => {
