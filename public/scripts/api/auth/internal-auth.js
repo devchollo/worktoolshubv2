@@ -17,33 +17,43 @@ export class InternalToolAuth {
     this.loadAuthorizedEmails();
   }
 
-  // Load authorized emails from your backend/API
-  // async loadAuthorizedEmails() {
-  //   try {
-  //     // Replace this URL with your actual API endpoint
-  //     const response = await fetch('/api/auth/authorized-emails');
-  //     if (response.ok) {
-  //       const data = await response.json();
-  //       this.authorizedEmails = data.emails || [];
-  //     }
-  //   } catch (error) {
-  //     console.error('Failed to load authorized emails:', error);
-  //     // Fallback - you can remove this in production
-  //     this.authorizedEmails = [
-  //       'admin@company.com',
-  //       'manager@company.com',
-  //       'user@company.com'
-  //     ];
-  //   }
-  // }
-  async loadAuthorizedEmails() {
-  // Temporary hardcoded list - replace with API call later
-  this.authorizedEmails = [
-    'ke.sevillejo@newfold.com',
-    'manager@yourcompany.com'
-  ];
-  console.log('Using hardcoded authorized emails (development mode)');
+
+ async loadAuthorizedEmails() {
+  // Don't load emails on frontend - we'll verify server-side
+  this.authorizedEmails = [];
+  console.log('Email verification will be done server-side');
 }
+
+async validateEmail(email) {
+  try {
+    const response = await fetch('/api/auth/verify-email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email: email })
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      return data.authorized;
+    }
+    
+    return false;
+  } catch (error) {
+    console.error('Email verification failed:', error);
+    return false;
+  }
+}
+
+//   async loadAuthorizedEmails() {
+//   // Temporary hardcoded list - replace with API call later
+//   this.authorizedEmails = [
+//     'ke.sevillejo@newfold.com',
+//     'manager@yourcompany.com'
+//   ];
+//   console.log('Using hardcoded authorized emails (development mode)');
+// }
 
   createModal() {
     const modal = document.createElement('div');
@@ -427,13 +437,27 @@ export class InternalToolAuth {
     }
   }
 
-  async validateEmail(email) {
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 800));
+ async validateEmail(email) {
+  try {
+    const response = await fetch('/api/auth/verify-email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email: email })
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      return data.authorized;
+    }
     
-    // Check against authorized emails list
-    return this.authorizedEmails.includes(email);
+    return false;
+  } catch (error) {
+    console.error('Email verification failed:', error);
+    return false;
   }
+}
 
   isValidEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -473,8 +497,7 @@ export class InternalToolAuth {
       return false;
     }
     
-    // Check if email is still authorized
-    return this.authorizedEmails.includes(authData.email);
+    return true;
   }
 
   clearAuthCache() {
