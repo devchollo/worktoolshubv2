@@ -67,10 +67,29 @@ router.post('/generate-escalation-email',
 
 // LBL Email Route  
 router.post('/generate-lbl-email',
-  handleEmailGeneration(
-    Validator.validateLBLEmail,
-    emailService.generateLBLEmail.bind(emailService)
-  )
+  // handleEmailGeneration(
+  //   Validator.validateLBLEmail,
+  //   emailService.generateLBLEmail.bind(emailService)
+  // )
+
+  function handleEmailGeneration(validator, serviceFn) {
+  return async (req, res) => {
+    try {
+      console.log("📨 Incoming request body:", req.body);
+
+      validator(req.body); // might throw
+      const email = await serviceFn(req.body); // might throw
+
+      res.json({ email });
+    } catch (err) {
+      console.error("❌ Error in generate-lbl-email:", err);
+      res.status(500).json({
+        error: err.message || "Internal Server Error",
+      });
+    }
+  };
+}
+
 );
 
 // OSAD Note Route (for future implementation)
