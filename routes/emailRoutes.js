@@ -51,6 +51,12 @@ const handleEmailGeneration = (validationFn, generationFn) => {
   };
 };
 
+// debugging
+router.get('/ping', (req, res) => {
+  res.json({ msg: 'emailRoutes mounted!' });
+});
+
+
 // Escalation Email Route
 router.post('/generate-escalation-email', 
   handleEmailGeneration(
