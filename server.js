@@ -15,6 +15,8 @@ const PORT = process.env.PORT || 3000;
 app.use(cors({
   origin: [
     'http://localhost:3000', 
+    'https://worktoolshub.info',
+    'https://www.worktoolshub.info',
     'https://wthv2.vercel.app', 
   ],
   methods: ['GET', 'POST'],
@@ -95,7 +97,6 @@ app.get('/api/docs', (req, res) => {
       email: {
         'POST /api/email/generate-escalation-email': 'Generate escalation emails',
         'POST /api/email/generate-lbl-email': 'Generate business listing update emails',
-        'POST /api/email/generate-osad-note': 'Generate OSAD notes (coming soon)',
         'GET /api/email/health': 'Email service health check'
       },
       system: {
