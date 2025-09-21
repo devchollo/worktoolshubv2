@@ -72,23 +72,33 @@ router.post('/generate-lbl-email',
   //   emailService.generateLBLEmail.bind(emailService)
   // )
 
-  function handleEmailGeneration(validator, serviceFn) {
+ function handleEmailGeneration(validator, serviceFn) {
   return async (req, res) => {
+    console.log("🚦 [handleEmailGeneration] Hit endpoint:", req.originalUrl);
+    console.log("📨 Request body:", req.body);
+
     try {
-      console.log("📨 Incoming request body:", req.body);
+      // run validator
+      console.log("✅ Running validator...");
+      validator(req.body);
 
-      validator(req.body); // might throw
-      const email = await serviceFn(req.body); // might throw
+      // run service
+      console.log("✅ Validator passed, calling service function...");
+      const email = await serviceFn(req.body);
 
-      res.json({ email });
+      console.log("✅ Service function completed. Sending response.");
+      return res.json({ email });
     } catch (err) {
-      console.error("❌ Error in generate-lbl-email:", err);
-      res.status(500).json({
+      console.error("❌ Error inside handleEmailGeneration:", err);
+
+      // send error back
+      return res.status(500).json({
         error: err.message || "Internal Server Error",
       });
     }
   };
 }
+
 
 );
 
