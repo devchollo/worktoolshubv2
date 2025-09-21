@@ -21,7 +21,6 @@ class PageAuthProtection {
     
     if (cachedAuth && this.isAuthValid(cachedAuth)) {
       // User is authenticated via cache, allow access
-      console.log('Access granted via cache');
       return;
     }
 

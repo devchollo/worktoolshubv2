@@ -22,9 +22,9 @@ export class CategoryRenderer {
 
   createSearchDropdown() {
     // Create dropdown container - append to body to avoid overflow issues
-    const dropdown = document.createElement('div');
-    dropdown.id = 'searchDropdown';
-    dropdown.className = 'search-dropdown';
+    const dropdown = document.createElement("div");
+    dropdown.id = "searchDropdown";
+    dropdown.className = "search-dropdown";
     dropdown.style.cssText = `
       position: fixed;
       background: white;
@@ -37,7 +37,7 @@ export class CategoryRenderer {
       display: none;
       min-width: 300px;
     `;
-    
+
     // Append to body instead of search container to avoid overflow issues
     document.body.appendChild(dropdown);
     this.searchDropdown = dropdown;
@@ -70,7 +70,14 @@ export class CategoryRenderer {
       <p class="category-description">${category.description}</p>
       <ul class="tool-list">
           ${category.tools
-            .map((tool) => `<li class="tool-item"><a href="${tool.path}" target="_self" style="text-decoration: none; color: inherit;" ${tool.internal ? 'data-internal="true"' : ''}>${tool.name}</a></li>`)
+            .map(
+              (tool) =>
+                `<li class="tool-item"><a href="${
+                  tool.path
+                }" target="_self" style="text-decoration: none; color: inherit;" ${
+                  tool.internal ? 'data-internal="true"' : ""
+                }>${tool.name} ${tool.internal ? '<span style="background: #fbbf24; color: #92400e; font-size: 10px; padding: 2px 6px; border-radius: 12px; font-weight: 500;">Internal</span>': ''}</a></li>`
+            )
             .join("")}
       </ul>
     `;
@@ -80,18 +87,22 @@ export class CategoryRenderer {
 
   renderSearchDropdown(results) {
     if (results.length === 0) {
-      this.searchDropdown.style.display = 'none';
+      this.searchDropdown.style.display = "none";
       return;
     }
 
     // Position dropdown relative to search input
     this.positionDropdown();
 
-    const html = results.map((tool, index) => `
-      <div class="search-result-item ${index === this.selectedIndex ? 'selected' : ''}" 
+    const html = results
+      .map(
+        (tool, index) => `
+      <div class="search-result-item ${
+        index === this.selectedIndex ? "selected" : ""
+      }" 
            data-index="${index}" 
            data-path="${tool.path}"
-           ${tool.internal ? 'data-internal="true"' : ''}
+           ${tool.internal ? 'data-internal="true"' : ""}
            style="
              padding: 12px 16px;
              cursor: pointer;
@@ -100,15 +111,19 @@ export class CategoryRenderer {
              display: flex;
              align-items: center;
              gap: 12px;
-             ${index === this.selectedIndex ? 'background-color: #f3f4f6;' : ''}
+             ${index === this.selectedIndex ? "background-color: #f3f4f6;" : ""}
            "
            onmouseover="this.style.backgroundColor='#f9fafb'"
-           onmouseout="this.style.backgroundColor='${index === this.selectedIndex ? '#f3f4f6' : 'transparent'}'">
+           onmouseout="this.style.backgroundColor='${
+             index === this.selectedIndex ? "#f3f4f6" : "transparent"
+           }'">
         <div style="
           width: 32px;
           height: 32px;
           border-radius: 6px;
-          background: linear-gradient(135deg, ${tool.categoryColor}, ${this.darkenColor(tool.categoryColor)});
+          background: linear-gradient(135deg, ${
+            tool.categoryColor
+          }, ${this.darkenColor(tool.categoryColor)});
           display: flex;
           align-items: center;
           justify-content: center;
@@ -119,57 +134,62 @@ export class CategoryRenderer {
         <div>
           <div style="font-weight: 600; color: #111827; margin-bottom: 2px; display: flex; align-items: center; gap: 6px;">
             ${tool.name}
-            ${tool.internal ? '<span style="background: #fbbf24; color: #92400e; font-size: 10px; padding: 2px 6px; border-radius: 12px; font-weight: 500;">INTERNAL</span>' : ''}
+            ${
+              tool.internal
+                ? '<span style="background: #fbbf24; color: #92400e; font-size: 10px; padding: 2px 6px; border-radius: 12px; font-weight: 500;">INTERNAL</span>'
+                : ""
+            }
           </div>
           <div style="font-size: 12px; color: #6b7280;">
             in ${tool.categoryName}
           </div>
         </div>
       </div>
-    `).join('');
+    `
+      )
+      .join("");
 
     this.searchDropdown.innerHTML = html;
-    this.searchDropdown.style.display = 'block';
+    this.searchDropdown.style.display = "block";
 
-// Add click handlers to navigate to the tool's path
-this.searchDropdown.querySelectorAll('.search-result-item').forEach(item => {
-  item.addEventListener('click', (e) => {
-    console.log('Search item clicked'); // Add this debug log
-    e.preventDefault();
-    e.stopPropagation();
-    
-    const path = e.currentTarget.dataset.path;
-    const isInternal = e.currentTarget.hasAttribute('data-internal');
-    
-    console.log('Path:', path); // Add debug log
-    console.log('Is internal:', isInternal); // Add debug log
-    console.log('window.auth exists:', !!window.auth); // Add debug log
-    
-    if (isInternal && window.auth) {
-      console.log('Calling checkInternalAccess...'); // Add debug log
-      const hasAccess = window.auth.checkInternalAccess(path);
-      console.log('checkInternalAccess returned:', hasAccess); // Add debug log
-      
-      if (!hasAccess) {
-        console.log('Access denied, should show modal'); // Add debug log
-        return; // Modal will show, don't navigate
-      }
-    }
-    
-    console.log('Navigating to:', path); // Add debug log
-    window.location.href = path;
-  });
-});
+    // Add click handlers to navigate to the tool's path
+    this.searchDropdown
+      .querySelectorAll(".search-result-item")
+      .forEach((item) => {
+        item.addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+
+          const path = e.currentTarget.dataset.path;
+          const isInternal = e.currentTarget.hasAttribute("data-internal");
+
+          console.log("Path:", path);
+          console.log("Is internal:", isInternal);
+          console.log("window.auth exists:", !!window.auth);
+
+          if (isInternal && window.auth) {
+            console.log("Calling checkInternalAccess...");
+            const hasAccess = window.auth.checkInternalAccess(path);
+            console.log("checkInternalAccess returned:", hasAccess);
+
+            if (!hasAccess) {
+              return;
+            }
+          }
+          console.log("Navigating to:", path);
+          window.location.href = path;
+        });
+      });
   }
 
   positionDropdown() {
     if (!this.searchInput) return;
-    
+
     const rect = this.searchInput.getBoundingClientRect();
-    
-    this.searchDropdown.style.left = rect.left + 'px';
-    this.searchDropdown.style.top = (rect.bottom + 2) + 'px'; // Only 2px gap
-    this.searchDropdown.style.width = rect.width + 'px';
+
+    this.searchDropdown.style.left = rect.left + "px";
+    this.searchDropdown.style.top = rect.bottom + 2 + "px"; // Only 2px gap
+    this.searchDropdown.style.width = rect.width + "px";
   }
 
   darkenColor(color) {
@@ -214,29 +234,29 @@ this.searchDropdown.querySelectorAll('.search-result-item').forEach(item => {
     });
 
     // Hide dropdown when clicking outside
-    document.addEventListener('click', (e) => {
-      if (!e.target.closest('.search-container')) {
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".search-container")) {
         this.hideDropdown();
       }
     });
 
     // Show dropdown when focusing on input
-    this.searchInput.addEventListener('focus', () => {
+    this.searchInput.addEventListener("focus", () => {
       if (this.searchResults.length > 0) {
         this.positionDropdown();
-        this.searchDropdown.style.display = 'block';
+        this.searchDropdown.style.display = "block";
       }
     });
 
     // Reposition dropdown on window resize or scroll
-    window.addEventListener('resize', () => {
-      if (this.searchDropdown.style.display === 'block') {
+    window.addEventListener("resize", () => {
+      if (this.searchDropdown.style.display === "block") {
         this.positionDropdown();
       }
     });
 
-    window.addEventListener('scroll', () => {
-      if (this.searchDropdown.style.display === 'block') {
+    window.addEventListener("scroll", () => {
+      if (this.searchDropdown.style.display === "block") {
         this.positionDropdown();
       }
     });
@@ -256,18 +276,19 @@ this.searchDropdown.querySelectorAll('.search-result-item').forEach(item => {
 
     // Search through all individual tools
     Object.entries(toolCategories).forEach(([categoryKey, category]) => {
-      category.tools.forEach(tool => {
+      category.tools.forEach((tool) => {
         const score = this.calculateMatchScore(tool.name, term);
-        if (score > 0.2) { // Lower threshold for more results
+        if (score > 0.2) {
+          // Lower threshold for more results
           this.searchResults.push({
-  name: tool.name,
-  path: tool.path,
-  internal: tool.internal || false, 
-  categoryName: category.name,
-  categoryIcon: category.icon,
-  categoryColor: category.color,
-  score: score
-});
+            name: tool.name,
+            path: tool.path,
+            internal: tool.internal || false,
+            categoryName: category.name,
+            categoryIcon: category.icon,
+            categoryColor: category.color,
+            score: score,
+          });
         }
       });
     });
@@ -280,7 +301,7 @@ this.searchDropdown.querySelectorAll('.search-result-item').forEach(item => {
 
     this.selectedIndex = -1;
     this.renderSearchDropdown(this.searchResults);
-    
+
     // Keep categories visible and filter them based on search
     this.filterCategories(term);
   }
@@ -300,26 +321,26 @@ this.searchDropdown.querySelectorAll('.search-result-item').forEach(item => {
   }
 
   handleEnterKey(searchTerm) {
-  if (this.selectedIndex >= 0 && this.searchResults[this.selectedIndex]) {
-    const selectedTool = this.searchResults[this.selectedIndex];
-    
-    // Check if the selected tool is internal
-    if (selectedTool.internal && window.auth) {
-      if (!window.auth.checkInternalAccess(selectedTool.path)) {
-        return; // Don't navigate, modal will show
+    if (this.selectedIndex >= 0 && this.searchResults[this.selectedIndex]) {
+      const selectedTool = this.searchResults[this.selectedIndex];
+
+      // Check if the selected tool is internal
+      if (selectedTool.internal && window.auth) {
+        if (!window.auth.checkInternalAccess(selectedTool.path)) {
+          return; // Don't navigate, modal will show
+        }
       }
+
+      // Navigate to selected result only if not internal or if authenticated
+      window.location.href = selectedTool.path;
+    } else if (searchTerm.trim()) {
+      // Find best match and navigate
+      this.handleSearchSubmit(searchTerm);
     }
-    
-    // Navigate to selected result only if not internal or if authenticated
-    window.location.href = selectedTool.path;
-  } else if (searchTerm.trim()) {
-    // Find best match and navigate
-    this.handleSearchSubmit(searchTerm);
   }
-}
 
   hideDropdown() {
-    this.searchDropdown.style.display = 'none';
+    this.searchDropdown.style.display = "none";
     this.selectedIndex = -1;
     // Categories are always visible now, no need to show/hide them
   }
@@ -381,10 +402,10 @@ this.searchDropdown.querySelectorAll('.search-result-item').forEach(item => {
 
     // Exact match gets highest score
     if (textLower === queryLower) return 1;
-    
+
     // Starts with query gets high score
     if (textLower.startsWith(queryLower)) return 0.9;
-    
+
     // Contains query gets good score
     if (textLower.includes(queryLower)) return 0.8;
 
@@ -394,9 +415,11 @@ this.searchDropdown.querySelectorAll('.search-result-item').forEach(item => {
     let matches = 0;
 
     queryWords.forEach((qWord) => {
-      const wordMatch = textWords.find(tWord => 
-        tWord.includes(qWord) || qWord.includes(tWord) || 
-        this.levenshteinDistance(tWord, qWord) <= 2
+      const wordMatch = textWords.find(
+        (tWord) =>
+          tWord.includes(qWord) ||
+          qWord.includes(tWord) ||
+          this.levenshteinDistance(tWord, qWord) <= 2
       );
       if (wordMatch) matches++;
     });
