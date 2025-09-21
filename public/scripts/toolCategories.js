@@ -21,10 +21,10 @@ export const toolCategories = {
     description: "Professional email templates and generators",
     color: "#3b82f6",
     tools: [
-      { name: "Escalation Email Generator", path: "/tool/escalation-email-generator", internal: true },
-      { name: "OBCX Email Creator", path: "/tool/obcx-email", internal: true },
-      { name: "Launch Announcement", path: "/tool/launch-announcement", internal: true },
-      { name: "Follow-up Templates", path: "/tool/follow-up" },
+      { name: "Escalation Email Generator", path: "/tools/escalation-email-generator", internal: true },
+      { name: "OBCX Email Creator", path: "/tools/obcx-email", internal: true },
+      { name: "Launch Announcement", path: "/tools/launch-announcement", internal: true },
+      { name: "Follow-up Templates", path: "/tools/follow-up" },
     ],
   },
   "code-tools": {
