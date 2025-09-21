@@ -8,9 +8,6 @@ class EmailService {
   }
 
   async generateEmail(prompt, systemMessage, maxTokens = 1000) {
-    // debugger
-    console.log("🔑 Using model:", this.defaultModel);
-console.log("📤 Prompt:", prompt);
 
     if (!this.apiKey) {
       throw new Error('OpenAI API key not configured');
@@ -40,8 +37,6 @@ console.log("📤 Prompt:", prompt);
         })
       });
 
-      // debugger
-      console.log("📥 Response status:", response.status);
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
