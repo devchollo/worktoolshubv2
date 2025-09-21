@@ -745,7 +745,7 @@
         }
 
         async generateEmail(formData) {
-          const response = await fetch('https://worktoolshubv2.onrender.com/api/generate-lbl-email', {
+          const response = await fetch('/api/email/generate-lbl-email', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
