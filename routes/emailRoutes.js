@@ -6,26 +6,72 @@ const { Validator, ValidationError } = require('../utils/validation');
 const router = express.Router();
 
 // Middleware for error handling
+// const handleEmailGeneration = (validationFn, generationFn) => {
+//   return async (req, res) => {
+//     try {
+//       // Sanitize input data
+//       const sanitizedData = Validator.sanitizeData(req.body);
+      
+//       // Validate data
+//       validationFn(sanitizedData);
+      
+//       // Generate email
+//       const generatedEmail = await generationFn(sanitizedData);
+      
+//       res.json({ 
+//         email: generatedEmail,
+//         success: true
+//       });
+
+//     } catch (error) {
+//       console.error(`Email generation error:`, error);
+      
+//       if (error instanceof ValidationError) {
+//         return res.status(400).json({ 
+//           error: 'Validation failed',
+//           message: error.message,
+//           field: error.field
+//         });
+//       }
+      
+//       // Handle OpenAI API errors
+//       if (error.message.includes('OpenAI API error')) {
+//         return res.status(502).json({ 
+//           error: 'AI service unavailable',
+//           message: 'The AI service is currently unavailable. Please try again later.'
+//         });
+//       }
+      
+//       // Generic server error
+//       res.status(500).json({ 
+//         error: 'Email generation failed',
+//         message: 'An unexpected error occurred. Please try again later.'
+//       });
+//     }
+//   };
+// };
 const handleEmailGeneration = (validationFn, generationFn) => {
   return async (req, res) => {
+    console.log("📩 Incoming request body:", req.body);
+
     try {
-      // Sanitize input data
       const sanitizedData = Validator.sanitizeData(req.body);
-      
-      // Validate data
+      console.log("✅ Sanitized Data:", sanitizedData);
+
       validationFn(sanitizedData);
-      
-      // Generate email
+      console.log("✅ Validation passed");
+
       const generatedEmail = await generationFn(sanitizedData);
-      
+      console.log("✅ Email generated successfully");
+
       res.json({ 
         email: generatedEmail,
         success: true
       });
 
     } catch (error) {
-      console.error(`Email generation error:`, error);
-      
+      console.error("❌ Email generation error:", error);
+
       if (error instanceof ValidationError) {
         return res.status(400).json({ 
           error: 'Validation failed',
@@ -33,23 +79,22 @@ const handleEmailGeneration = (validationFn, generationFn) => {
           field: error.field
         });
       }
-      
-      // Handle OpenAI API errors
+
       if (error.message.includes('OpenAI API error')) {
         return res.status(502).json({ 
           error: 'AI service unavailable',
-          message: 'The AI service is currently unavailable. Please try again later.'
+          message: error.message
         });
       }
-      
-      // Generic server error
+
       res.status(500).json({ 
         error: 'Email generation failed',
-        message: 'An unexpected error occurred. Please try again later.'
+        message: error.message
       });
     }
   };
 };
+
 
 // debugging
 router.get('/ping', (req, res) => {
@@ -68,10 +113,9 @@ router.post('/generate-escalation-email',
 // LBL Email Route  
 router.post('/generate-lbl-email',
   handleEmailGeneration(
-    Validator.validateLBLEmail,
+    Validator.validateLBLEmail.bind(Validator),
     emailService.generateLBLEmail.bind(emailService)
   )
-
 );
 
 // OSAD Note Route (for future implementation)
