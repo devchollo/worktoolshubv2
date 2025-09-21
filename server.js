@@ -4,6 +4,9 @@ const path = require('path');
 const cors = require('cors');
 require('dotenv').config();
 
+// Import routes
+const emailRoutes = require('./routes/emailRoutes');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -16,10 +19,22 @@ app.use(cors({
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type']
 }));
-app.use(express.json());
+
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true }));
+
+// Request logging middleware (optional)
+if (process.env.NODE_ENV === 'development') {
+  app.use((req, res, next) => {
+    console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+    next();
+  });
+}
 
 // API Routes
-// Email verification endpoint
+app.use('/api/email', emailRoutes);
+
+// Authentication endpoint (keep this here since it's not email-related)
 app.post('/api/auth/verify-email', (req, res) => {
   try {
     const { email } = req.body;
@@ -58,167 +73,99 @@ app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'OK', 
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development'
+    environment: process.env.NODE_ENV || 'development',
+    services: {
+      auth: 'Available',
+      email: 'Available',
+      ai: process.env.OPENAI_API_KEY ? 'Configured' : 'Not configured'
+    }
   });
 });
 
+// API documentation endpoint
+app.get('/api/docs', (req, res) => {
+  res.json({
+    title: 'WorkToolsHub API',
+    version: '1.0.0',
+    endpoints: {
+      auth: {
+        'POST /api/auth/verify-email': 'Verify user email authorization'
+      },
+      email: {
+        'POST /api/email/generate-escalation-email': 'Generate escalation emails',
+        'POST /api/email/generate-lbl-email': 'Generate business listing update emails',
+        'POST /api/email/generate-osad-note': 'Generate OSAD notes (coming soon)',
+        'GET /api/email/health': 'Email service health check'
+      },
+      system: {
+        'GET /api/health': 'System health check',
+        'GET /api/docs': 'API documentation'
+      }
+    }
+  });
+});
+
+// Homepage for API
 app.get('/', (req, res) => {
   res.json({ 
     message: 'WorkToolsHub API Server',
     status: 'running',
-    endpoints: ['/api/health', '/api/auth/verify-email']
+    version: '1.0.0',
+    documentation: '/api/docs',
+    health: '/api/health'
   });
 });
-
-
-
-
-// Add this endpoint to your server.js file
-
-app.post('/api/generate-escalation-email', async (req, res) => {
-  try {
-    const {
-      cid,
-      callerName,
-      phoneNumber,
-      domain,
-      iCase,
-      issueSummary,
-      modRequestDetails,
-      expectationSet,
-      expectedResolution,
-      solutionsProvided,
-      nextSteps
-    } = req.body;
-
-    // Validate required fields
-    const requiredFields = { cid, callerName, phoneNumber, domain, iCase, issueSummary, nextSteps };
-    for (const [field, value] of Object.entries(requiredFields)) {
-      if (!value || !value.trim()) {
-        return res.status(400).json({ 
-          error: 'Validation failed',
-          message: `${field} is required`
-        });
-      }
-    }
-
-    // Prepare content for OpenAI
-    const emailContent = `
-Please improve and format this escalation email professionally:
-
-**Client Information:**
-- CID/CPROD: ${cid}
-- Caller Name: ${callerName}
-- Phone Number: ${phoneNumber}
-- Domain: ${domain}
-- I-Case: ${iCase}
-
-**Issue Details:**
-Issue Summary: ${issueSummary}
-
-${modRequestDetails ? `Mod Request Details: ${modRequestDetails}` : ''}
-
-${expectationSet ? `Expectation Set with Client: ${expectationSet}` : ''}
-
-${expectedResolution ? `Expected Resolution/Fix: ${expectedResolution}` : ''}
-
-${solutionsProvided ? `Solutions Provided: ${solutionsProvided}` : ''}
-
-**Next Steps:** ${nextSteps}
-
-Please:
-1. Add a professional greeting
-2. Improve grammar and clarity while maintaining the original meaning
-3. Structure it as a professional escalation email
-4. Add a professional closing with "Best Regards, [Your Name]"
-5. Keep all the technical details and case information intact
-    `;
-
-    // Call OpenAI API
-    const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are a professional business communication assistant. Generate well-structured, professional escalation emails with proper grammar and formatting.'
-          },
-          {
-            role: 'user',
-            content: emailContent
-          }
-        ],
-        max_tokens: 1000,
-        temperature: 0.3
-      })
-    });
-
-    if (!openaiResponse.ok) {
-      throw new Error(`OpenAI API error: ${openaiResponse.status}`);
-    }
-
-    const openaiData = await openaiResponse.json();
-    const generatedEmail = openaiData.choices[0].message.content;
-
-    res.json({ 
-      email: generatedEmail,
-      success: true
-    });
-
-  } catch (error) {
-    console.error('Email generation error:', error);
-    res.status(500).json({ 
-      error: 'Email generation failed',
-      message: 'Please try again later'
-    });
-  }
-});
-
 
 // Handle 404 for API routes
 app.use('/api/*', (req, res) => {
   res.status(404).json({ 
     error: 'API endpoint not found',
-    path: req.path 
+    path: req.path,
+    availableEndpoints: '/api/docs'
   });
 });
 
-
-
-
-
-// Error handling middleware
+// Global error handling middleware
 app.use((error, req, res, next) => {
   console.error('Server error:', error);
+  
+  // Don't leak error details in production
+  const isDevelopment = process.env.NODE_ENV === 'development';
+  
   res.status(500).json({ 
     error: 'Internal server error',
-    message: process.env.NODE_ENV === 'development' ? error.message : 'Something went wrong'
+    message: isDevelopment ? error.message : 'Something went wrong',
+    ...(isDevelopment && { stack: error.stack })
   });
 });
 
 // Start server
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
-  console.log(`📁 Serving files from: ${__dirname}`);
-  console.log(`🔐 Auth emails loaded: ${process.env.AUTHORIZED_EMAILS ? 'YES' : 'NO'}`);
+  console.log(`📁 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🔐 Auth emails: ${process.env.AUTHORIZED_EMAILS ? 'Configured' : 'Not configured'}`);
+  console.log(`🤖 OpenAI API: ${process.env.OPENAI_API_KEY ? 'Configured' : 'Not configured'}`);
+  console.log(`📖 API docs: http://localhost:${PORT}/api/docs`);
   
   if (!process.env.AUTHORIZED_EMAILS) {
     console.warn('⚠️  WARNING: AUTHORIZED_EMAILS not set in environment variables');
   }
+  
+  if (!process.env.OPENAI_API_KEY) {
+    console.warn('⚠️  WARNING: OPENAI_API_KEY not set - email generation will fail');
+  }
 });
 
 // Graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('📴 Server shutting down gracefully...');
-  process.exit(0);
-});
+const gracefulShutdown = (signal) => {
+  console.log(`\n📴 Received ${signal}. Shutting down gracefully...`);
+  server.close(() => {
+    console.log('📴 Server closed');
+    process.exit(0);
+  });
+};
 
-process.on('SIGINT', () => {
-  console.log('📴 Server shutting down gracefully...');
-  process.exit(0);
-});
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+
+module.exports = app; // For testing purposes

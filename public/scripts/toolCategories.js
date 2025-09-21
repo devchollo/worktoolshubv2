@@ -57,7 +57,7 @@ export const toolCategories = {
     description: "Local business and marketing utilities",
     color: "#ef4444",
     tools: [
-      { name: "Business Listing Update", path: "/tool/business-listing", internal: true },
+      { name: "Business Listing Update", path: "/tools/business-listing-update", internal: true },
       { name: "Schema Generator", path: "/tool/schema-generator" },
       { name: "Invoice Creator", path: "/tool/invoice-creator" },
       { name: "Report Templates", path: "/tool/report-templates" },
