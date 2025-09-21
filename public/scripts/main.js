@@ -21,6 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initialize authentication system first (before CategoryRenderer)
   console.log("Initializing authentication system...");
   const auth = initInternalToolAuth();
+  window.auth = auth;
   
   // Initialize theme manager
   initThemeManager();
@@ -35,6 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   console.log("WorkToolsHub initialized successfully!");
   
+
   // Add a small delay to ensure everything is rendered, then test
   setTimeout(() => {
     const testLink = document.querySelector('a[data-internal="true"]');

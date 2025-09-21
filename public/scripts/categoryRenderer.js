@@ -134,28 +134,29 @@ export class CategoryRenderer {
 // Add click handlers to navigate to the tool's path
 this.searchDropdown.querySelectorAll('.search-result-item').forEach(item => {
   item.addEventListener('click', (e) => {
+    console.log('Search item clicked'); // Add this debug log
     e.preventDefault();
     e.stopPropagation();
     
     const path = e.currentTarget.dataset.path;
     const isInternal = e.currentTarget.hasAttribute('data-internal');
     
-    console.log('Search item clicked:', { path, isInternal });
-    console.log('window.auth exists:', !!window.auth);
+    console.log('Path:', path); // Add debug log
+    console.log('Is internal:', isInternal); // Add debug log
+    console.log('window.auth exists:', !!window.auth); // Add debug log
     
     if (isInternal && window.auth) {
-      console.log('Calling checkInternalAccess...');
+      console.log('Calling checkInternalAccess...'); // Add debug log
       const hasAccess = window.auth.checkInternalAccess(path);
-      console.log('checkInternalAccess returned:', hasAccess);
+      console.log('checkInternalAccess returned:', hasAccess); // Add debug log
       
       if (!hasAccess) {
-        console.log('Access denied - modal should be showing');
-        return;
+        console.log('Access denied, should show modal'); // Add debug log
+        return; // Modal will show, don't navigate
       }
-      console.log('Access granted - proceeding to navigate');
     }
     
-    console.log('Final navigation to:', path);
+    console.log('Navigating to:', path); // Add debug log
     window.location.href = path;
   });
 });
@@ -299,14 +300,23 @@ this.searchDropdown.querySelectorAll('.search-result-item').forEach(item => {
   }
 
   handleEnterKey(searchTerm) {
-    if (this.selectedIndex >= 0 && this.searchResults[this.selectedIndex]) {
-      // Navigate to selected result
-      window.location.href = this.searchResults[this.selectedIndex].path;
-    } else if (searchTerm.trim()) {
-      // Find best match and navigate
-      this.handleSearchSubmit(searchTerm);
+  if (this.selectedIndex >= 0 && this.searchResults[this.selectedIndex]) {
+    const selectedTool = this.searchResults[this.selectedIndex];
+    
+    // Check if the selected tool is internal
+    if (selectedTool.internal && window.auth) {
+      if (!window.auth.checkInternalAccess(selectedTool.path)) {
+        return; // Don't navigate, modal will show
+      }
     }
+    
+    // Navigate to selected result only if not internal or if authenticated
+    window.location.href = selectedTool.path;
+  } else if (searchTerm.trim()) {
+    // Find best match and navigate
+    this.handleSearchSubmit(searchTerm);
   }
+}
 
   hideDropdown() {
     this.searchDropdown.style.display = 'none';
