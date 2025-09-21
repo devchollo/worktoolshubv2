@@ -4,7 +4,6 @@ const path = require('path');
 const cors = require('cors');
 require('dotenv').config();
 
-const path = require('path');
 console.log(__dirname); // This will show your current directory
 console.log(path.join(__dirname, 'routes', 'emailRoutes.js')); // This shows the full path it's looking for
 
