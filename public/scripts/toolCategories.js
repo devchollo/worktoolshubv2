@@ -21,7 +21,7 @@ export const toolCategories = {
     description: "Professional email templates and generators",
     color: "#3b82f6",
     tools: [
-      { name: "Escalation Email Generator", path: "/tool/escalation-email", internal: true },
+      { name: "Escalation Email Generator", path: "/tool/escalation-email-generator", internal: true },
       { name: "OBCX Email Creator", path: "/tool/obcx-email", internal: true },
       { name: "Launch Announcement", path: "/tool/launch-announcement", internal: true },
       { name: "Follow-up Templates", path: "/tool/follow-up" },

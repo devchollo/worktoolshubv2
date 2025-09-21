@@ -70,6 +70,116 @@ app.get('/', (req, res) => {
   });
 });
 
+
+
+
+// Add this endpoint to your server.js file
+
+app.post('/api/generate-escalation-email', async (req, res) => {
+  try {
+    const {
+      cid,
+      callerName,
+      phoneNumber,
+      domain,
+      iCase,
+      issueSummary,
+      modRequestDetails,
+      expectationSet,
+      expectedResolution,
+      solutionsProvided,
+      nextSteps
+    } = req.body;
+
+    // Validate required fields
+    const requiredFields = { cid, callerName, phoneNumber, domain, iCase, issueSummary, nextSteps };
+    for (const [field, value] of Object.entries(requiredFields)) {
+      if (!value || !value.trim()) {
+        return res.status(400).json({ 
+          error: 'Validation failed',
+          message: `${field} is required`
+        });
+      }
+    }
+
+    // Prepare content for OpenAI
+    const emailContent = `
+Please improve and format this escalation email professionally:
+
+**Client Information:**
+- CID/CPROD: ${cid}
+- Caller Name: ${callerName}
+- Phone Number: ${phoneNumber}
+- Domain: ${domain}
+- I-Case: ${iCase}
+
+**Issue Details:**
+Issue Summary: ${issueSummary}
+
+${modRequestDetails ? `Mod Request Details: ${modRequestDetails}` : ''}
+
+${expectationSet ? `Expectation Set with Client: ${expectationSet}` : ''}
+
+${expectedResolution ? `Expected Resolution/Fix: ${expectedResolution}` : ''}
+
+${solutionsProvided ? `Solutions Provided: ${solutionsProvided}` : ''}
+
+**Next Steps:** ${nextSteps}
+
+Please:
+1. Add a professional greeting
+2. Improve grammar and clarity while maintaining the original meaning
+3. Structure it as a professional escalation email
+4. Add a professional closing with "Best Regards, [Your Name]"
+5. Keep all the technical details and case information intact
+    `;
+
+    // Call OpenAI API
+    const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-3.5-turbo',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are a professional business communication assistant. Generate well-structured, professional escalation emails with proper grammar and formatting.'
+          },
+          {
+            role: 'user',
+            content: emailContent
+          }
+        ],
+        max_tokens: 1000,
+        temperature: 0.3
+      })
+    });
+
+    if (!openaiResponse.ok) {
+      throw new Error(`OpenAI API error: ${openaiResponse.status}`);
+    }
+
+    const openaiData = await openaiResponse.json();
+    const generatedEmail = openaiData.choices[0].message.content;
+
+    res.json({ 
+      email: generatedEmail,
+      success: true
+    });
+
+  } catch (error) {
+    console.error('Email generation error:', error);
+    res.status(500).json({ 
+      error: 'Email generation failed',
+      message: 'Please try again later'
+    });
+  }
+});
+
+
 // Handle 404 for API routes
 app.use('/api/*', (req, res) => {
   res.status(404).json({ 
@@ -77,6 +187,8 @@ app.use('/api/*', (req, res) => {
     path: req.path 
   });
 });
+
+
 
 
 
