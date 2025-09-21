@@ -717,7 +717,7 @@
 
         async generateEmail(formData) {
           // Simulate API call to OpenAI/backend
-          const response = await fetch('/api/email/generate-escalation-email', {
+          const response = await fetch('https://worktoolshubv2.onrender.com/api/email/generate-escalation-email', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

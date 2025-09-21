@@ -4,9 +4,6 @@ const path = require('path');
 const cors = require('cors');
 require('dotenv').config();
 
-console.log(__dirname); // This will show your current directory
-console.log(path.join(__dirname, 'routes', 'emailRoutes.js')); // This shows the full path it's looking for
-
 
 // Import routes
 const emailRoutes = require('./routes/emailRoutes');
@@ -18,7 +15,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors({
   origin: [
     'http://localhost:3000', 
-    'https://wthv2.vercel.app', // Add your Vercel URL
+    'https://wthv2.vercel.app', 
   ],
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type']
