@@ -8,6 +8,10 @@ class EmailService {
   }
 
   async generateEmail(prompt, systemMessage, maxTokens = 1000) {
+    // debugger
+    console.log("🔑 Using model:", this.defaultModel);
+console.log("📤 Prompt:", prompt);
+
     if (!this.apiKey) {
       throw new Error('OpenAI API key not configured');
     }
@@ -36,12 +40,16 @@ class EmailService {
         })
       });
 
+      // debugger
+      console.log("📥 Response status:", response.status);
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(`OpenAI API error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
       }
 
       const data = await response.json();
+      console.log("📥 OpenAI response JSON:", data);
       
       if (!data.choices || !data.choices[0] || !data.choices[0].message) {
         throw new Error('Invalid response format from OpenAI API');
