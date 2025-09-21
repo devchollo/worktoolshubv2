@@ -135,14 +135,6 @@ Structure it as a formal business update request email that would be sent to a b
 
     return this.generateEmail(prompt, systemMessage, 800);
   }
-
-  // Add more email types here as needed
-  generateOSADNote(data) {
-    // Future implementation for OSAD notes
-    const prompt = `Generate an OSAD note with the provided data...`;
-    const systemMessage = 'You are an expert at creating structured OSAD notes...';
-    return this.generateEmail(prompt, systemMessage, 600);
-  }
 }
 
 module.exports = new EmailService();
