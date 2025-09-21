@@ -62,14 +62,6 @@ class Validator {
     }
   }
 
-  static validateOSADNote(data) {
-    // Future implementation for OSAD note validation
-    const requiredFields = {
-      // Add required fields for OSAD notes
-    };
-    this.validateRequired(requiredFields, data);
-  }
-
   static isValidPhoneNumber(phone) {
     // Basic phone number validation (can be enhanced)
     const phoneRegex = /^[\+]?[\s\-\(\)]?[\d\s\-\(\)]{10,}$/;

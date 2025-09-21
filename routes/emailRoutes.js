@@ -68,14 +68,6 @@ router.post('/generate-lbl-email',
   )
 );
 
-// OSAD Note Route (for future implementation)
-router.post('/generate-osad-note',
-  handleEmailGeneration(
-    Validator.validateOSADNote,
-    emailService.generateOSADNote.bind(emailService)
-  )
-);
-
 // Health check for email service
 router.get('/health', (req, res) => {
   res.json({
@@ -84,8 +76,7 @@ router.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     routes: [
       '/api/email/generate-escalation-email',
-      '/api/email/generate-lbl-email',
-      '/api/email/generate-osad-note'
+      '/api/email/generate-lbl-email'
     ]
   });
 });
