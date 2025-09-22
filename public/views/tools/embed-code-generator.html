@@ -714,17 +714,20 @@
           `;
         }
 
-        generateAudioEmbeds(file, result) {
-          const basicEmbed = `<audio controls>
+
+generateAudioEmbeds(file, result) {
+  const fileName = file.name.replace(/\.[^/.]+$/, "");
+  
+  const basicEmbed = `<audio controls>
   <source src="${result.publicUrl}" type="audio/mpeg">
   Your browser does not support the audio element.
 </audio>`;
 
-          const spotifyEmbed = `<div style="background: linear-gradient(135deg, #1db954, #1ed760); color: white; padding: 24px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); font-family: Arial, sans-serif;">
+  const spotifyEmbed = `<div style="background: linear-gradient(135deg, #1db954, #1ed760); color: white; padding: 24px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); font-family: Arial, sans-serif;">
   <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px;">
     <div style="width: 60px; height: 60px; background: rgba(255,255,255,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 24px;">🎵</div>
     <div>
-      <h4 style="margin: 0 0 4px; font-size: 16px; font-weight: 600;">${file.name.replace(/\.[^/.]+$/, "")}</h4>
+      <h4 style="margin: 0 0 4px; font-size: 16px; font-weight: 600;">${fileName}</h4>
       <p style="margin: 0; font-size: 14px; opacity: 0.8;">Audio Track</p>
     </div>
   </div>
@@ -733,95 +736,129 @@
   </audio>
 </div>`;
 
-          this.embedOptions.innerHTML = `
-            <div class="embed-section">
-              <h4 class="embed-title">Basic Audio Player</h4>
-              <p class="embed-description">Simple HTML5 audio player</p>
-              
-              <div class="player-preview">
-                <audio controls style="width: 100%;">
-                  <source src="${result.publicUrl}" type="audio/mpeg">
-                </audio>
-              </div>
-              
-              <div class="code-preview">
-                <button class="copy-code-btn" onclick="embedGenerator.copyToClipboard(\`${basicEmbed.replace(/`/g, '\\`')}\`)">Copy</button>${basicEmbed}
-              </div>
-            </div>
+  this.embedOptions.innerHTML = `
+    <div class="embed-section">
+      <h4 class="embed-title">Basic Audio Player</h4>
+      <p class="embed-description">Simple HTML5 audio player</p>
+      
+      <div class="player-preview">
+        <audio controls style="width: 100%;">
+          <source src="${result.publicUrl}" type="audio/mpeg">
+        </audio>
+      </div>
+      
+      <div class="code-preview">
+        <button class="copy-code-btn" onclick="embedGenerator.copyCode(this, 'basic-audio')">Copy</button>
+        <div id="basic-audio-code">${this.escapeHtml(basicEmbed)}</div>
+      </div>
+    </div>
 
-            <div class="embed-section">
-              <h4 class="embed-title">Spotify-Style Player</h4>
-              <p class="embed-description">Modern styled audio player with custom design</p>
-              
-              <div class="player-preview">
-                <div class="spotify-player">
-                  <div class="spotify-header">
-                    <div class="spotify-artwork">🎵</div>
-                    <div class="spotify-info">
-                      <h4>${file.name.replace(/\.[^/.]+$/, "")}</h4>
-                      <p>Audio Track</p>
-                    </div>
-                  </div>
-                  <audio controls style="width: 100%; margin-top: 16px;">
-                    <source src="${result.publicUrl}" type="audio/mpeg">
-                  </audio>
-                </div>
-              </div>
-              
-              <div class="code-preview">
-                <button class="copy-code-btn" onclick="embedGenerator.copyToClipboard(\`${spotifyEmbed.replace(/`/g, '\\`')}\`)">Copy</button>${spotifyEmbed}
-              </div>
+    <div class="embed-section">
+      <h4 class="embed-title">Spotify-Style Player</h4>
+      <p class="embed-description">Modern styled audio player with custom design</p>
+      
+      <div class="player-preview">
+        <div style="background: linear-gradient(135deg, #1db954, #1ed760); color: white; padding: 24px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); font-family: Arial, sans-serif;">
+          <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px;">
+            <div style="width: 60px; height: 60px; background: rgba(255,255,255,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 24px;">🎵</div>
+            <div>
+              <h4 style="margin: 0 0 4px; font-size: 16px; font-weight: 600;">${fileName}</h4>
+              <p style="margin: 0; font-size: 14px; opacity: 0.8;">Audio Track</p>
             </div>
-          `;
-        }
+          </div>
+          <audio controls style="width: 100%; margin-top: 16px;">
+            <source src="${result.publicUrl}" type="audio/mpeg">
+          </audio>
+        </div>
+      </div>
+      
+      <div class="code-preview">
+        <button class="copy-code-btn" onclick="embedGenerator.copyCode(this, 'spotify-audio')">Copy</button>
+        <div id="spotify-audio-code">${this.escapeHtml(spotifyEmbed)}</div>
+      </div>
+    </div>
+  `;
 
-        generateVideoEmbeds(file, result) {
-          const basicEmbed = `<video controls width="100%" height="auto">
+  // Store the code for copying
+  this.embedCodes = {
+    'basic-audio': basicEmbed,
+    'spotify-audio': spotifyEmbed
+  };
+}
+
+generateVideoEmbeds(file, result) {
+  const basicEmbed = `<video controls width="100%" height="auto">
   <source src="${result.publicUrl}" type="video/mp4">
   Your browser does not support the video element.
 </video>`;
 
-          const styledEmbed = `<div style="position: relative; width: 100%; max-width: 640px; margin: 0 auto; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.3);">
+  const styledEmbed = `<div style="position: relative; width: 100%; max-width: 640px; margin: 0 auto; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.3);">
   <video controls style="width: 100%; height: auto; display: block;">
     <source src="${result.publicUrl}" type="video/mp4">
     Your browser does not support the video element.
   </video>
 </div>`;
 
-          this.embedOptions.innerHTML = `
-            <div class="embed-section">
-              <h4 class="embed-title">Basic Video Player</h4>
-              <p class="embed-description">Simple HTML5 video player</p>
-              
-              <div class="player-preview" style="background: #000;">
-                <video controls style="width: 100%; height: auto; max-height: 300px;">
-                  <source src="${result.publicUrl}" type="video/mp4">
-                </video>
-              </div>
-              
-              <div class="code-preview">
-                <button class="copy-code-btn" onclick="embedGenerator.copyToClipboard(\`${basicEmbed.replace(/`/g, '\\`')}\`)">Copy</button>${basicEmbed}
-              </div>
-            </div>
+  this.embedOptions.innerHTML = `
+    <div class="embed-section">
+      <h4 class="embed-title">Basic Video Player</h4>
+      <p class="embed-description">Simple HTML5 video player</p>
+      
+      <div class="player-preview" style="background: #000;">
+        <video controls style="width: 100%; height: auto; max-height: 300px;">
+          <source src="${result.publicUrl}" type="video/mp4">
+        </video>
+      </div>
+      
+      <div class="code-preview">
+        <button class="copy-code-btn" onclick="embedGenerator.copyCode(this, 'basic-video')">Copy</button>
+        <div id="basic-video-code">${this.escapeHtml(basicEmbed)}</div>
+      </div>
+    </div>
 
-            <div class="embed-section">
-              <h4 class="embed-title">Styled Video Player</h4>
-              <p class="embed-description">Enhanced video player with modern styling</p>
-              
-              <div class="player-preview" style="background: #000;">
-                <div style="position: relative; width: 100%; max-width: 400px; margin: 0 auto; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.3);">
-                  <video controls style="width: 100%; height: auto; display: block;">
-                    <source src="${result.publicUrl}" type="video/mp4">
-                  </video>
-                </div>
-              </div>
-              
-              <div class="code-preview">
-                <button class="copy-code-btn" onclick="embedGenerator.copyToClipboard(\`${styledEmbed.replace(/`/g, '\\`')}\`)">Copy</button>${styledEmbed}
-              </div>
-            </div>
-          `;
-        }
+    <div class="embed-section">
+      <h4 class="embed-title">Styled Video Player</h4>
+      <p class="embed-description">Enhanced video player with modern styling</p>
+      
+      <div class="player-preview" style="background: #000;">
+        <div style="position: relative; width: 100%; max-width: 400px; margin: 0 auto; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.3);">
+          <video controls style="width: 100%; height: auto; display: block;">
+            <source src="${result.publicUrl}" type="video/mp4">
+          </video>
+        </div>
+      </div>
+      
+      <div class="code-preview">
+        <button class="copy-code-btn" onclick="embedGenerator.copyCode(this, 'styled-video')">Copy</button>
+        <div id="styled-video-code">${this.escapeHtml(styledEmbed)}</div>
+      </div>
+    </div>
+  `;
+
+  // Store the code for copying
+  this.embedCodes = {
+    'basic-video': basicEmbed,
+    'styled-video': styledEmbed
+  };
+}
+
+escapeHtml(unsafe) {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+copyCode(button, codeType) {
+  const code = this.embedCodes[codeType];
+  if (code) {
+    this.copyToClipboard(code);
+  }
+}
+
+
 
         showUploadProgress() {
           this.uploadContainer.classList.add('uploading');
