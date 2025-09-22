@@ -1,6 +1,7 @@
-// Add this to your routes/emailRoutes.js or create a new uploadRoutes.js
+const express = require('express');
 const multer = require('multer');
 const fileUploadService = require('../services/fileUploadService');
+const router = express.Router();
 
 // Configure multer for file uploads
 const upload = multer({
@@ -59,3 +60,6 @@ router.post('/upload/embed-file', upload.single('file'), async (req, res) => {
     });
   }
 });
+
+
+module.exports = router;
