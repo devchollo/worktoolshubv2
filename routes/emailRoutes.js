@@ -61,6 +61,22 @@ router.post('/generate-lbl-email',
   )
 );
 
+// OBCX Callback Email Route
+router.post('/generate-obcx-callback',
+  handleEmailGeneration(
+    Validator.validateOBCXCallbackEmail.bind(Validator),
+    emailService.generateOBCXCallbackEmail.bind(emailService)
+  )
+);
+
+// Offline Modifications Route
+router.post('/generate-offline-modifications',
+  handleEmailGeneration(
+    Validator.validateOfflineModifications.bind(Validator),
+    emailService.generateOfflineModifications.bind(emailService)
+  )
+);
+
 // Health check for email service
 router.get('/health', (req, res) => {
   res.json({

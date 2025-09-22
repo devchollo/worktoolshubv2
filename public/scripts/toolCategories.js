@@ -10,6 +10,7 @@ export const toolCategories = {
     color: "#10b981",
     tools: [
       { name: "OSAD Note Generator", path: "/tools/osad-note-generator", internal: true  },
+      { name: "Offline Mods Notes & Email Generator", path: "/tools/offline-mods-note-email-generator", internal: true },
       { name: "Alt Text Generator", path: "/tools/alt-text" },
       { name: "Meta Description Tool", path: "/tools/meta-description" },
       { name: "Blog Post Outlines", path: "/tools/blog-outline" },
@@ -22,7 +23,8 @@ export const toolCategories = {
     color: "#3b82f6",
     tools: [
       { name: "Escalation Email Generator", path: "/tools/escalation-email-generator", internal: true },
-      { name: "OBCX Email Creator", path: "/tools/obcx-email", internal: true },
+      { name: "OBCX Email Creator", path: "/tools/obcx-email-generator", internal: true },
+      { name: "Offline Mods Notes & Email Generator", path: "/tools/offline-mods-note-email-generator", internal: true },
       { name: "Launch Announcement", path: "/tools/launch-announcement", internal: true },
       { name: "Follow-up Templates", path: "/tools/follow-up" },
     ],
