@@ -22,7 +22,8 @@ app.use(cors({
     'https://wthv2.vercel.app', 
   ],
   methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
 }));
 
 app.options('*', cors());
