@@ -96,6 +96,9 @@ Backend logging will track each request where necessary to maintain cumulative c
 3. Ensure proper API integration and logging.  
 4. Submit a pull request with notes on functionality.
 
+
+## ISSUES: 
+ > EMBED CODE - VIDEO PLAYER NOT WORKING 
 ---
 
 *This README serves as a living document for tracking planned feature integrations, UX improvements, and statistics tracking for WorkToolsHub.*
