@@ -222,7 +222,7 @@
 
       .embed-header {
         display: flex;
-        justify-content: between;
+        justify-content: space-between;
         align-items: center;
         margin-bottom: 1rem;
       }
@@ -748,118 +748,122 @@
         }
 
 
+
 generateAudioEmbeds(file, result) {
   const fileName = file.name.replace(/\.[^/.]+$/, "");
   const uid = 'wth' + Date.now().toString(36);
   const src = result.publicUrl;
 
+  // --- The actual embed code (this is what user will copy/use) ---
   const spotifyEmbed = `
-    <div id="${uid}" style="background:linear-gradient(135deg,#1db954,#1ed760);color:#fff;padding:18px;border-radius:14px;width:100%;max-width:420px;box-shadow:0 8px 24px rgba(0,0,0,0.22);font-family:Arial,sans-serif;">
-      <div style="display:flex;gap:12px;align-items:center;">
-        <div style="width:56px;height:56px;border-radius:10px;background:rgba(0,0,0,0.18);display:flex;align-items:center;justify-content:center;font-size:26px;">🎵</div>
-        <div style="flex:1;min-width:0;">
-          <div style="font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${this.escapeHtml(fileName)}</div>
-          <div style="font-size:13px;opacity:0.92;margin-top:4px;">Audio Track</div>
-        </div>
-      </div>
-
-      <div style="display:flex;align-items:center;gap:12px;margin-top:12px;">
-        <button id="${uid}-play" type="button" style="background:#fff;border:none;color:#1db954;border-radius:50%;width:44px;height:44px;cursor:pointer;font-size:18px;transition:transform 0.2s ease;">▶</button>
-
-        <div style="flex:1;display:flex;align-items:center;gap:8px;">
-          <span id="${uid}-current" style="font-size:12px;min-width:36px;">0:00</span>
-          <div id="${uid}-bar" style="flex:1;height:6px;background:rgba(255,255,255,0.22);border-radius:6px;position:relative;cursor:pointer;overflow:hidden;">
-            <div id="${uid}-progress" style="height:100%;width:0%;background:#fff;border-radius:6px;transition:width 0.2s linear;"></div>
-          </div>
-          <span id="${uid}-duration" style="font-size:12px;min-width:36px;text-align:right;">0:00</span>
-        </div>
-      </div>
-
-      <audio id="${uid}-audio" src="${src}"></audio>
+<div id="${uid}" style="background:linear-gradient(135deg,#1db954,#1ed760);color:#fff;padding:18px;border-radius:14px;width:100%;max-width:420px;box-shadow:0 8px 24px rgba(0,0,0,0.22);font-family:Arial,sans-serif;">
+  <div style="display:flex;gap:12px;align-items:center;">
+    <div style="width:56px;height:56px;border-radius:10px;background:rgba(0,0,0,0.18);display:flex;align-items:center;justify-content:center;font-size:26px;">🎵</div>
+    <div style="flex:1;min-width:0;">
+      <div style="font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${this.escapeHtml(fileName)}</div>
+      <div style="font-size:13px;opacity:0.92;margin-top:4px;">Audio Track</div>
     </div>
+  </div>
 
-    <style>
-      @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.15); }
-        100% { transform: scale(1); }
+  <div style="display:flex;align-items:center;gap:12px;margin-top:12px;">
+    <button id="${uid}-play" type="button" style="background:#fff;border:none;color:#1db954;border-radius:50%;width:44px;height:44px;cursor:pointer;font-size:18px;transition:transform 0.2s ease;">▶</button>
+
+    <div style="flex:1;display:flex;align-items:center;gap:8px;">
+      <span id="${uid}-current" style="font-size:12px;min-width:36px;">0:00</span>
+      <div id="${uid}-bar" style="flex:1;height:6px;background:rgba(255,255,255,0.22);border-radius:6px;position:relative;cursor:pointer;overflow:hidden;">
+        <div id="${uid}-progress" style="height:100%;width:0%;background:#fff;border-radius:6px;transition:width 0.2s linear;"></div>
+      </div>
+      <span id="${uid}-duration" style="font-size:12px;min-width:36px;text-align:right;">0:00</span>
+    </div>
+  </div>
+
+  <audio id="${uid}-audio" src="${src}"></audio>
+</div>
+
+<style>
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+  }
+  #${uid}-play.playing {
+    animation: pulse 1s infinite;
+  }
+</style>
+
+<script>
+  (function(){
+    const audio = document.getElementById('${uid}-audio');
+    const playBtn = document.getElementById('${uid}-play');
+    const progress = document.getElementById('${uid}-progress');
+    const bar = document.getElementById('${uid}-bar');
+    const curLabel = document.getElementById('${uid}-current');
+    const durLabel = document.getElementById('${uid}-duration');
+
+    function fmt(t){
+      if(isNaN(t)) return '0:00';
+      let m = Math.floor(t/60);
+      let s = Math.floor(t%60).toString().padStart(2,'0');
+      return m+':'+s;
+    }
+
+    audio.addEventListener('loadedmetadata',()=>{
+      durLabel.textContent = fmt(audio.duration);
+    });
+
+    audio.addEventListener('timeupdate',()=>{
+      curLabel.textContent = fmt(audio.currentTime);
+      let pct = audio.duration ? (audio.currentTime / audio.duration) * 100 : 0;
+      progress.style.width = pct + '%';
+    });
+
+    playBtn.addEventListener('click',()=>{
+      if(audio.paused){
+        audio.play();
+        playBtn.textContent = '❚❚';
+        playBtn.classList.add('playing');
+      } else {
+        audio.pause();
+        playBtn.textContent = '▶';
+        playBtn.classList.remove('playing');
       }
-      #${uid}-play.playing {
-        animation: pulse 1s infinite;
-      }
-    </style>`;
+    });
 
-//   this.embedOptions.innerHTML = `<div class="player-preview">${spotifyEmbed}</div>`;
+    bar.addEventListener('click',e=>{
+      const rect = bar.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const pct = Math.max(0,Math.min(1,x/rect.width));
+      audio.currentTime = (audio.duration||0) * pct;
+    });
+  })();
+</script>
+`;
 
-this.embedOptions.innerHTML = `
+
+  const previewContainer = document.createElement("div");
+  previewContainer.innerHTML = spotifyEmbed;
+  this.embedOptions.innerHTML = `
   <div class="embed-section">
     <h4 class="embed-title">Spotify-Style Player</h4>
     <p class="embed-description">Modern styled audio player with custom design</p>
-    
-    <div class="player-preview">
-      ${spotifyEmbed}
-    </div>
-    
+    <div class="player-preview"></div>
     <div class="code-preview">
       <button class="copy-code-btn" onclick="embedGenerator.copyCode(this, 'spotify-audio')">Copy</button>
-      <div id="spotify-audio-code">${this.escapeHtml(spotifyEmbed)}</div>
+      <pre><code id="spotify-audio-code"></code></pre>
     </div>
   </div>
 `;
 
-  this.initSpotifyPlayer(uid);
+this.embedOptions.querySelector(".player-preview").appendChild(previewContainer);
 
-  this.embedCodes = {
-    "spotify-audio": spotifyEmbed
-  };
+const codeEl = this.embedOptions.querySelector("#spotify-audio-code");
+codeEl.textContent = this.escapeHtml(spotifyEmbed);
+
+this.embedCodes = { "spotify-audio": spotifyEmbed };
 }
 
-initSpotifyPlayer(uid) {
-  const root = document.getElementById(uid);
-  if (!root) return;
 
-  const audio = root.querySelector(`#${uid}-audio`);
-  const playBtn = root.querySelector(`#${uid}-play`);
-  const progress = root.querySelector(`#${uid}-progress`);
-  const bar = root.querySelector(`#${uid}-bar`);
-  const curLabel = root.querySelector(`#${uid}-current`);
-  const durLabel = root.querySelector(`#${uid}-duration`);
 
-  function fmt(t) {
-    if (isNaN(t)) return '0:00';
-    let m = Math.floor(t / 60);
-    let s = Math.floor(t % 60).toString().padStart(2, '0');
-    return m + ':' + s;
-  }
-
-  audio.addEventListener('loadedmetadata', () => {
-    durLabel.textContent = fmt(audio.duration);
-  });
-  audio.addEventListener('timeupdate', () => {
-    curLabel.textContent = fmt(audio.currentTime);
-    let pct = audio.duration ? (audio.currentTime / audio.duration) * 100 : 0;
-    progress.style.width = pct + '%';
-  });
-
-  playBtn.addEventListener('click', () => {
-    if (audio.paused) {
-      audio.play();
-      playBtn.textContent = '❚❚';
-      playBtn.classList.add('playing');
-    } else {
-      audio.pause();
-      playBtn.textContent = '▶';
-      playBtn.classList.remove('playing');
-    }
-  });
-
-  bar.addEventListener('click', e => {
-    const rect = bar.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const pct = Math.max(0, Math.min(1, x / rect.width));
-    audio.currentTime = (audio.duration || 0) * pct;
-  });
-}
 
         generateVideoEmbeds(file, result) {
           const basicEmbed = `<video controls width="100%" height="auto">
@@ -917,6 +921,8 @@ initSpotifyPlayer(uid) {
           };
         }
 
+
+
         escapeHtml(unsafe) {
           return unsafe
             .replace(/&/g, "&amp;")
@@ -970,15 +976,13 @@ async copyToClipboard(text, button) {
     this.showStatus('Failed to copy', 'error');
   }
 }
-
-
-
       }
 
       let embedGenerator;
       document.addEventListener("DOMContentLoaded", () => {
         embedGenerator = new EmbedCodeGenerator();
       });
+    
     </script>
   </body>
 </html>
