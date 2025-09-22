@@ -80,7 +80,13 @@ export class CategoryRenderer {
                   tool.internal
                     ? '<span style="background: #fbbf24; color: #92400e; font-size: 10px; padding: 2px 6px; border-radius: 12px; font-weight: 500;">Internal</span>'
                     : ""
-                }</a></li>`
+                }
+                ${
+              tool.pending
+                ? '<span style="background: #10b981; color: #ffffff; font-size: 10px; padding: 2px 6px; border-radius: 12px; font-weight: 500;">Coming Soon</span>'
+                : ""
+            }
+                </a></li>`
             )
             .join("")}
       </ul>
