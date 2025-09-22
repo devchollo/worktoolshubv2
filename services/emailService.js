@@ -185,36 +185,40 @@ Structure it as a formal callback scheduling email that would be sent to confirm
     return this.generateEmail(prompt, systemMessage, 800);
   }
 
-  generateOfflineModifications(data) {
-    const { urlPage, changes } = data;
+ // Update this method in your EmailService class
 
-    // Generate internal note
-    const changesText = changes
-      .map((change, index) => `${index + 1}. ${change}`)
-      .join("\n");
+generateOfflineModifications(data) {
+  const { pages } = data;
 
-    const internalNotePrompt = `
+  // Prepare all pages and changes for processing
+  const pagesText = pages.map((page, index) => {
+    const changesText = page.changes.map((change, changeIndex) => 
+      `  ${changeIndex + 1}. ${change}`
+    ).join('\n');
+    return `Page ${index + 1}: ${page.url}\n${changesText}`;
+  }).join('\n\n');
+
+  // Generate internal note
+  const internalNotePrompt = `
 Please improve the grammar and clarity of these website changes while maintaining their original meaning:
 
-${changesText}
+${pagesText}
 
-Format the response as individual change descriptions that are clear and professional for internal documentation.
+Format the response as organized page-by-page change descriptions that are clear and professional for internal documentation.
   `;
 
-    // Generate client email
-    const clientEmailPrompt = `
-Please create a professional client-facing email about completed website modifications:
+  // Generate client email
+  const clientEmailPrompt = `
+Please create a professional client-facing email about completed website modifications across multiple pages:
 
-**Website/Page:** ${urlPage}
-
-**Changes Made:**
-${changesText}
+**Pages Modified and Changes:**
+${pagesText}
 
 Please:
 1. Add a professional greeting
-2. Clearly communicate that the changes have been completed
+2. Clearly communicate that all changes have been completed
 3. Improve grammar and clarity in the change descriptions while maintaining the original meaning
-4. Structure it as a professional completion notification email
+4. Structure it as a professional completion notification email organized by page
 5. Add appropriate context about the modifications being live
 6. Include a professional closing with "Best Regards, [Your Name]"
 7. Make it sound professional and reassuring to the client
@@ -222,34 +226,34 @@ Please:
 Structure it as a professional website modification completion email.
   `;
 
-    const systemMessage =
-      "You are a professional web development communication assistant. Generate clear, professional content for website modification documentation and client communications.";
+  const systemMessage = 'You are a professional web development communication assistant. Generate clear, professional content for website modification documentation and client communications.';
 
-    // Return both internal note and client email
-    return Promise.all([
-      this.generateInternalNote(urlPage, internalNotePrompt),
-      this.generateEmail(clientEmailPrompt, systemMessage, 800),
-    ]).then(([internalNote, clientEmail]) => ({
-      internalNote,
-      clientEmail,
-    }));
-  }
+  // Return both internal note and client email
+  return Promise.all([
+    this.generateInternalNote(pages, internalNotePrompt),
+    this.generateEmail(clientEmailPrompt, systemMessage, 1000)
+  ]).then(([internalNote, clientEmail]) => ({
+    internalNote,
+    clientEmail
+  }));
+}
 
-  async generateInternalNote(urlPage, improvedChangesPrompt) {
-    const improvedChanges = await this.generateEmail(
-      improvedChangesPrompt,
-      "You are a professional technical writer. Improve grammar and clarity while maintaining the original meaning.",
-      500
-    );
-
-    return `-- FULFILLMENT MOD COMPLETED --
+async generateInternalNote(pages, improvedChangesPrompt) {
+  const improvedChanges = await this.generateEmail(improvedChangesPrompt, 'You are a professional technical writer. Improve grammar and clarity while maintaining the original meaning.', 800);
+  
+  const pagesSection = pages.map((page, index) => `Page ${index + 1}: ${page.url}`).join('\n');
+  
+  return `-- FULFILLMENT MOD COMPLETED --
 COMPLETED:
-Page/URL: ${urlPage}
-Change Made: ${improvedChanges}
+${pagesSection}
+
+Changes Made:
+${improvedChanges}
+
 Next Steps:
 Advised the client to submit additional changes through site changes form or call in for further support.
 Request closed and being reviewed by quality control.`;
-  }
+}
 }
 
 module.exports = new EmailService();

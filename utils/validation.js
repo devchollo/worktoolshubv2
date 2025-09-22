@@ -145,35 +145,34 @@ class Validator {
     }
   }
 
-  static validateOfflineModifications(data) {
-    const requiredFields = {
-      urlPage: "URL/Page Edited",
-    };
 
-    this.validateRequired(requiredFields, data);
+static validateOfflineModifications(data) {
+  // Validate pages array exists
+  if (!data.pages || !Array.isArray(data.pages) || data.pages.length === 0) {
+    throw new ValidationError('At least one page is required', 'pages');
+  }
 
-    // Validate URL format
-    if (data.urlPage && !this.isValidURL(data.urlPage)) {
-      throw new ValidationError("Invalid URL format", "urlPage");
+  // Validate each page
+  data.pages.forEach((page, index) => {
+    if (!page.url || !page.url.trim()) {
+      throw new ValidationError(`Page ${index + 1}: URL is required`, 'pages');
     }
 
-    // Validate changes array
-    if (
-      !data.changes ||
-      !Array.isArray(data.changes) ||
-      data.changes.length === 0
-    ) {
-      throw new ValidationError("At least one change is required", "changes");
+    if (!this.isValidURL(page.url)) {
+      throw new ValidationError(`Page ${index + 1}: Invalid URL format`, 'pages');
+    }
+
+    if (!page.changes || !Array.isArray(page.changes) || page.changes.length === 0) {
+      throw new ValidationError(`Page ${index + 1}: At least one change is required`, 'pages');
     }
 
     // Check for empty changes
-    const hasEmptyChanges = data.changes.some(
-      (change) => !change || !change.trim()
-    );
+    const hasEmptyChanges = page.changes.some(change => !change || !change.trim());
     if (hasEmptyChanges) {
-      throw new ValidationError("All changes must have content", "changes");
+      throw new ValidationError(`Page ${index + 1}: All changes must have content`, 'pages');
     }
-  }
+  });
+}
 
   static isValidPhoneNumber(phone) {
     // Basic phone number validation (can be enhanced)

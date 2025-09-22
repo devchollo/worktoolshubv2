@@ -5,45 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="Generate offline modifications notes and client emails with AI-powered content enhancement - WorkToolsHub"
+      content="Generate offline modifications notes and client emails for multiple pages with AI-powered content enhancement - WorkToolsHub"
     />
     <meta
       name="keywords"
       content="offline modifications, fulfillment notes, client emails, website changes, professional communication"
     />
     <meta name="author" content="DevChollo" />
-
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://worktoolshub.info/offline-modifications-generator" />
-    <meta
-      property="og:title"
-      content="Offline Modifications Generator - WorkToolsHub"
-    />
-    <meta
-      property="og:description"
-      content="Generate professional offline modifications notes and client emails with AI-powered content enhancement"
-    />
-    <meta
-      property="og:image"
-      content="https://worktoolshub.info/assets/og-image.jpg"
-    />
-
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://worktoolshub.info/offline-modifications-generator" />
-    <meta
-      property="twitter:title"
-      content="Offline Modifications Generator - WorkToolsHub"
-    />
-    <meta
-      property="twitter:description"
-      content="Generate professional offline modifications notes and client emails with AI-powered content enhancement"
-    />
-    <meta
-      property="twitter:image"
-      content="https://worktoolshub.info/assets/og-image.jpg"
-    />
 
     <title>Offline Modifications Generator - WorkToolsHub</title>
 
@@ -52,92 +20,11 @@
 
     <!-- Styling / CSS -->
     <link rel="stylesheet" href="../styles/main.css" />
+    <link rel="stylesheet" href="../styles/tools.css" />
 
     <style>
       /* Tool-specific styles */
-      .tool-container {
-        max-width: 1000px;
-        margin: 0 auto;
-        padding: 2rem 1rem;
-      }
-
-      .tool-header {
-        text-align: center;
-        margin-bottom: 3rem;
-      }
-
-      .tool-header h1 {
-        font-size: 2.5rem;
-        color: var(--text-primary);
-        margin-bottom: 1rem;
-        font-weight: 700;
-      }
-
-      .tool-header .subtitle {
-        font-size: 1.125rem;
-        color: var(--text-secondary);
-        max-width: 600px;
-        margin: 0 auto;
-        line-height: 1.6;
-      }
-
-      .form-container {
-        background: var(--bg-color);
-        border: 1px solid var(--border-color);
-        border-radius: var(--radius-xl);
-        padding: 2rem;
-        box-shadow: var(--shadow-lg);
-        margin-bottom: 2rem;
-      }
-
-      .form-grid {
-        display: grid;
-        gap: 1.5rem;
-      }
-
-      .form-group {
-        display: flex;
-        flex-direction: column;
-      }
-
-      .form-group.required .form-label::after {
-        content: ' *';
-        color: #ef4444;
-        font-weight: 600;
-      }
-
-      .form-label {
-        font-weight: 600;
-        color: var(--text-primary);
-        margin-bottom: 0.5rem;
-        font-size: 0.875rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-      }
-
-      .form-input, .form-textarea {
-        padding: 0.875rem 1rem;
-        border: 2px solid var(--border-color);
-        border-radius: var(--radius-md);
-        font-size: 1rem;
-        transition: all 0.2s ease;
-        background: var(--bg-color);
-        color: var(--text-primary);
-      }
-
-      .form-input:focus, .form-textarea:focus {
-        outline: none;
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-      }
-
-      .form-textarea {
-        resize: vertical;
-        min-height: 80px;
-        font-family: inherit;
-      }
-
-      .changes-container {
+      .pages-container {
         background: var(--surface-color);
         border: 2px dashed var(--border-color);
         border-radius: var(--radius-lg);
@@ -145,91 +32,117 @@
         margin-top: 1rem;
       }
 
-      .change-item {
-        display: flex;
-        align-items: flex-start;
-        gap: 1rem;
-        margin-bottom: 1rem;
-        padding: 1rem;
+      .page-item {
         background: var(--bg-color);
-        border: 1px solid var(--border-color);
-        border-radius: var(--radius-md);
+        border: 2px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
         animation: slideIn 0.3s ease;
       }
 
-      .change-item:last-child {
+      .page-item:last-child {
         margin-bottom: 0;
       }
 
-      .change-content {
-        flex: 1;
+      .page-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
       }
 
-      .change-textarea {
-        width: 100%;
-        min-height: 80px;
+      .page-url-input {
+        flex: 1;
         padding: 0.75rem;
         border: 1px solid var(--border-color);
-        border-radius: var(--radius-sm);
-        resize: vertical;
-        font-family: inherit;
+        border-radius: var(--radius-md);
         font-size: 0.875rem;
         transition: border-color 0.2s ease;
       }
 
-      .change-textarea:focus {
+      .page-url-input:focus {
         outline: none;
         border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
       }
 
-      .remove-change {
+      .remove-page {
         background: #ef4444;
         color: white;
         border: none;
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
+        padding: 0.5rem;
+        border-radius: var(--radius-md);
         cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 14px;
+        font-size: 0.875rem;
+        font-weight: 500;
         transition: all 0.2s ease;
         flex-shrink: 0;
       }
 
-      .remove-change:hover {
+      .remove-page:hover {
         background: #dc2626;
-        transform: scale(1.1);
+        transform: translateY(-1px);
       }
 
-      .add-change-btn {
-        width: 100%;
-        padding: 0.875rem;
-        background: var(--surface-color);
-        border: 2px dashed var(--primary-color);
-        border-radius: var(--radius-md);
-        color: var(--primary-color);
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        margin-top: 1rem;
+      .page-changes-section {
+        margin-left: 0;
       }
 
-      .add-change-btn:hover {
-        background: var(--primary-color);
-        color: white;
-        border-style: solid;
-      }
-
-      .changes-header {
+      .page-changes-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 1rem;
       }
 
-      .changes-count {
+      .page-changes-title {
+        font-weight: 600;
+        color: var(--text-primary);
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .page-changes-count {
+        background: var(--accent-color);
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 50px;
+        font-size: 0.625rem;
+        font-weight: 600;
+      }
+
+      .add-page-btn {
+        width: 100%;
+        padding: 1rem;
+        background: var(--surface-color);
+        border: 2px dashed var(--accent-color);
+        border-radius: var(--radius-lg);
+        color: var(--accent-color);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        margin-top: 1rem;
+        font-size: 1rem;
+      }
+
+      .add-page-btn:hover {
+        background: var(--accent-color);
+        color: white;
+        border-style: solid;
+      }
+
+      .pages-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+      }
+
+      .pages-count {
         background: var(--primary-color);
         color: white;
         padding: 0.25rem 0.75rem;
@@ -238,81 +151,11 @@
         font-weight: 600;
       }
 
-      .generate-btn {
-        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-        color: white;
-        border: none;
-        padding: 1rem 2rem;
-        border-radius: var(--radius-lg);
-        font-size: 1.125rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        margin-top: 2rem;
-        position: relative;
-        overflow: hidden;
-      }
-
-      .generate-btn:hover:not(:disabled) {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
-      }
-
-      .generate-btn:disabled {
-        opacity: 0.7;
-        cursor: not-allowed;
-        transform: none;
-      }
-
-      .generate-btn .btn-text {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-      }
-
-      .generate-btn .loading-spinner {
-        display: none;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-      }
-
-      .generate-btn.loading .btn-text {
-        display: none;
-      }
-
-      .generate-btn.loading .loading-spinner {
-        display: flex;
-      }
-
-      .spinner {
-        width: 20px;
-        height: 20px;
-        border: 2px solid rgba(255, 255, 255, 0.3);
-        border-top: 2px solid white;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-      }
-
       .results-container {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 2rem;
         margin-top: 2rem;
-      }
-
-      .result-container {
-        background: var(--surface-color);
-        border: 2px solid var(--accent-color);
-        border-radius: var(--radius-xl);
-        padding: 2rem;
-        display: none;
-      }
-
-      .result-container.show {
-        display: block;
-        animation: slideIn 0.4s ease;
       }
 
       .internal-note-container {
@@ -323,39 +166,12 @@
         border-color: var(--accent-color);
       }
 
-      .result-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid var(--border-color);
-      }
-
-      .result-title {
-        font-size: 1.125rem;
-        font-weight: 600;
-        color: var(--text-primary);
-      }
-
       .internal-note-title {
         color: #f59e0b;
       }
 
       .client-email-title {
         color: var(--accent-color);
-      }
-
-      .copy-btn {
-        background: var(--accent-color);
-        color: white;
-        border: none;
-        padding: 0.4rem 0.8rem;
-        border-radius: var(--radius-sm);
-        font-size: 0.75rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s ease;
       }
 
       .internal-note-copy {
@@ -367,101 +183,21 @@
         transform: translateY(-1px);
       }
 
-      .copy-btn:hover {
-        background: #059669;
-        transform: translateY(-1px);
-      }
-
-      .content-preview {
-        background: white;
-        border: 1px solid var(--border-color);
-        border-radius: var(--radius-md);
-        padding: 1.25rem;
-        font-family: 'Courier New', monospace;
-        font-size: 0.875rem;
-        line-height: 1.6;
-        color: #333;
-        white-space: pre-line;
-        max-height: 400px;
-        overflow-y: auto;
-      }
-
-      .email-preview {
-        font-family: 'Georgia', serif;
-      }
-
-      .error-message {
-        background: #fef2f2;
-        border: 1px solid #fecaca;
-        border-radius: var(--radius-md);
-        padding: 1rem;
-        color: #dc2626;
-        margin-top: 1rem;
-        display: none;
-      }
-
-      .error-message.show {
-        display: block;
-      }
-
-      .progress-bar {
-        width: 100%;
-        height: 4px;
-        background: var(--border-color);
-        border-radius: 2px;
-        overflow: hidden;
-        margin-top: 1rem;
-        display: none;
-      }
-
-      .progress-bar.show {
-        display: block;
-      }
-
-      .progress-fill {
-        height: 100%;
-        background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
-        width: 0%;
-        transition: width 0.3s ease;
-        animation: progress 4s ease-in-out;
-      }
-
-      @keyframes spin {
-        to { transform: rotate(360deg); }
-      }
-
-      @keyframes slideIn {
-        from {
-          opacity: 0;
-          transform: translateY(20px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      @keyframes progress {
-        0% { width: 0%; }
-        50% { width: 70%; }
-        100% { width: 100%; }
-      }
-
       @media (max-width: 768px) {
-        .tool-header h1 {
-          font-size: 2rem;
-        }
-
         .results-container {
           grid-template-columns: 1fr;
         }
 
-        .result-header {
+        .page-header {
           flex-direction: column;
           gap: 1rem;
         }
 
-        .changes-header {
+        .page-url-input {
+          width: 100%;
+        }
+
+        .pages-header, .page-changes-header {
           flex-direction: column;
           align-items: flex-start;
           gap: 0.5rem;
@@ -475,7 +211,7 @@
       "@context": "https://schema.org",
       "@type": "WebApplication",
       "name": "Offline Modifications Generator",
-      "description": "Generate professional offline modifications notes and client emails with AI-powered content enhancement",
+      "description": "Generate professional offline modifications notes and client emails for multiple pages with AI-powered content enhancement",
       "url": "https://worktoolshub.info/offline-modifications-generator",
       "applicationCategory": "BusinessApplication",
       "operatingSystem": "Any",
@@ -489,10 +225,10 @@
         "name": "WorkToolsHub"
       },
       "featureList": [
+        "Multiple pages support",
         "Dual output generation",
         "AI-powered content enhancement",
-        "Internal notes and client emails",
-        "Professional fulfillment documentation"
+        "Internal notes and client emails"
       ]
     }
     </script>
@@ -506,7 +242,7 @@
         <div class="tool-header">
           <h1>Offline Modifications Generator</h1>
           <p class="subtitle">
-            Generate both internal fulfillment notes and client-facing emails for offline modifications. 
+            Generate both internal fulfillment notes and client-facing emails for offline modifications across multiple pages. 
             Create professional documentation with AI-enhanced content for completed website changes.
           </p>
         </div>
@@ -515,32 +251,19 @@
           <form id="modificationsForm">
             <div class="form-grid">
               <div class="form-group required">
-                <label class="form-label" for="urlPage">URL/Page Edited</label>
-                <input 
-                  type="url" 
-                  id="urlPage" 
-                  name="urlPage" 
-                  class="form-input" 
-                  required
-                  placeholder="e.g., https://example.com/about-us"
-                  autocomplete="url"
-                />
-              </div>
-
-              <div class="form-group required">
-                <div class="changes-header">
-                  <label class="form-label">What changes were made?</label>
-                  <span class="changes-count" id="changesCount">0 Changes</span>
+                <div class="pages-header">
+                  <label class="form-label">Pages Modified</label>
+                  <span class="pages-count" id="pagesCount">0 Pages</span>
                 </div>
                 
-                <div class="changes-container" id="changesContainer">
+                <div class="pages-container" id="pagesContainer">
                   <p style="text-align: center; color: var(--text-secondary); margin: 2rem 0;">
-                    Click "Add Change" to start adding your modifications
+                    Click "Add Page" to start adding your modified pages
                   </p>
                 </div>
                 
-                <button type="button" class="add-change-btn" id="addChangeBtn">
-                  + Add Change
+                <button type="button" class="add-page-btn" id="addPageBtn">
+                  + Add Page
                 </button>
               </div>
             </div>
@@ -603,11 +326,12 @@
           this.emailPreview = document.getElementById('emailPreview');
           this.copyNoteBtn = document.getElementById('copyNoteBtn');
           this.copyEmailBtn = document.getElementById('copyEmailBtn');
-          this.addChangeBtn = document.getElementById('addChangeBtn');
-          this.changesContainer = document.getElementById('changesContainer');
-          this.changesCount = document.getElementById('changesCount');
+          this.addPageBtn = document.getElementById('addPageBtn');
+          this.pagesContainer = document.getElementById('pagesContainer');
+          this.pagesCount = document.getElementById('pagesCount');
           
-          this.changes = [];
+          this.pages = [];
+          this.pageCounter = 0;
           this.changeCounter = 0;
           
           this.init();
@@ -622,31 +346,94 @@
           this.form.addEventListener('submit', (e) => this.handleSubmit(e));
           this.copyNoteBtn.addEventListener('click', () => this.copyToClipboard('note'));
           this.copyEmailBtn.addEventListener('click', () => this.copyToClipboard('email'));
-          this.addChangeBtn.addEventListener('click', () => this.addChange());
-          
-          // Auto-format URL
-          document.getElementById('urlPage').addEventListener('blur', this.formatURL);
+          this.addPageBtn.addEventListener('click', () => this.addPage());
         }
 
         setupFormValidation() {
-          const requiredFields = this.form.querySelectorAll('[required]');
-          requiredFields.forEach(field => {
-            field.addEventListener('blur', () => this.validateField(field));
-            field.addEventListener('input', () => this.clearFieldError(field));
-          });
+          // Dynamic validation will be handled when pages are added
         }
 
-        formatURL(e) {
-          let value = e.target.value.trim();
-          if (value && !value.startsWith('http')) {
-            e.target.value = 'https://' + value;
+        addPage() {
+          this.pageCounter++;
+          const pageId = `page_${this.pageCounter}`;
+          
+          const pageItem = document.createElement('div');
+          pageItem.className = 'page-item';
+          pageItem.setAttribute('data-page-id', pageId);
+          
+          pageItem.innerHTML = `
+            <div class="page-header">
+              <input 
+                type="url" 
+                class="page-url-input" 
+                placeholder="https://example.com/page-url"
+                data-page-id="${pageId}"
+                required
+              />
+              <button type="button" class="remove-page" onclick="modGenerator.removePage('${pageId}')">
+                Remove Page
+              </button>
+            </div>
+            
+            <div class="page-changes-section">
+              <div class="page-changes-header">
+                <span class="page-changes-title">Changes Made</span>
+                <span class="page-changes-count" data-page-id="${pageId}">0 Changes</span>
+              </div>
+              
+              <div class="changes-container" data-page-id="${pageId}">
+                <p style="text-align: center; color: var(--text-secondary); margin: 1.5rem 0;">
+                  Click "Add Change" to start adding changes for this page
+                </p>
+              </div>
+              
+              <button type="button" class="add-change-btn" onclick="modGenerator.addChange('${pageId}')">
+                + Add Change
+              </button>
+            </div>
+          `;
+
+          if (this.pages.length === 0) {
+            this.pagesContainer.innerHTML = '';
+          }
+
+          this.pagesContainer.appendChild(pageItem);
+          this.pages.push({ id: pageId, changes: [] });
+          this.updatePagesCount();
+          
+          const urlInput = pageItem.querySelector('.page-url-input');
+          urlInput.focus();
+          urlInput.addEventListener('blur', this.formatURL);
+        }
+
+        removePage(pageId) {
+          const pageElement = document.querySelector(`[data-page-id="${pageId}"].page-item`);
+          if (pageElement) {
+            pageElement.remove();
+            this.pages = this.pages.filter(page => page.id !== pageId);
+            this.updatePagesCount();
+            
+            if (this.pages.length === 0) {
+              this.pagesContainer.innerHTML = `
+                <p style="text-align: center; color: var(--text-secondary); margin: 2rem 0;">
+                  Click "Add Page" to start adding your modified pages
+                </p>
+              `;
+            }
           }
         }
 
-        addChange() {
+        addChange(pageId) {
           this.changeCounter++;
           const changeId = `change_${this.changeCounter}`;
           
+          const changesContainer = document.querySelector(`[data-page-id="${pageId}"].changes-container`);
+          const page = this.pages.find(p => p.id === pageId);
+          
+          if (page.changes.length === 0) {
+            changesContainer.innerHTML = '';
+          }
+
           const changeItem = document.createElement('div');
           changeItem.className = 'change-item';
           changeItem.setAttribute('data-change-id', changeId);
@@ -655,61 +442,60 @@
             <div class="change-content">
               <textarea 
                 class="change-textarea" 
-                placeholder="Describe what was changed (e.g., Updated contact information, Added new service section, Modified product pricing)"
+                placeholder="Describe what was changed on this page..."
                 data-change-id="${changeId}"
+                data-page-id="${pageId}"
               ></textarea>
             </div>
-            <button type="button" class="remove-change" onclick="modGenerator.removeChange('${changeId}')">
+            <button type="button" class="remove-change" onclick="modGenerator.removeChange('${pageId}', '${changeId}')">
               ×
             </button>
           `;
 
-          if (this.changes.length === 0) {
-            this.changesContainer.innerHTML = '';
-          }
-
-          this.changesContainer.appendChild(changeItem);
-          this.changes.push(changeId);
-          this.updateChangesCount();
+          changesContainer.appendChild(changeItem);
+          page.changes.push(changeId);
+          this.updatePageChangesCount(pageId);
           
           const textarea = changeItem.querySelector('.change-textarea');
           textarea.focus();
         }
 
-        removeChange(changeId) {
+        removeChange(pageId, changeId) {
           const changeElement = document.querySelector(`[data-change-id="${changeId}"]`);
           if (changeElement) {
             changeElement.remove();
-            this.changes = this.changes.filter(id => id !== changeId);
-            this.updateChangesCount();
+            const page = this.pages.find(p => p.id === pageId);
+            page.changes = page.changes.filter(id => id !== changeId);
+            this.updatePageChangesCount(pageId);
             
-            if (this.changes.length === 0) {
-              this.changesContainer.innerHTML = `
-                <p style="text-align: center; color: var(--text-secondary); margin: 2rem 0;">
-                  Click "Add Change" to start adding your modifications
+            if (page.changes.length === 0) {
+              const changesContainer = document.querySelector(`[data-page-id="${pageId}"].changes-container`);
+              changesContainer.innerHTML = `
+                <p style="text-align: center; color: var(--text-secondary); margin: 1.5rem 0;">
+                  Click "Add Change" to start adding changes for this page
                 </p>
               `;
             }
           }
         }
 
-        updateChangesCount() {
-          const count = this.changes.length;
-          this.changesCount.textContent = `${count} Change${count !== 1 ? 's' : ''}`;
+        updatePagesCount() {
+          const count = this.pages.length;
+          this.pagesCount.textContent = `${count} Page${count !== 1 ? 's' : ''}`;
         }
 
-        validateField(field) {
-          const isValid = field.checkValidity();
-          if (!isValid) {
-            field.style.borderColor = '#ef4444';
-            field.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.1)';
+        updatePageChangesCount(pageId) {
+          const page = this.pages.find(p => p.id === pageId);
+          const count = page.changes.length;
+          const countElement = document.querySelector(`[data-page-id="${pageId}"].page-changes-count`);
+          countElement.textContent = `${count} Change${count !== 1 ? 's' : ''}`;
+        }
+
+        formatURL(e) {
+          let value = e.target.value.trim();
+          if (value && !value.startsWith('http')) {
+            e.target.value = 'https://' + value;
           }
-          return isValid;
-        }
-
-        clearFieldError(field) {
-          field.style.borderColor = '';
-          field.style.boxShadow = '';
         }
 
         async handleSubmit(e) {
@@ -735,45 +521,63 @@
         }
 
         validateForm() {
-          const requiredFields = this.form.querySelectorAll('[required]');
-          let isValid = true;
-          
-          requiredFields.forEach(field => {
-            if (!this.validateField(field)) {
-              isValid = false;
+          if (this.pages.length === 0) {
+            this.showError('Please add at least one page.');
+            return false;
+          }
+
+          let hasEmptyUrls = false;
+          let hasEmptyChanges = false;
+
+          for (const page of this.pages) {
+            const urlInput = document.querySelector(`[data-page-id="${page.id}"].page-url-input`);
+            if (!urlInput.value.trim()) {
+              hasEmptyUrls = true;
+              break;
             }
-          });
 
-          if (this.changes.length === 0) {
-            this.showError('Please add at least one change.');
-            isValid = false;
-          } else {
-            const hasEmptyChanges = this.changes.some(changeId => {
+            if (page.changes.length === 0) {
+              hasEmptyChanges = true;
+              break;
+            }
+
+            for (const changeId of page.changes) {
               const textarea = document.querySelector(`[data-change-id="${changeId}"] .change-textarea`);
-              return !textarea.value.trim();
-            });
-
-            if (hasEmptyChanges) {
-              this.showError('Please fill in all changes or remove empty ones.');
-              isValid = false;
+              if (!textarea.value.trim()) {
+                hasEmptyChanges = true;
+                break;
+              }
             }
           }
-          
-          return isValid;
+
+          if (hasEmptyUrls) {
+            this.showError('Please fill in all page URLs.');
+            return false;
+          }
+
+          if (hasEmptyChanges) {
+            this.showError('Please add at least one change for each page and fill in all change descriptions.');
+            return false;
+          }
+
+          return true;
         }
 
         getFormData() {
-          const formData = new FormData(this.form);
-          const data = {};
+          const data = { pages: [] };
           
-          for (let [key, value] of formData.entries()) {
-            data[key] = value.trim();
-          }
+          for (const page of this.pages) {
+            const urlInput = document.querySelector(`[data-page-id="${page.id}"].page-url-input`);
+            const changes = page.changes.map(changeId => {
+              const textarea = document.querySelector(`[data-change-id="${changeId}"] .change-textarea`);
+              return textarea.value.trim();
+            }).filter(change => change.length > 0);
 
-          data.changes = this.changes.map(changeId => {
-            const textarea = document.querySelector(`[data-change-id="${changeId}"] .change-textarea`);
-            return textarea.value.trim();
-          }).filter(change => change.length > 0);
+            data.pages.push({
+              url: urlInput.value.trim(),
+              changes: changes
+            });
+          }
           
           return data;
         }
