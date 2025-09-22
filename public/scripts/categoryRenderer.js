@@ -76,7 +76,11 @@ export class CategoryRenderer {
                   tool.path
                 }" target="_self" style="text-decoration: none; color: inherit;" ${
                   tool.internal ? 'data-internal="true"' : ""
-                }>${tool.name} ${tool.internal ? '<span style="background: #fbbf24; color: #92400e; font-size: 10px; padding: 2px 6px; border-radius: 12px; font-weight: 500;">Internal</span>': ''}</a></li>`
+                }>${tool.name} ${
+                  tool.internal
+                    ? '<span style="background: #fbbf24; color: #92400e; font-size: 10px; padding: 2px 6px; border-radius: 12px; font-weight: 500;">Internal</span>'
+                    : ""
+                }</a></li>`
             )
             .join("")}
       </ul>
@@ -139,6 +143,12 @@ export class CategoryRenderer {
                 ? '<span style="background: #fbbf24; color: #92400e; font-size: 10px; padding: 2px 6px; border-radius: 12px; font-weight: 500;">INTERNAL</span>'
                 : ""
             }
+            ${
+              tool.pending
+                ? '<span style="background: #10b981; color: #ffffff; font-size: 10px; padding: 2px 6px; border-radius: 12px; font-weight: 500;">Coming Soon</span>'
+                : ""
+            }
+
           </div>
           <div style="font-size: 12px; color: #6b7280;">
             in ${tool.categoryName}
