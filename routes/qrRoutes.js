@@ -1,7 +1,7 @@
 const express = require("express");
 const multer = require("multer");
-const QRCode = require("qrcode");
 const fileUploadService = require("../services/fileUploadService");
+const qrService = require("../services/qrService"); // optional, or use QRCode directly
 
 const router = express.Router();
 
@@ -22,8 +22,9 @@ const upload = multer({
 
 /**
  * POST /api/generate/qr-code
- * Accepts: file OR text/URL
- * Returns: Base64 JSON (default) OR downloadable PNG if ?download=true
+ * Supports:
+ *  - JSON { "text": "..." }
+ *  - multipart/form-data with "file" and/or "text"
  */
 router.post("/generate/qr-code", upload.single("file"), async (req, res) => {
   try {
@@ -33,9 +34,8 @@ router.post("/generate/qr-code", upload.single("file"), async (req, res) => {
       // Case 1: File uploaded → store in Backblaze
       const result = await fileUploadService.uploadFile(req.file, req.file.originalname);
       targetText = result.publicUrl;
-      console.log("📦 Uploaded for QR:", targetText);
-    } else if (req.body.text) {
-      // Case 2: Direct text/URL provided
+    } else if (req.body.text && req.body.text.trim() !== "") {
+      // Case 2: Text provided (works for JSON and FormData)
       targetText = req.body.text.trim();
     } else {
       return res.status(400).json({
@@ -46,21 +46,18 @@ router.post("/generate/qr-code", upload.single("file"), async (req, res) => {
 
     const size = parseInt(req.body.size, 10) || 300;
     const download = req.query.download === "true";
+    const filename = req.query.filename || "qr-code.png";
 
-    // Generate QR code as PNG buffer
-    const pngBuffer = await QRCode.toBuffer(targetText, {
-      width: size,
-      margin: 2,
-    });
+    // Generate QR as PNG
+    const pngBuffer = await qrService.generateQRCode(targetText, size);
 
     if (download) {
-      // Serve file for download
       res.setHeader("Content-Type", "image/png");
-      res.setHeader("Content-Disposition", `attachment; filename="qr-code.png"`);
+      res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
       return res.send(pngBuffer);
     }
 
-    // Default: return Base64 JSON
+    // Default: return Base64
     const qrBase64 = `data:image/png;base64,${pngBuffer.toString("base64")}`;
     res.json({ qrCode: qrBase64, target: targetText });
 
