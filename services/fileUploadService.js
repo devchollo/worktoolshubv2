@@ -90,18 +90,17 @@ class FileUploadService {
 
   async uploadFile(file, originalName) {
     try {
-      console.log("🔍 Starting upload for:", originalName);
-      console.log("📊 File details:", {
-        size: file.size,
-        mimetype: file.mimetype,
-        bufferLength: file.buffer?.length,
-      });
+      console.log("Starting upload for:", originalName);
 
       const uploadData = await this.getUploadUrl();
-      console.log("✅ Got upload URL");
-
       const fileName = this.generateFileName(originalName);
-      console.log("📝 Generated filename:", fileName);
+
+      // Calculate SHA1 hash of the file buffer
+      const sha1Hash = crypto
+        .createHash("sha1")
+        .update(file.buffer)
+        .digest("hex");
+      console.log("Calculated SHA1:", sha1Hash);
 
       const response = await fetch(uploadData.uploadUrl, {
         method: "POST",
@@ -109,23 +108,23 @@ class FileUploadService {
           Authorization: uploadData.authorizationToken,
           "X-Bz-File-Name": encodeURIComponent(fileName),
           "Content-Type": file.mimetype || "application/octet-stream",
-          "X-Bz-Content-Sha1": "unverified",
+          "X-Bz-Content-Sha1": sha1Hash, // Use actual SHA1 hash instead of 'unverified'
         },
         body: file.buffer,
       });
 
-      console.log("📤 Upload response status:", response.status);
+      console.log("Upload response status:", response.status);
 
       if (!response.ok) {
         const errorBody = await response.text();
-        console.error("❌ Upload failed with body:", errorBody);
+        console.error("Upload failed with body:", errorBody);
         throw new Error(
           `File upload failed: ${response.status} - ${errorBody}`
         );
       }
 
       const result = await response.json();
-      console.log("✅ Upload successful:", result.fileName);
+      console.log("Upload successful:", result.fileName);
 
       return {
         fileId: result.fileId,
