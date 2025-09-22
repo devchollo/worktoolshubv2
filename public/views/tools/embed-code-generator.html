@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Generate embed codes for audio, video, and image files with drag-and-drop upload to Backblaze - WorkToolsHub"
+    />
+    <meta
+      name="keywords"
+      content="embed code generator, file upload, audio player, video player, Backblaze, drag and drop"
+    />
+    <meta name="author" content="DevChollo" />
+
+    <title>Embed Code Generator - WorkToolsHub</title>
+
+    <link rel="preconnect" href="https://worktoolshubv2.onrender.com" />
+
+    <!-- Styling / CSS -->
+    <link rel="stylesheet" href="../styles/main.css" />
+    <link rel="stylesheet" href="../styles/tools.css" />
+
+    <style>
+      /* Tool-specific styles */
+      .upload-container {
+        background: var(--surface-color);
+        border: 3px dashed var(--border-color);
+        border-radius: var(--radius-xl);
+        padding: 3rem 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .upload-container:hover {
+        border-color: var(--primary-color);
+        background: rgba(37, 99, 235, 0.02);
+      }
+
+      .upload-container.drag-over {
+        border-color: var(--primary-color);
+        background: rgba(37, 99, 235, 0.05);
+        border-style: solid;
+        transform: scale(1.02);
+      }
+
+      .upload-container.uploading {
+        border-color: var(--accent-color);
+        background: rgba(16, 185, 129, 0.05);
+        pointer-events: none;
+      }
+
+      .upload-icon {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 1rem;
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: white;
+        transition: transform 0.3s ease;
+      }
+
+      .upload-container:hover .upload-icon {
+        transform: scale(1.1);
+      }
+
+      .upload-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+      }
+
+      .upload-subtitle {
+        color: var(--text-secondary);
+        margin-bottom: 1.5rem;
+        line-height: 1.5;
+      }
+
+      .upload-formats {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+      }
+
+      .format-tag {
+        background: var(--bg-color);
+        border: 1px solid var(--border-color);
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        font-weight: 500;
+      }
+
+      .upload-button {
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: var(--radius-lg);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .upload-button:hover {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+      }
+
+      .file-input {
+        display: none;
+      }
+
+      .upload-progress {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: rgba(37, 99, 235, 0.1);
+        display: none;
+      }
+
+      .upload-progress.show {
+        display: block;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+        width: 0%;
+        transition: width 0.3s ease;
+      }
+
+      .file-preview {
+        background: var(--bg-color);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        margin-top: 2rem;
+        display: none;
+      }
+
+      .file-preview.show {
+        display: block;
+        animation: slideIn 0.4s ease;
+      }
+
+      .file-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .file-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        flex-shrink: 0;
+      }
+
+      .file-icon.audio { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+      .file-icon.video { background: linear-gradient(135deg, #ef4444, #dc2626); }
+      .file-icon.image { background: linear-gradient(135deg, #10b981, #059669); }
+
+      .file-details h3 {
+        margin: 0 0 0.25rem;
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      .file-meta {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+      }
+
+      .embed-options {
+        display: grid;
+        gap: 2rem;
+        margin-top: 1.5rem;
+      }
+
+      .embed-section {
+        background: var(--surface-color);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+      }
+
+      .embed-header {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        margin-bottom: 1rem;
+      }
+
+      .embed-title {
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+      }
+
+      .embed-description {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        margin-bottom: 1rem;
+      }
+
+      .code-preview {
+        background: #1e293b;
+        color: #e2e8f0;
+        padding: 1rem;
+        border-radius: var(--radius-md);
+        font-family: 'Courier New', monospace;
+        font-size: 0.875rem;
+        line-height: 1.5;
+        overflow-x: auto;
+        white-space: pre-wrap;
+        word-break: break-all;
+        position: relative;
+      }
+
+      .copy-code-btn {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        border: none;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        cursor: pointer;
+        transition: background 0.2s ease;
+      }
+
+      .copy-code-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      .player-preview {
+        background: #000;
+        border-radius: var(--radius-md);
+        padding: 1rem;
+        margin-bottom: 1rem;
+        min-height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .spotify-player {
+        background: linear-gradient(135deg, #1db954, #1ed760);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        width: 100%;
+        max-width: 400px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      }
+
+      .spotify-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .spotify-artwork {
+        width: 60px;
+        height: 60px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+      }
+
+      .spotify-info h4 {
+        margin: 0 0 0.25rem;
+        font-size: 1rem;
+        font-weight: 600;
+      }
+
+      .spotify-info p {
+        margin: 0;
+        font-size: 0.875rem;
+        opacity: 0.8;
+      }
+
+      .spotify-controls {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 1rem;
+      }
+
+      .control-btn {
+        width: 40px;
+        height: 40px;
+        border: none;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .control-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: scale(1.1);
+      }
+
+      .control-btn.play {
+        width: 50px;
+        height: 50px;
+        background: white;
+        color: #1db954;
+      }
+
+      .image-link-section {
+        text-align: center;
+      }
+
+      .image-preview {
+        max-width: 200px;
+        max-height: 200px;
+        border-radius: var(--radius-md);
+        margin: 1rem auto;
+        display: block;
+        box-shadow: var(--shadow-md);
+      }
+
+      .link-display {
+        background: var(--surface-color);
+        border: 2px solid var(--border-color);
+        border-radius: var(--radius-md);
+        padding: 1rem;
+        font-family: 'Courier New', monospace;
+        font-size: 0.875rem;
+        word-break: break-all;
+        margin: 1rem 0;
+        position: relative;
+      }
+
+      .status-message {
+        padding: 1rem;
+        border-radius: var(--radius-md);
+        margin-top: 1rem;
+        text-align: center;
+        font-weight: 500;
+        display: none;
+      }
+
+      .status-message.success {
+        background: #d1fae5;
+        border: 1px solid #a7f3d0;
+        color: #065f46;
+        display: block;
+      }
+
+      .status-message.error {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        color: #dc2626;
+        display: block;
+      }
+
+      @media (max-width: 768px) {
+        .upload-container {
+          padding: 2rem 1rem;
+        }
+
+        .upload-formats {
+          gap: 0.5rem;
+        }
+
+        .format-tag {
+          font-size: 0.75rem;
+          padding: 0.375rem 0.75rem;
+        }
+
+        .file-info {
+          flex-direction: column;
+          text-align: center;
+          gap: 0.75rem;
+        }
+
+        .code-preview {
+          font-size: 0.75rem;
+        }
+
+        .spotify-player {
+          padding: 1rem;
+        }
+      }
+    </style>
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Embed Code Generator",
+      "description": "Generate embed codes for audio, video, and image files with drag-and-drop upload",
+      "url": "https://worktoolshub.info/embed-code-generator",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "Any",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "WorkToolsHub"
+      },
+      "featureList": [
+        "Drag and drop file upload",
+        "Audio embed code generation",
+        "Video embed code generation",
+        "Image link generation",
+        "Spotify-style audio player",
+        "Backblaze cloud storage"
+      ]
+    }
+    </script>
+  </head>
+  <body>
+    <div id="header"></div>
+    <div id="bread"></div>
+    
+    <main>
+      <section class="tool-container">
+        <div class="tool-header">
+          <h1>Embed Code Generator</h1>
+          <p class="subtitle">
+            Upload audio, video, or image files and generate professional embed codes. 
+            Get clean HTML code or styled players ready for your website.
+          </p>
+        </div>
+
+        <div class="form-container">
+          <div class="upload-container" id="uploadContainer">
+            <div class="upload-icon">📎</div>
+            <h3 class="upload-title">Drop files here or click to upload</h3>
+            <p class="upload-subtitle">
+              Support for audio, video, and image files.<br>
+              Files are automatically uploaded to secure cloud storage.
+            </p>
+            
+            <div class="upload-formats">
+              <span class="format-tag">MP3, WAV, M4A</span>
+              <span class="format-tag">MP4, WebM, AVI</span>
+              <span class="format-tag">JPG, PNG, GIF, WebP</span>
+            </div>
+            
+            <button class="upload-button" id="uploadButton">
+              Choose Files
+            </button>
+            
+            <div class="upload-progress" id="uploadProgress">
+              <div class="progress-fill" id="progressFill"></div>
+            </div>
+          </div>
+          
+          <input 
+            type="file" 
+            id="fileInput" 
+            class="file-input"
+            accept="audio/*,video/*,image/*"
+            multiple
+          />
+
+          <div class="status-message" id="statusMessage"></div>
+        </div>
+
+        <div class="file-preview" id="filePreview">
+          <div class="file-info" id="fileInfo"></div>
+          <div class="embed-options" id="embedOptions"></div>
+        </div>
+      </section>
+    </main>
+
+    <div id="footer"></div>
+
+    <script src="../scripts/layout.js"></script>
+    <script type="module" src="../scripts/main.js" defer></script>
+    <script src="../../scripts/page-auth.js"></script>
+
+    <script>
+      class EmbedCodeGenerator {
+        constructor() {
+          this.uploadContainer = document.getElementById('uploadContainer');
+          this.fileInput = document.getElementById('fileInput');
+          this.uploadButton = document.getElementById('uploadButton');
+          this.uploadProgress = document.getElementById('uploadProgress');
+          this.progressFill = document.getElementById('progressFill');
+          this.statusMessage = document.getElementById('statusMessage');
+          this.filePreview = document.getElementById('filePreview');
+          this.fileInfo = document.getElementById('fileInfo');
+          this.embedOptions = document.getElementById('embedOptions');
+          
+          this.supportedTypes = {
+            audio: ['mp3', 'wav', 'm4a', 'aac', 'ogg'],
+            video: ['mp4', 'webm', 'avi', 'mov', 'wmv'],
+            image: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg']
+          };
+          
+          this.init();
+        }
+
+        init() {
+          this.bindEvents();
+        }
+
+        bindEvents() {
+          // File input change
+          this.fileInput.addEventListener('change', (e) => this.handleFiles(e.target.files));
+          
+          // Upload button click
+          this.uploadButton.addEventListener('click', () => this.fileInput.click());
+          
+          // Drag and drop events
+          this.uploadContainer.addEventListener('dragover', (e) => this.handleDragOver(e));
+          this.uploadContainer.addEventListener('dragleave', (e) => this.handleDragLeave(e));
+          this.uploadContainer.addEventListener('drop', (e) => this.handleDrop(e));
+          
+          // Paste event
+          document.addEventListener('paste', (e) => this.handlePaste(e));
+        }
+
+        handleDragOver(e) {
+          e.preventDefault();
+          this.uploadContainer.classList.add('drag-over');
+        }
+
+        handleDragLeave(e) {
+          e.preventDefault();
+          if (!this.uploadContainer.contains(e.relatedTarget)) {
+            this.uploadContainer.classList.remove('drag-over');
+          }
+        }
+
+        handleDrop(e) {
+          e.preventDefault();
+          this.uploadContainer.classList.remove('drag-over');
+          const files = Array.from(e.dataTransfer.files);
+          if (files.length > 0) {
+            this.handleFiles(files);
+          }
+        }
+
+        handlePaste(e) {
+          const items = Array.from(e.clipboardData.items);
+          const files = items
+            .filter(item => item.kind === 'file')
+            .map(item => item.getAsFile());
+          
+          if (files.length > 0) {
+            this.handleFiles(files);
+          }
+        }
+
+        async handleFiles(files) {
+          for (const file of files) {
+            if (this.isValidFile(file)) {
+              await this.uploadFile(file);
+            } else {
+              this.showStatus(`"${file.name}" is not a supported file type.`, 'error');
+            }
+          }
+        }
+
+        isValidFile(file) {
+          const extension = file.name.split('.').pop().toLowerCase();
+          const allSupported = [
+            ...this.supportedTypes.audio,
+            ...this.supportedTypes.video,
+            ...this.supportedTypes.image
+          ];
+          return allSupported.includes(extension);
+        }
+
+        getFileType(file) {
+          const extension = file.name.split('.').pop().toLowerCase();
+          
+          if (this.supportedTypes.audio.includes(extension)) return 'audio';
+          if (this.supportedTypes.video.includes(extension)) return 'video';
+          if (this.supportedTypes.image.includes(extension)) return 'image';
+          
+          return 'unknown';
+        }
+
+        async uploadFile(file) {
+          const formData = new FormData();
+          formData.append('file', file);
+
+          this.showUploadProgress();
+          this.showStatus('Uploading file...', 'info');
+
+          try {
+            const response = await fetch('https://worktoolshubv2.onrender.com/api/upload/embed-file', {
+              method: 'POST',
+              body: formData
+            });
+
+            if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(errorData.message || `Upload failed: ${response.status}`);
+            }
+
+            const result = await response.json();
+            this.handleUploadSuccess(file, result);
+            
+          } catch (error) {
+            console.error('Upload error:', error);
+            this.showStatus(`Upload failed: ${error.message}`, 'error');
+          } finally {
+            this.hideUploadProgress();
+          }
+        }
+
+        handleUploadSuccess(file, result) {
+          const fileType = this.getFileType(file);
+          
+          this.showFilePreview(file, result, fileType);
+          this.generateEmbedCodes(file, result, fileType);
+          this.showStatus('File uploaded successfully!', 'success');
+        }
+
+        showFilePreview(file, result, fileType) {
+          const fileSize = (file.size / 1024 / 1024).toFixed(2);
+          const typeColors = {
+            audio: '#8b5cf6',
+            video: '#ef4444', 
+            image: '#10b981'
+          };
+          
+          const typeIcons = {
+            audio: '🎵',
+            video: '🎬',
+            image: '🖼️'
+          };
+
+          this.fileInfo.innerHTML = `
+            <div class="file-icon ${fileType}" style="background: linear-gradient(135deg, ${typeColors[fileType]}, ${typeColors[fileType]}dd)">
+              ${typeIcons[fileType]}
+            </div>
+            <div class="file-details">
+              <h3>${file.name}</h3>
+              <div class="file-meta">
+                ${fileType.toUpperCase()} • ${fileSize} MB • Uploaded to cloud storage
+              </div>
+            </div>
+          `;
+
+          this.filePreview.classList.add('show');
+        }
+
+        generateEmbedCodes(file, result, fileType) {
+          this.embedOptions.innerHTML = '';
+
+          if (fileType === 'image') {
+            this.generateImageEmbed(file, result);
+          } else if (fileType === 'audio') {
+            this.generateAudioEmbeds(file, result);
+          } else if (fileType === 'video') {
+            this.generateVideoEmbeds(file, result);
+          }
+        }
+
+        generateImageEmbed(file, result) {
+          this.embedOptions.innerHTML = `
+            <div class="embed-section image-link-section">
+              <h4 class="embed-title">Image Link</h4>
+              <p class="embed-description">Direct link to your image hosted on secure cloud storage</p>
+              
+              <img src="${result.publicUrl}" alt="${file.name}" class="image-preview" />
+              
+              <div class="link-display">
+                ${result.publicUrl}
+                <button class="copy-code-btn" onclick="embedGenerator.copyToClipboard('${result.publicUrl}')">
+                  Copy
+                </button>
+              </div>
+            </div>
+          `;
+        }
+
+        generateAudioEmbeds(file, result) {
+          const basicEmbed = `<audio controls>
+  <source src="${result.publicUrl}" type="audio/mpeg">
+  Your browser does not support the audio element.
+</audio>`;
+
+          const spotifyEmbed = `<div style="background: linear-gradient(135deg, #1db954, #1ed760); color: white; padding: 24px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); font-family: Arial, sans-serif;">
+  <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px;">
+    <div style="width: 60px; height: 60px; background: rgba(255,255,255,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 24px;">🎵</div>
+    <div>
+      <h4 style="margin: 0 0 4px; font-size: 16px; font-weight: 600;">${file.name.replace(/\.[^/.]+$/, "")}</h4>
+      <p style="margin: 0; font-size: 14px; opacity: 0.8;">Audio Track</p>
+    </div>
+  </div>
+  <audio controls style="width: 100%; margin-top: 16px;">
+    <source src="${result.publicUrl}" type="audio/mpeg">
+  </audio>
+</div>`;
+
+          this.embedOptions.innerHTML = `
+            <div class="embed-section">
+              <h4 class="embed-title">Basic Audio Player</h4>
+              <p class="embed-description">Simple HTML5 audio player</p>
+              
+              <div class="player-preview">
+                <audio controls style="width: 100%;">
+                  <source src="${result.publicUrl}" type="audio/mpeg">
+                </audio>
+              </div>
+              
+              <div class="code-preview">
+                <button class="copy-code-btn" onclick="embedGenerator.copyToClipboard(\`${basicEmbed.replace(/`/g, '\\`')}\`)">Copy</button>${basicEmbed}
+              </div>
+            </div>
+
+            <div class="embed-section">
+              <h4 class="embed-title">Spotify-Style Player</h4>
+              <p class="embed-description">Modern styled audio player with custom design</p>
+              
+              <div class="player-preview">
+                <div class="spotify-player">
+                  <div class="spotify-header">
+                    <div class="spotify-artwork">🎵</div>
+                    <div class="spotify-info">
+                      <h4>${file.name.replace(/\.[^/.]+$/, "")}</h4>
+                      <p>Audio Track</p>
+                    </div>
+                  </div>
+                  <audio controls style="width: 100%; margin-top: 16px;">
+                    <source src="${result.publicUrl}" type="audio/mpeg">
+                  </audio>
+                </div>
+              </div>
+              
+              <div class="code-preview">
+                <button class="copy-code-btn" onclick="embedGenerator.copyToClipboard(\`${spotifyEmbed.replace(/`/g, '\\`')}\`)">Copy</button>${spotifyEmbed}
+              </div>
+            </div>
+          `;
+        }
+
+        generateVideoEmbeds(file, result) {
+          const basicEmbed = `<video controls width="100%" height="auto">
+  <source src="${result.publicUrl}" type="video/mp4">
+  Your browser does not support the video element.
+</video>`;
+
+          const styledEmbed = `<div style="position: relative; width: 100%; max-width: 640px; margin: 0 auto; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.3);">
+  <video controls style="width: 100%; height: auto; display: block;">
+    <source src="${result.publicUrl}" type="video/mp4">
+    Your browser does not support the video element.
+  </video>
+</div>`;
+
+          this.embedOptions.innerHTML = `
+            <div class="embed-section">
+              <h4 class="embed-title">Basic Video Player</h4>
+              <p class="embed-description">Simple HTML5 video player</p>
+              
+              <div class="player-preview" style="background: #000;">
+                <video controls style="width: 100%; height: auto; max-height: 300px;">
+                  <source src="${result.publicUrl}" type="video/mp4">
+                </video>
+              </div>
+              
+              <div class="code-preview">
+                <button class="copy-code-btn" onclick="embedGenerator.copyToClipboard(\`${basicEmbed.replace(/`/g, '\\`')}\`)">Copy</button>${basicEmbed}
+              </div>
+            </div>
+
+            <div class="embed-section">
+              <h4 class="embed-title">Styled Video Player</h4>
+              <p class="embed-description">Enhanced video player with modern styling</p>
+              
+              <div class="player-preview" style="background: #000;">
+                <div style="position: relative; width: 100%; max-width: 400px; margin: 0 auto; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.3);">
+                  <video controls style="width: 100%; height: auto; display: block;">
+                    <source src="${result.publicUrl}" type="video/mp4">
+                  </video>
+                </div>
+              </div>
+              
+              <div class="code-preview">
+                <button class="copy-code-btn" onclick="embedGenerator.copyToClipboard(\`${styledEmbed.replace(/`/g, '\\`')}\`)">Copy</button>${styledEmbed}
+              </div>
+            </div>
+          `;
+        }
+
+        showUploadProgress() {
+          this.uploadContainer.classList.add('uploading');
+          this.uploadProgress.classList.add('show');
+          this.progressFill.style.width = '100%';
+        }
+
+        hideUploadProgress() {
+          this.uploadContainer.classList.remove('uploading');
+          this.uploadProgress.classList.remove('show');
+          this.progressFill.style.width = '0%';
+        }
+
+        showStatus(message, type) {
+          this.statusMessage.textContent = message;
+          this.statusMessage.className = `status-message ${type}`;
+          
+          if (type === 'success' || type === 'info') {
+            setTimeout(() => {
+              this.statusMessage.classList.remove('success', 'info');
+            }, 3000);
+          }
+        }
+
+        async copyToClipboard(text) {
+          try {
+            await navigator.clipboard.writeText(text);
+            
+            const button = event.target;
+            const originalText = button.textContent;
+            button.textContent = 'Copied!';
+            button.style.opacity = '0.7';
+            
+            setTimeout(() => {
+              button.textContent = originalText;
+              button.style.opacity = '';
+            }, 2000);
+          } catch (error) {
+            console.error('Failed to copy:', error);
+            this.showStatus('Failed to copy to clipboard', 'error');
+          }
+        }
+      }
+
+      let embedGenerator;
+      document.addEventListener('DOMContentLoaded', () => {
+        embedGenerator = new EmbedCodeGenerator();
+      });
+    </script>
+  </body>
+</html>
