@@ -83,7 +83,7 @@ export class CategoryRenderer {
                 }
                 ${
               tool.pending
-                ? '<span style="background: #10b981; color: #ffffff; font-size: 10px; padding: 2px 6px; border-radius: 12px; font-weight: 500;">Coming Soon</span>'
+                ? '<span style="background: #21795bff; color: #b9b9b9ff; font-size: 10px; padding: 2px 6px; border-radius: 12px; font-weight: 500;">Coming Soon</span>'
                 : ""
             }
                 </a></li>`
@@ -148,10 +148,10 @@ export class CategoryRenderer {
               tool.internal
                 ? '<span style="background: #fbbf24; color: #92400e; font-size: 10px; padding: 2px 6px; border-radius: 12px; font-weight: 500;">INTERNAL</span>'
                 : ""
-            }
+            } 
             ${
               tool.pending
-                ? '<span style="background: #10b981; color: #ffffff; font-size: 10px; padding: 2px 6px; border-radius: 12px; font-weight: 500;">Coming Soon</span>'
+                ? '<span style="background: #21795bff; color: #b9b9b9ff; font-size: 10px; padding: 2px 6px; border-radius: 12px; font-weight: 500;">Coming Soon</span>'
                 : ""
             }
 
