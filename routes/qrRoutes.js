@@ -1,7 +1,7 @@
 const express = require("express");
 const multer = require("multer");
 const fileUploadService = require("../services/fileUploadService");
-const qrService = require("../services/qrService"); // optional, or use QRCode directly
+const QRCode = require("qrcode");
 
 const router = express.Router();
 
@@ -48,9 +48,11 @@ router.post("/generate/qr-code", upload.single("file"), async (req, res) => {
     const download = req.query.download === "true";
     const filename = req.query.filename || "qr-code.png";
 
-    // Generate QR as PNG
-    const pngBuffer = await qrService.generateQRCode(targetText, size);
-
+const pngBuffer = await QRCode.toBuffer(targetText, {
+  type: "png",
+  width: size,
+  margin: 2,
+});
     if (download) {
       res.setHeader("Content-Type", "image/png");
       res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
