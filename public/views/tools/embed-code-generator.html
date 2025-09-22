@@ -750,111 +750,100 @@
 
 generateAudioEmbeds(file, result) {
   const fileName = file.name.replace(/\.[^/.]+$/, "");
-  const uid = 'wth' + Date.now().toString(36) + Math.random().toString(36).slice(2,5);
+  const uid = 'wth' + Date.now().toString(36);
   const src = result.publicUrl;
 
-  const basicEmbed = `<audio controls>
-  <source src="${src}" type="audio/mpeg">
-  Your browser does not support the audio element.
-</audio>`;
-
-  // Spotify-style, fully functional embed (self-contained)
-  const spotifyEmbed = `<div id="${uid}" style="background: linear-gradient(135deg,#1db954,#1ed760); color:#fff; padding:18px; border-radius:14px; width:100%; max-width:420px; box-shadow:0 8px 24px rgba(0,0,0,0.22); font-family:Arial, sans-serif;">
-    <div style="display:flex; gap:12px; align-items:center;">
-      <div style="width:56px;height:56px;border-radius:10px;background:rgba(0,0,0,0.18);display:flex;align-items:center;justify-content:center;font-size:26px;">🎵</div>
-      <div style="flex:1;min-width:0;">
-        <div style="font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${this.escapeHtml(fileName)}</div>
-        <div style="font-size:13px;opacity:0.92;margin-top:4px;">Audio Track</div>
-      </div>
-    </div>
-
-    <div style="display:flex;align-items:center;gap:12px;margin-top:12px;">
-      <button id="${uid}-prev" type="button" style="background:none;border:none;color:rgba(255,255,255,0.9);font-size:18px;cursor:pointer;">⏮</button>
-      <button id="${uid}-play" type="button" style="background:#fff;border:none;color:#1db954;border-radius:50%;width:44px;height:44px;cursor:pointer;font-size:18px;">▶</button>
-      <button id="${uid}-next" type="button" style="background:none;border:none;color:rgba(255,255,255,0.9);font-size:18px;cursor:pointer;">⏭</button>
-
-      <div style="flex:1;display:flex;align-items:center;gap:8px;margin-left:8px;">
-        <span id="${uid}-current" style="font-size:12px;min-width:36px;">0:00</span>
-        <div id="${uid}-bar" style="flex:1;height:6px;background:rgba(255,255,255,0.22);border-radius:6px;position:relative;cursor:pointer;">
-          <div id="${uid}-progress" style="height:100%;width:0%;background:#fff;border-radius:6px;"></div>
+  const spotifyEmbed = `
+    <div id="${uid}" style="background:linear-gradient(135deg,#1db954,#1ed760);color:#fff;padding:18px;border-radius:14px;width:100%;max-width:420px;box-shadow:0 8px 24px rgba(0,0,0,0.22);font-family:Arial,sans-serif;">
+      <div style="display:flex;gap:12px;align-items:center;">
+        <div style="width:56px;height:56px;border-radius:10px;background:rgba(0,0,0,0.18);display:flex;align-items:center;justify-content:center;font-size:26px;">🎵</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${this.escapeHtml(fileName)}</div>
+          <div style="font-size:13px;opacity:0.92;margin-top:4px;">Audio Track</div>
         </div>
-        <span id="${uid}-duration" style="font-size:12px;min-width:36px;text-align:right;">0:00</span>
       </div>
+
+      <div style="display:flex;align-items:center;gap:12px;margin-top:12px;">
+        <button id="${uid}-play" type="button" style="background:#fff;border:none;color:#1db954;border-radius:50%;width:44px;height:44px;cursor:pointer;font-size:18px;transition:transform 0.2s ease;">▶</button>
+
+        <div style="flex:1;display:flex;align-items:center;gap:8px;">
+          <span id="${uid}-current" style="font-size:12px;min-width:36px;">0:00</span>
+          <div id="${uid}-bar" style="flex:1;height:6px;background:rgba(255,255,255,0.22);border-radius:6px;position:relative;cursor:pointer;overflow:hidden;">
+            <div id="${uid}-progress" style="height:100%;width:0%;background:#fff;border-radius:6px;transition:width 0.2s linear;"></div>
+          </div>
+          <span id="${uid}-duration" style="font-size:12px;min-width:36px;text-align:right;">0:00</span>
+        </div>
+      </div>
+
+      <audio id="${uid}-audio" src="${src}"></audio>
     </div>
 
-    <audio id="${uid}-audio" src="${src}"></audio>
+    <style>
+      @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.15); }
+        100% { transform: scale(1); }
+      }
+      #${uid}-play.playing {
+        animation: pulse 1s infinite;
+      }
+    </style>`;
 
-    <script>
-    (function(){
-      try {
-        var root = document.getElementById('${uid}');
-        if (!root) return;
-        var audio = root.querySelector('#${uid}-audio');
-        var playBtn = root.querySelector('#${uid}-play');
-        var prevBtn = root.querySelector('#${uid}-prev');
-        var nextBtn = root.querySelector('#${uid}-next');
-        var progress = root.querySelector('#${uid}-progress');
-        var bar = root.querySelector('#${uid}-bar');
-        var curLabel = root.querySelector('#${uid}-current');
-        var durLabel = root.querySelector('#${uid}-duration');
+  this.embedOptions.innerHTML = `<div class="player-preview">${spotifyEmbed}</div>`;
 
-        function fmt(t){ if(isNaN(t)) return '0:00'; var m=Math.floor(t/60); var s=Math.floor(t%60).toString().padStart(2,'0'); return m+':'+s; }
+  this.initSpotifyPlayer(uid);
 
-        audio.addEventListener('loadedmetadata', function(){ durLabel.textContent = fmt(audio.duration); });
-        audio.addEventListener('timeupdate', function(){ curLabel.textContent = fmt(audio.currentTime); var pct = audio.duration ? (audio.currentTime / audio.duration) * 100 : 0; progress.style.width = pct + '%'; });
-
-        playBtn.addEventListener('click', function(){
-          if (audio.paused){ audio.play(); playBtn.textContent = '❚❚'; }
-          else { audio.pause(); playBtn.textContent = '▶'; }
-        });
-
-        // Prev/Next are visual only (hooks for playlists). You can wire them up later.
-        prevBtn.addEventListener('click', function(){ audio.currentTime = Math.max(0, audio.currentTime - 10); });
-        nextBtn.addEventListener('click', function(){ audio.currentTime = Math.min(audio.duration || 0, audio.currentTime + 10); });
-
-        bar.addEventListener('click', function(e){
-          var rect = bar.getBoundingClientRect(); var x = e.clientX - rect.left; var pct = Math.max(0, Math.min(1, x / rect.width)); audio.currentTime = (audio.duration || 0) * pct;
-        });
-
-        // keyboard space toggles when focused
-        root.addEventListener('keydown', function(e){ if (e.code === 'Space'){ e.preventDefault(); playBtn.click(); } });
-      } catch (err) { console.error('wth-embed player init error', err); }
-    })();
-    <\/script>
-  </div>`;
-
-  // render preview
-  this.embedOptions.innerHTML = `
-    <div class="embed-section">
-      <h4 class="embed-title">Basic Audio Player</h4>
-      <p class="embed-description">Simple HTML5 audio player</p>
-      <div class="player-preview">
-        <audio controls style="width:100%"><source src="${src}" type="audio/mpeg"></audio>
-      </div>
-      <div class="code-preview">
-        <button class="copy-code-btn" onclick="embedGenerator.copyCode(this,'basic-audio')">Copy</button>
-        <div id="basic-audio-code">${this.escapeHtml(basicEmbed)}</div>
-      </div>
-    </div>
-
-    <div class="embed-section">
-      <h4 class="embed-title">Spotify-Style Player</h4>
-      <p class="embed-description">Copy-paste this card — includes JS for play/progress/seek</p>
-      <div class="player-preview">${spotifyEmbed}</div>
-      <div class="code-preview">
-        <button class="copy-code-btn" onclick="embedGenerator.copyCode(this,'spotify-audio')">Copy</button>
-        <div id="spotify-audio-code">${this.escapeHtml(spotifyEmbed)}</div>
-      </div>
-    </div>
-  `;
-
-  // store codes
-  this.embedCodes = this.embedCodes || {};
-  this.embedCodes['basic-audio'] = basicEmbed;
-  this.embedCodes['spotify-audio'] = spotifyEmbed;
+  this.embedCodes = {
+    "spotify-audio": spotifyEmbed
+  };
 }
 
+initSpotifyPlayer(uid) {
+  const root = document.getElementById(uid);
+  if (!root) return;
 
+  const audio = root.querySelector(`#${uid}-audio`);
+  const playBtn = root.querySelector(`#${uid}-play`);
+  const progress = root.querySelector(`#${uid}-progress`);
+  const bar = root.querySelector(`#${uid}-bar`);
+  const curLabel = root.querySelector(`#${uid}-current`);
+  const durLabel = root.querySelector(`#${uid}-duration`);
+
+  function fmt(t) {
+    if (isNaN(t)) return '0:00';
+    let m = Math.floor(t / 60);
+    let s = Math.floor(t % 60).toString().padStart(2, '0');
+    return m + ':' + s;
+  }
+
+  audio.addEventListener('loadedmetadata', () => {
+    durLabel.textContent = fmt(audio.duration);
+  });
+  audio.addEventListener('timeupdate', () => {
+    curLabel.textContent = fmt(audio.currentTime);
+    let pct = audio.duration ? (audio.currentTime / audio.duration) * 100 : 0;
+    progress.style.width = pct + '%';
+  });
+
+  playBtn.addEventListener('click', () => {
+    if (audio.paused) {
+      audio.play();
+      playBtn.textContent = '❚❚';
+      playBtn.classList.add('playing');
+    } else {
+      audio.pause();
+      playBtn.textContent = '▶';
+      playBtn.classList.remove('playing');
+    }
+  });
+
+  bar.addEventListener('click', e => {
+    const rect = bar.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const pct = Math.max(0, Math.min(1, x / rect.width));
+    audio.currentTime = (audio.duration || 0) * pct;
+  });
+}
 
         generateVideoEmbeds(file, result) {
           const basicEmbed = `<video controls width="100%" height="auto">
