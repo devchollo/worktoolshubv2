@@ -12,12 +12,8 @@
       content="embed code generator, file upload, audio player, video player, Backblaze, drag and drop"
     />
     <meta name="author" content="DevChollo" />
-
     <title>Embed Code Generator - WorkToolsHub</title>
-
     <link rel="preconnect" href="https://worktoolshubv2.onrender.com" />
-
-    <!-- Styling / CSS -->
     <link rel="stylesheet" href="../styles/main.css" />
     <link rel="stylesheet" href="../styles/tools.css" />
 
@@ -435,8 +431,6 @@
         }
       }
     </style>
-
-    <!-- Structured Data -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -748,7 +742,7 @@
         }
 
         // audio embed
-                generateAudioEmbeds(file, result) {
+        generateAudioEmbeds(file, result) {
           const fileName = file.name.replace(/\.[^/.]+$/, "");
 
           const basicEmbed = `<audio controls>
@@ -819,7 +813,7 @@
           };
         }
 
-
+        // video embed
         generateVideoEmbeds(file, result) {
           const basicEmbed = `<video controls width="100%" height="auto">
   <source src="${result.publicUrl}" type="video/mp4">
