@@ -21,7 +21,7 @@ app.use(cors({
     'https://www.worktoolshub.info',
     'https://wthv2.vercel.app', 
   ],
-  methods: ['GET', 'POST'],
+  methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
