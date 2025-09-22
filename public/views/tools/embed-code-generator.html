@@ -789,7 +789,23 @@ generateAudioEmbeds(file, result) {
       }
     </style>`;
 
-  this.embedOptions.innerHTML = `<div class="player-preview">${spotifyEmbed}</div>`;
+//   this.embedOptions.innerHTML = `<div class="player-preview">${spotifyEmbed}</div>`;
+
+this.embedOptions.innerHTML = `
+  <div class="embed-section">
+    <h4 class="embed-title">Spotify-Style Player</h4>
+    <p class="embed-description">Modern styled audio player with custom design</p>
+    
+    <div class="player-preview">
+      ${spotifyEmbed}
+    </div>
+    
+    <div class="code-preview">
+      <button class="copy-code-btn" onclick="embedGenerator.copyCode(this, 'spotify-audio')">Copy</button>
+      <div id="spotify-audio-code">${this.escapeHtml(spotifyEmbed)}</div>
+    </div>
+  </div>
+`;
 
   this.initSpotifyPlayer(uid);
 
