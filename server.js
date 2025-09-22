@@ -8,6 +8,7 @@ require('dotenv').config();
 // Import routes
 const emailRoutes = require('./routes/emailRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
+const qrRoutes = require('./routes/qrRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -38,6 +39,7 @@ if (process.env.NODE_ENV === 'development') {
 // API Routes
 app.use('/api/email', emailRoutes);
 app.use('/api', uploadRoutes);
+app.use('/api', qrRoutes);
 
 // Authentication endpoint (keep this here since it's not email-related)
 app.post('/api/auth/verify-email', (req, res) => {
