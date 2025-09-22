@@ -381,7 +381,7 @@
             this.showResult(generatedEmail);
           } catch (error) {
             console.error('Email generation error:', error);
-            this.showError('Failed to generate email. Please try again.');
+            this.showError(error.message);
           } finally {
             this.setLoadingState(false);
           }
@@ -434,6 +434,7 @@
           });
 
           if (!response.ok) {
+            const errorData = await response.json();
             throw new Error(`HTTP error! status: ${response.status}`);
           }
 

@@ -143,49 +143,45 @@ Structure it as a formal business update request email that would be sent to a b
     return this.generateEmail(prompt, systemMessage, 800);
   }
 
-  generateOBCXCallbackEmail(data) {
-    const {
-      personnelName,
-      customerName,
-      customerContact,
-      caseId,
-      formattedTimeframe,
-      briefNotes,
-    } = data;
+generateOBCXCallbackEmail(data) {
+  const { 
+    personnelName, customerName, customerContact, caseId, 
+    formattedTimeframe, briefNotes 
+  } = data;
 
-    const prompt = `
-Please create a professional OBCX callback email with the following information:
+  const prompt = `
+Please create a professional internal email to OBCX personnel about a client callback request:
 
-**OBCX Personnel:** ${personnelName}
-**Customer Information:**
+**To:** ${personnelName} (OBCX Personnel)
+**Regarding:** Client Callback Request
+
+**Client Information:**
 - Customer Name: ${customerName}
 - Contact Number: ${customerContact}
 - Case ID: ${caseId}
 
-**Callback Schedule:**
+**Requested Callback Window:**
 - Timeframe: ${formattedTimeframe}
 
 **Notes:** ${briefNotes}
 
 Please:
-1. Add a professional greeting
-2. Clearly communicate the callback schedule and timeframe
-3. Improve grammar and clarity in the notes while maintaining the original meaning
-4. Structure it as a professional callback confirmation email
-5. Add appropriate context about the OBCX callback process
-6. Include a professional closing with "Best Regards, [Your Name]"
-7. Make it sound professional and reassuring to the customer
+1. Add a professional greeting addressing the OBCX personnel
+2. Clearly communicate that this is a callback request FROM the client
+3. Provide all necessary client information for the callback
+4. Improve grammar and clarity in the notes while maintaining the original meaning
+5. Structure it as a professional internal notification email
+6. Include callback instructions and context
+7. Add a professional closing with "Best Regards, [Your Name]"
+8. Make it clear this is an action item for the OBCX personnel
 
-Structure it as a formal callback scheduling email that would be sent to confirm the callback appointment with the customer.
+Structure it as an internal notification email informing OBCX personnel about a client's callback request.
   `;
 
-    const systemMessage =
-      "You are a professional customer service communication assistant. Generate well-structured, professional OBCX callback emails with proper grammar and formatting that reassure customers about their scheduled callback.";
+  const systemMessage = 'You are a professional internal communication assistant. Generate well-structured, professional internal emails that notify OBCX personnel about client callback requests with proper grammar and clear action items.';
 
-    return this.generateEmail(prompt, systemMessage, 800);
-  }
-
- // Update this method in your EmailService class
+  return this.generateEmail(prompt, systemMessage, 800);
+}
 
 generateOfflineModifications(data) {
   const { pages } = data;

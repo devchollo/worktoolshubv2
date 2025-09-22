@@ -137,9 +137,9 @@ class Validator {
     }
 
     // Validate case ID format (basic validation)
-    if (data.caseId && !/^(OBCX|OC|OEML)[-]?\d+/i.test(data.caseId)) {
+    if (data.caseId && !/^(OBCX|OC|OEML|I)[-]?\d+/i.test(data.caseId)) {
       throw new ValidationError(
-        "Invalid case ID format. Expected format: OBCX-123456, OC-123456, or OEML-123456",
+        "Invalid case ID format. Expected format: OBCX-123456, OC-123456, I-123456 or OEML-123456",
         "caseId"
       );
     }
