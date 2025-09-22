@@ -69,13 +69,36 @@ router.post('/generate-obcx-callback',
   )
 );
 
-// Offline Modifications Route
-router.post('/generate-offline-modifications',
-  handleEmailGeneration(
-    Validator.validateOfflineModifications.bind(Validator),
-    emailService.generateOfflineModifications.bind(emailService)
-  )
-);
+router.post('/generate-offline-modifications', async (req, res) => {
+  try {
+    const sanitizedData = Validator.sanitizeData(req.body);
+    Validator.validateOfflineModifications(sanitizedData);
+    
+    const results = await emailService.generateOfflineModifications(sanitizedData);
+    
+    res.json({ 
+      internalNote: results.internalNote,
+      clientEmail: results.clientEmail,
+      success: true
+    });
+
+  } catch (error) {
+    console.error('Offline modifications generation error:', error);
+    
+    if (error instanceof ValidationError) {
+      return res.status(400).json({ 
+        error: 'Validation failed',
+        message: error.message,
+        field: error.field
+      });
+    }
+    
+    res.status(500).json({ 
+      error: 'Generation failed',
+      message: 'An unexpected error occurred. Please try again later.'
+    });
+  }
+});
 
 // Health check for email service
 router.get('/health', (req, res) => {
