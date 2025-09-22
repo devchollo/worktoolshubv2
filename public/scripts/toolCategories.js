@@ -74,9 +74,9 @@ export const toolCategories = {
     color: "#8b5cf6",
     tools: [
       { name: "Embed Code Generator", path: "/tools/embed-code-generator", internal: true },
-      { name: "QR Code Creator", path: "/tool/qr-code", pending: true },
-      { name: "HTML Snippet Tools", path: "/tool/html-snippet", pending: true },
-      { name: "CSS Generator", path: "/tool/css-generator", pending: true },
+      { name: "QR Code Creator", path: "/tools/qr-code-generator", pending: true },
+      { name: "HTML Snippet Tools", path: "/tools/html-snippet", pending: true },
+      { name: "CSS Generator", path: "/tools/css-generator", pending: true },
     ],
   },
   "file-tools": {
@@ -87,12 +87,12 @@ export const toolCategories = {
     tools: [
       {
         name: "Image Compressor",
-        path: "/tool/image-compressor",
+        path: "/tools/image-compressor",
         pending: true,
       },
-      { name: "PDF Tools", path: "/tool/pdf-tools", pending: true },
-      { name: "File Converter", path: "/tool/file-converter", pending: true },
-      { name: "Batch Processor", path: "/tool/batch-processor", pending: true },
+      { name: "PDF Tools", path: "/toosl/pdf-tools", pending: true },
+      { name: "File Converter", path: "/tools/file-converter", pending: true },
+      { name: "Batch Processor", path: "/tools/batch-processor", pending: true },
     ],
   },
   "business-tools": {
@@ -108,13 +108,13 @@ export const toolCategories = {
       },
       {
         name: "Schema Generator",
-        path: "/tool/schema-generator",
+        path: "/tools/schema-generator",
         pending: true,
       },
-      { name: "Invoice Creator", path: "/tool/invoice-creator", pending: true },
+      { name: "Invoice Creator", path: "/tools/invoice-creator", pending: true },
       {
         name: "Report Templates",
-        path: "/tool/report-templates",
+        path: "/tools/report-templates",
         pending: true,
       },
     ],
@@ -127,14 +127,14 @@ export const toolCategories = {
     tools: [
       {
         name: "Logo Placeholder",
-        path: "/tool/logo-placeholder",
+        path: "/tools/logo-placeholder",
         pending: true,
       },
-      { name: "Color Palette", path: "/tool/color-palette", pending: true },
-      { name: "Icon Generator", path: "/tool/icon-generator", pending: true },
+      { name: "Color Palette", path: "/tools/color-palette", pending: true },
+      { name: "Icon Generator", path: "/tools/icon-generator", pending: true },
       {
         name: "Social Media Templates",
-        path: "/tool/social-templates",
+        path: "/tools/social-templates",
         pending: true,
       },
     ],
