@@ -74,7 +74,7 @@ export const toolCategories = {
     color: "#8b5cf6",
     tools: [
       { name: "Embed Code Generator", path: "/tools/embed-code-generator", internal: true },
-      { name: "QR Code Creator", path: "/tools/qr-code-generator" },
+      { name: "QR Code Creator", path: "/tools/qr-code-generator", internal: true },
       { name: "HTML Snippet Tools", path: "/tools/html-snippet", pending: true },
       { name: "CSS Generator", path: "/tools/css-generator", pending: true },
     ],
