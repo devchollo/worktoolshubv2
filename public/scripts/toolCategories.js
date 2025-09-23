@@ -9,10 +9,9 @@ export const toolCategories = {
     color: "#10b981",
     tools: [
       {
-        name: "OSAD Note Generator",
-        path: "/error.html?status=coming-soon",
+        name: "OSAD & Site Live Generator",
+        path: "/tools/osad-live-generator",
         internal: true,
-        pending: true,
       },
       {
         name: "Offline Mods Notes & Email Generator",

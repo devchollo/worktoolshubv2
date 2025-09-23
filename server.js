@@ -10,6 +10,7 @@ const emailRoutes = require('./routes/emailRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const qrRoutes = require('./routes/qrRoutes');
 const sitemapRoutes = require('./routes/sitemapRoutes');
+const notesRoutes = require('./routes/notesRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -45,6 +46,8 @@ app.use('/api/email', emailRoutes);
 app.use('/api', uploadRoutes);
 app.use('/api', qrRoutes);
 app.use('/api', sitemapRoutes);
+app.use('/api/notes', notesRoutes);
+
 
 // Sitemap.xml endpoint
 app.get('/sitemap.xml', (req, res) => {
