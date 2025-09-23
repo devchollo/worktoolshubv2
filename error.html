@@ -195,6 +195,45 @@
             font-size: 0.9rem;
             color: #718096;
         }
+
+        .available-tools {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .tool-link {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(102, 126, 234, 0.2);
+            border-radius: 8px;
+            padding: 0.75rem;
+            text-decoration: none;
+            color: #667eea;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tool-link:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .category-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
     </style>
 </head>
 <body>
@@ -229,6 +268,17 @@
     </footer>
 
     <script>
+        // Tool categories data (simplified for available tools)
+        const availableTools = [
+            { name: "📝 Offline Mods Notes & Email", path: "/tools/offline-mods-note-email-generator" },
+            { name: "✉️ Escalation Email Generator", path: "/tools/escalation-email-generator" },
+            { name: "🏢 Business Listing Update", path: "/tools/business-listing-update" },
+            { name: "📧 OBCX Email Creator", path: "/tools/obcx-email-generator" },
+            { name: "💻 Embed Code Generator", path: "/tools/embed-code-generator" },
+            { name: "📱 QR Code Creator", path: "/tools/qr-code-generator" },
+            { name: "🎨 Alt Text Generator", path: "/tools/alt-text" }
+        ];
+
         // Auto-detect error type from URL or set manually
         function initializeErrorPage() {
             const path = window.location.pathname.toLowerCase();
@@ -318,8 +368,24 @@
             // Update tool suggestion for coming soon pages
             if (statusCode === 'coming-soon') {
                 toolSuggestion.innerHTML = `
-                    <h4>📧 Get Notified</h4>
-                    <p>Want to be the first to know when this tool launches? Follow our updates!</p>
+                    <div class="category-badge">🚀 Coming Soon</div>
+                    <h4>This Tool Is In Development</h4>
+                    <p>We're working hard to bring you this powerful tool. Meanwhile, check out our available tools:</p>
+                    <div class="available-tools">
+                        ${availableTools.slice(0, 6).map(tool => 
+                            `<a href="${tool.path}" class="tool-link">${tool.name}</a>`
+                        ).join('')}
+                    </div>
+                `;
+            } else if (statusCode === '404') {
+                toolSuggestion.innerHTML = `
+                    <h4>🔧 Try Our Available Tools</h4>
+                    <p>Since you're here, check out some of our most popular tools:</p>
+                    <div class="available-tools">
+                        ${availableTools.slice(0, 4).map(tool => 
+                            `<a href="${tool.path}" class="tool-link">${tool.name}</a>`
+                        ).join('')}
+                    </div>
                 `;
             }
         }
