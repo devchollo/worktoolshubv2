@@ -103,7 +103,7 @@ export class CategoryRenderer {
 
     // Position dropdown relative to search input
     this.positionDropdown();
-
+console.log("Results array:", results);
     const html = results
       .map(
         (tool, index) => `
