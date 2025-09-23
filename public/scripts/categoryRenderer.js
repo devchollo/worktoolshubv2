@@ -113,7 +113,7 @@ export class CategoryRenderer {
            data-index="${index}" 
            data-path="${tool.path}"
            ${tool.internal ? 'data-internal="true"' : ""}
-           ${tool.pending ? 'data-pending="true' : ""}
+           ${tool.pending ? 'data-pending="true"' : ""}
            style="
              padding: 12px 16px;
              cursor: pointer;
