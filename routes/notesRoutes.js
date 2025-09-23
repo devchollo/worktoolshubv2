@@ -223,8 +223,7 @@ LAUNCH CHECKLIST & STATUS
 ✅ Domain verification completed
 ${data.sslPurchased === 'yes' ? '✅' : '⚠️'} SSL Certificate ${data.sslPurchased === 'yes' ? 'confirmed' : 'not purchased'}
 ✅ Contact person identified
-${data.domainVerification === 'needs-action' ? '🔄 Domain merge/transfer required' : '✅ Domain configuration verified'}
-${generateNextSteps(data)}`;
+${data.domainVerification === 'needs-action' ? '🔄 Domain merge/transfer required' : '✅ Domain configuration verified'}`;
 }
 
 // Helper function to get domain status text
@@ -266,31 +265,6 @@ function getDomainVerificationDetails(verification) {
     default:
       return 'Domain verification details not available';
   }
-}
-
-// Helper function to generate next steps
-function generateNextSteps(data) {
-  let steps = [];
-  
-  if (data.domainVerification === 'needs-action') {
-    steps.push('1. Initiate domain merge or transfer process');
-    steps.push('2. Coordinate with domain administrator');
-    steps.push('3. Verify domain transfer completion');
-  }
-  
-  if (data.sslPurchased === 'no') {
-    steps.push(`${steps.length + 1}. Consider SSL certificate purchase for enhanced security`);
-    steps.push(`${steps.length + 1}. Implement SSL configuration if certificate is acquired`);
-  } else {
-    steps.push(`${steps.length + 1}. Configure and install SSL certificate`);
-    steps.push(`${steps.length + 1}. Verify SSL implementation and HTTPS redirect`);
-  }
-  
-  steps.push(`${steps.length + 1}. Perform final pre-launch testing`);
-  steps.push(`${steps.length + 1}. Coordinate launch timing with ${data.contactPerson}`);
-  steps.push(`${steps.length + 1}. Monitor site performance post-launch`);
-  
-  return steps.join('\n');
 }
 
 // Health check endpoint
