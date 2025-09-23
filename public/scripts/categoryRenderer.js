@@ -83,7 +83,7 @@ export class CategoryRenderer {
                 }
                 ${
               tool.pending
-                ? '<span style="background: #21795bff; color: #b9b9b9ff; font-size: 10px; padding: 2px 6px; border-radius: 12px; font-weight: 500;">Coming Soon</span>'
+                ? '<span style="background: #10b981; color: #05422fff; font-size: 10px; padding: 2px 6px; border-radius: 12px; font-weight: 500;">Coming Soon</span>'
                 : ""
             }
                 </a></li>`
