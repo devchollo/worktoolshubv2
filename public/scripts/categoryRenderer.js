@@ -147,11 +147,11 @@ console.log("Results array:", results);
             ${tool.name}
             ${
               tool.internal
-                ? '<span style="background: #fbbf24; color: #92400e; font-size: 10px; padding: 2px 6px; border-radius: 12px; font-weight: 500;">INTERNAL</span>'
+                ? '<span style="background: #fbbf24; color: #92400e; font-size: 10px; padding: 2px 6px; border-radius: 12px; font-weight: 500;">Internal</span>'
                 : ""
             } ${
               tool.pending
-                ? '<span style="background: #fbbf24; color: #92400e; font-size: 10px; padding: 2px 6px; border-radius: 12px; font-weight: 500;">INTERNAL</span>'
+                ? '<span style="background: #10b981; color: #05422fff; font-size: 10px; padding: 2px 6px; border-radius: 12px; font-weight: 500;">Coming Soon</span>'
                 : ""
             } 
           </div>
