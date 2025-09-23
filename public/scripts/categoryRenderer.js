@@ -145,17 +145,15 @@ console.log("Results array:", results);
         <div>
           <div style="font-weight: 600; color: #111827; margin-bottom: 2px; display: flex; align-items: center; gap: 6px;">
             ${tool.name}
-            ${
-              tool.internal
+            // ${
+            //   tool.internal
+            //     ? '<span style="background: #fbbf24; color: #92400e; font-size: 10px; padding: 2px 6px; border-radius: 12px; font-weight: 500;">INTERNAL</span>'
+            //     : ""
+            // } ${
+              tool.pending
                 ? '<span style="background: #fbbf24; color: #92400e; font-size: 10px; padding: 2px 6px; border-radius: 12px; font-weight: 500;">INTERNAL</span>'
                 : ""
             } 
-            ${
-              tool.pending
-                ? '<span style="background: #21795bff; color: #b9b9b9ff; font-size: 10px; padding: 2px 6px; border-radius: 12px; font-weight: 500;">Coming Soon</span>'
-                : ""
-            }
-
           </div>
           <div style="font-size: 12px; color: #6b7280;">
             in ${tool.categoryName}
