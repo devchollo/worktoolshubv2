@@ -58,10 +58,9 @@ export const toolCategories = {
         internal: true,
       },
       {
-        name: "Launch Announcement",
-        path: "/error.html?status=coming-soon",
+        name: "Site Launch Announcement",
+        path: "/tools/osad-live-generator",
         internal: true,
-        pending: true,
       },
       { name: "Follow-up Templates", path: "/error.html?status=coming-soon", pending: true },
     ],
