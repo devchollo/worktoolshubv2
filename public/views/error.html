@@ -264,10 +264,12 @@
     </div>
 
     <footer class="footer">
-        <p>&copy; 2024 <a href="/">Work Tools Hub</a> - Free Online Tools for Support Teams</p>
+        <p>&copy; <span id="yearC"></span> <a href="/">Work Tools Hub</a> - Free Online Tools for Support Teams</p>
     </footer>
 
     <script>
+        // copyright year
+          document.getElementById("yearC").textContent = new Date().getFullYear();
         // Tool categories data (simplified for available tools)
         const availableTools = [
             { name: "📝 Offline Mods Notes & Email", path: "/tools/offline-mods-note-email-generator" },

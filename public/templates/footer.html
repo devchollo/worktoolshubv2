@@ -1,44 +1,137 @@
 <style>
-    footer .footer-section h3{
+    footer .footer-section h3 {
         color: var(--primary-color);
     }
-</style>   
-   
-   <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-grid">
-                <div class="footer-section">
-                    <h3>Popular Tools</h3>
-                    <a href="/tool/osad-note" class="footer-link">OSAD Note Generator</a>
-                    <a href="/tool/escalation-email" class="footer-link">Escalation Email</a>
-                    <a href="/tool/qr-code" class="footer-link">QR Code Generator</a>
-                    <a href="/tool/image-compressor" class="footer-link">Image Compressor</a>
-                </div>
-                <div class="footer-section">
-                    <h3>Categories</h3>
-                    <a href="/category/content-generators" class="footer-link">Content Tools</a>
-                    <a href="/category/email-tools" class="footer-link">Email Generators</a>
-                    <a href="/category/code-tools" class="footer-link">Development</a>
-                    <a href="/category/business-tools" class="footer-link">Business Tools</a>
-                </div>
-                <div class="footer-section">
-                    <h3>Resources</h3>
-                    <a href="/api" class="footer-link">API Documentation</a>
-                    <a href="/tutorials" class="footer-link">Tutorials</a>
-                    <a href="/blog" class="footer-link">Blog</a>
-                    <a href="/contact" class="footer-link">Contact</a>
-                </div>
-                <div class="footer-section">
-                    <h3>Legal</h3>
-                    <a href="/privacy" class="footer-link">Privacy Policy</a>
-                    <a href="/terms" class="footer-link">Terms of Service</a>
-                    <a href="/cookies" class="footer-link">Cookie Policy</a>
-                    <a href="/gdpr" class="footer-link">GDPR</a>
-                </div>
+
+    .more-info-section {
+        display: flex;
+        /* flex-direction: column; */
+        justify-content: space-between;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 1.5rem 1.5rem;
+        margin-bottom: 3rem;
+        border: 3px dotted var(--primary-color);
+    }
+
+    .footer-btn {
+        display: inline-block;
+        padding: 0.6rem 1.2rem;
+        font-size: 1rem;
+        text-decoration: none;
+        border-radius: 5px;
+        border: 1px solid transparent;
+        transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+    }
+
+    /* Contact button style */
+    .contact-btn {
+        background-color: #007bff;
+        /* example primary colour */
+        color: #ffffff;
+    }
+
+    .contact-btn:hover {
+        background-color: #0056b3;
+    }
+
+    /* Report issue button style */
+    .report-btn {
+        background-color: #6c757d;
+        /* example grey/dark secondary */
+        color: #ffffff;
+    }
+
+    .report-btn:hover {
+        background-color: #545b62;
+    }
+
+    /* Donate button style */
+    .donate-btn {
+        background-color: #ffc107;
+        /* example accent/yellow/gold */
+        color: #212529;
+    }
+
+    .donate-btn:hover {
+        background-color: #e0a800;
+    }
+
+    /* On smaller screens, stack vertically */
+    @media (max-width: 600px) {
+        .footer-buttons {
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .footer-btn {
+            width: 80%;
+            /* or auto, depending on design */
+            text-align: center;
+        }
+    }
+</style>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="container">
+        <div class="more-info-section">
+            <div class="footer-info-header" style="text-align: center;">
+                <h2 style="font-size: 3rem;">Get Involved</h2>
+                <p class="footer-subtext">We’d love your feedback and support.</p>
             </div>
-            <div class="footer-bottom">
-                <p>&copy; 2024 WorkToolsHub. All rights reserved. Built with ❤️ for professionals.</p>
+            <div class="footer-buttons">
+                <a href="https://worktoolshub.vercel.app/#contact" class="footer-btn contact-btn">
+                   
+                    Contact Us
+                </a>
+                <a href="https://github.com/devchollo/worktoolshubv2/issues/new" target="_blank" rel="noopener"
+                    class="footer-btn report-btn">
+                    Report Issue
+                </a>
+                <a href="https://www.paypal.com/ncp/payment/HJJ5YPE9FKGQN" target="_blank" rel="noopener"
+                    class="footer-btn donate-btn">
+                    Donate via PayPal
+                </a>
             </div>
         </div>
-    </footer>
+    </div>
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-section">
+                <h3>Popular Tools</h3>
+                <a href="/tool/osad-note" class="footer-link">OSAD Note Generator</a>
+                <a href="/tool/escalation-email" class="footer-link">Escalation Email</a>
+                <a href="/tool/qr-code" class="footer-link">QR Code Generator</a>
+                <a href="/tool/image-compressor" class="footer-link">Image Compressor</a>
+            </div>
+            <div class="footer-section">
+                <h3>Categories</h3>
+                <a href="/category/content-generators" class="footer-link">Content Tools</a>
+                <a href="/category/email-tools" class="footer-link">Email Generators</a>
+                <a href="/category/code-tools" class="footer-link">Development</a>
+                <a href="/category/business-tools" class="footer-link">Business Tools</a>
+            </div>
+            <div class="footer-section">
+                <h3>Resources</h3>
+                <a href="/api" class="footer-link">API Documentation</a>
+                <a href="/tutorials" class="footer-link">Tutorials</a>
+                <a href="/blog" class="footer-link">Blog</a>
+                <a href="/contact" class="footer-link">Contact</a>
+            </div>
+            <div class="footer-section">
+                <h3>Legal</h3>
+                <a href="/privacy" class="footer-link">Privacy Policy</a>
+                <a href="/terms" class="footer-link">Terms of Service</a>
+                <a href="/cookies" class="footer-link">Cookie Policy</a>
+                <a href="/gdpr" class="footer-link">GDPR</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; <span id="yearC"></span> WorkToolsHub. All rights reserved. Built with ❤️ for professionals.</p>
+        </div>
+    </div>
+</footer>
+<script>
+    document.getElementById("yearC").textContent = new Date().getFullYear();
+</script>
