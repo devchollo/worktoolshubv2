@@ -145,11 +145,11 @@ console.log("Results array:", results);
         <div>
           <div style="font-weight: 600; color: #111827; margin-bottom: 2px; display: flex; align-items: center; gap: 6px;">
             ${tool.name}
-            // ${
-            //   tool.internal
-            //     ? '<span style="background: #fbbf24; color: #92400e; font-size: 10px; padding: 2px 6px; border-radius: 12px; font-weight: 500;">INTERNAL</span>'
-            //     : ""
-            // } ${
+            ${
+              tool.internal
+                ? '<span style="background: #fbbf24; color: #92400e; font-size: 10px; padding: 2px 6px; border-radius: 12px; font-weight: 500;">INTERNAL</span>'
+                : ""
+            } ${
               tool.pending
                 ? '<span style="background: #fbbf24; color: #92400e; font-size: 10px; padding: 2px 6px; border-radius: 12px; font-weight: 500;">INTERNAL</span>'
                 : ""
@@ -299,6 +299,7 @@ console.log("Results array:", results);
             name: tool.name,
             path: tool.path,
             internal: tool.internal || false,
+            pending: tool.pending || false,
             categoryName: category.name,
             categoryIcon: category.icon,
             categoryColor: category.color,
