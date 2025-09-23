@@ -2,13 +2,70 @@
 const express = require('express');
 const router = express.Router();
 
-// Note: Make sure you have OpenAI configured
-// You'll need to install: npm install openai
-const { OpenAI } = require('openai');
+// Notes service class - similar to your emailService but separate
+class NotesService {
+  constructor() {
+    this.apiKey = process.env.OPENAI_API_KEY;
+    this.baseUrl = "https://api.openai.com/v1/chat/completions";
+    this.defaultModel = "gpt-3.5-turbo";
+    this.defaultTemperature = 0.3;
+  }
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+  async generateNote(prompt, systemMessage, maxTokens = 1000) {
+    if (!this.apiKey) {
+      throw new Error("OpenAI API key not configured");
+    }
+
+    try {
+      const response = await fetch(this.baseUrl, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${this.apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: this.defaultModel,
+          messages: [
+            {
+              role: "system",
+              content: systemMessage,
+            },
+            {
+              role: "user",
+              content: prompt,
+            },
+          ],
+          max_tokens: maxTokens,
+          temperature: this.defaultTemperature,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          `OpenAI API error: ${response.status} - ${
+            errorData.error?.message || "Unknown error"
+          }`
+        );
+      }
+
+      const data = await response.json();
+      console.log("📥 OpenAI response for notes:", data);
+
+      if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+        throw new Error("Invalid response format from OpenAI API");
+      }
+
+      return data.choices[0].message.content;
+    } catch (error) {
+      console.error("OpenAI API call failed for notes:", error);
+      throw error;
+    }
+  }
+}
+
+// Create instance of notes service
+const notesService = new NotesService();
 
 // Generate OSAD or Site Launch notes
 router.post('/generate', async (req, res) => {
@@ -23,6 +80,7 @@ router.post('/generate', async (req, res) => {
     
     let template = '';
     let prompt = '';
+    let systemMessage = '';
     
     if (type === 'osad') {
       // Validate OSAD required fields
@@ -43,6 +101,8 @@ Make sure to:
 - Maintain professional tone
 - Keep all technical details intact
 - Ensure proper formatting and structure`;
+
+      systemMessage = "You are a professional technical writer who specializes in creating clear, concise, and well-structured technical documentation. Your task is to improve grammar, clarity, and professionalism while maintaining all technical details and the original structure.";
       
     } else if (type === 'launch') {
       // Validate Launch required fields
@@ -63,46 +123,29 @@ Make sure to:
 - Maintain professional tone
 - Keep all technical details and requirements intact
 - Ensure proper formatting and structure`;
+
+      systemMessage = "You are a professional technical writer who specializes in creating clear, concise, and well-structured technical documentation. Your task is to improve grammar, clarity, and professionalism while maintaining all technical details and the original structure.";
     }
     
-    // Call OpenAI API for grammar and style improvement
-    const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [
-        {
-          role: "system",
-          content: "You are a professional technical writer who specializes in creating clear, concise, and well-structured technical documentation. Your task is to improve grammar, clarity, and professionalism while maintaining all technical details and the original structure."
-        },
-        {
-          role: "user",
-          content: prompt
-        }
-      ],
-      max_tokens: 1000,
-      temperature: 0.3,
-    });
-    
-    const improvedNote = completion.choices[0]?.message?.content?.trim();
-    
-    if (!improvedNote) {
+    // Use the notes service to generate improved content
+    try {
+      const improvedNote = await notesService.generateNote(prompt, systemMessage, 1000);
+      
+      if (!improvedNote) {
+        console.warn('OpenAI response was empty, using template');
+        return res.json({ note: template, fallback: true });
+      }
+      
+      res.json({ 
+        note: improvedNote.trim(),
+        original: template,
+        type: type
+      });
+      
+    } catch (aiError) {
+      console.error('AI enhancement failed:', aiError);
+      
       // Fallback to template if AI fails
-      console.warn('OpenAI response was empty, using template');
-      return res.json({ note: template });
-    }
-    
-    res.json({ 
-      note: improvedNote,
-      original: template,
-      type: type
-    });
-    
-  } catch (error) {
-    console.error('Error generating note:', error);
-    
-    // If OpenAI fails, return the template as fallback
-    if (error.code === 'insufficient_quota' || error.code === 'rate_limit_exceeded') {
-      const { type, ...data } = req.body;
-      const template = type === 'osad' ? generateOSADTemplate(data) : generateLaunchTemplate(data);
       return res.json({ 
         note: template,
         fallback: true,
@@ -110,6 +153,8 @@ Make sure to:
       });
     }
     
+  } catch (error) {
+    console.error('Error generating note:', error);
     res.status(500).json({ 
       error: 'Failed to generate note',
       message: error.message 
@@ -117,7 +162,7 @@ Make sure to:
   }
 });
 
-// Generate OSAD template - FIXED VERSION
+// Generate OSAD template
 function generateOSADTemplate(data) {
   const timestamp = new Date().toLocaleString('en-US', {
     year: 'numeric',
@@ -157,7 +202,7 @@ STATUS & NEXT STEPS
 Note: This OSAD (Observation, Solution, Action, Documentation) note contains all relevant technical details for issue resolution and team coordination.`;
 }
 
-// Generate Site Launch template - COMPLETE VERSION
+// Generate Site Launch template
 function generateLaunchTemplate(data) {
   const timestamp = new Date().toLocaleString('en-US', {
     year: 'numeric',
