@@ -93,14 +93,7 @@ router.post('/generate', async (req, res) => {
       template = generateOSADTemplate(data);
       prompt = `Please review and improve the following OSAD technical support note for grammar, clarity, and professionalism. Maintain the structure and technical details, but make it more polished and clear:
 
-${template}
-
-Make sure to:
-- Fix any grammar or spelling errors
-- Improve clarity and readability
-- Maintain professional tone
-- Keep all technical details intact
-- Ensure proper formatting and structure`;
+${template}`;
 
       systemMessage = "You are a professional technical writer who specializes in creating clear, concise, and well-structured technical documentation. Your task is to improve grammar, clarity, and professionalism while maintaining all technical details and the original structure.";
       
