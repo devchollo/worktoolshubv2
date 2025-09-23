@@ -5,5 +5,17 @@
     { "source": "/tools/:slug/:rest*", "destination": "/views/tools/:slug/:rest*.html" },
     { "source": "/", "destination": "/views/index.html" },
     { "source": "/(.*)", "destination": "/views/$1" }
+  ],
+  "redirects": [
+    {
+      "source": "/sitemap.xml",
+      "destination": "https://worktoolshubv2.onrender.com/api/sitemap.xml",
+      "permanent": false
+    },
+    {
+      "source": "/robots.txt", 
+      "destination": "https://worktoolshubv2.onrender.com/api/robots.txt",
+      "permanent": false
+    }
   ]
 }

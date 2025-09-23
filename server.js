@@ -9,6 +9,7 @@ require('dotenv').config();
 const emailRoutes = require('./routes/emailRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const qrRoutes = require('./routes/qrRoutes');
+const sitemapRoutes = require('./routes/sitemapRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -43,6 +44,17 @@ if (process.env.NODE_ENV === 'development') {
 app.use('/api/email', emailRoutes);
 app.use('/api', uploadRoutes);
 app.use('/api', qrRoutes);
+app.use('/api', sitemapRoutes);
+
+// Sitemap.xml endpoint
+app.get('/sitemap.xml', (req, res) => {
+  res.redirect(301, '/api/sitemap.xml');
+});
+
+// Robots.txt endpoint  
+app.get('/robots.txt', (req, res) => {
+  res.redirect(301, '/api/robots.txt');
+});
 
 // Authentication endpoint (keep this here since it's not email-related)
 app.post('/api/auth/verify-email', (req, res) => {
