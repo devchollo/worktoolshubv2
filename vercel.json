@@ -1,20 +1,9 @@
 {
   "version": 2,
   "rewrites": [
-    { "source": "/", "destination": "/views/index.html" },
     { "source": "/tools/:slug", "destination": "/views/tools/:slug.html" },
-    { "source": "/tools/:slug/:rest*", "destination": "/views/tools/:slug/:rest*.html" }
-  ],
-  "routes": [
-    {
-      "src": "/views/(.*)",
-      "dest": "/views/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/views/$1",
-      "status": 404
-    }
-  ],
-  "errorDocument": "/error.html"
+    { "source": "/tools/:slug/:rest*", "destination": "/views/tools/:slug/:rest*.html" },
+    { "source": "/", "destination": "/views/index.html" },
+    { "source": "/(.*)", "destination": "/views/$1" }
+  ]
 }
