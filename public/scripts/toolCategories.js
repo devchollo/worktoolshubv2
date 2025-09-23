@@ -10,7 +10,7 @@ export const toolCategories = {
     tools: [
       {
         name: "OSAD Note Generator",
-        path: "/tools/osad-note-generator",
+        path: "/error.html?status=coming-soon",
         internal: true,
         pending: true,
       },
@@ -22,12 +22,12 @@ export const toolCategories = {
       { name: "Alt Text Generator", path: "/tools/alt-text", pending: true },
       {
         name: "Meta Description Tool",
-        path: "/tools/meta-description",
+        path: "/error.html?status=coming-soon",
         pending: true,
       },
       {
         name: "Blog Post Outlines",
-        path: "/tools/blog-outline",
+        path: "/error.html?status=coming-soon",
         pending: true,
       },
     ],
@@ -60,11 +60,11 @@ export const toolCategories = {
       },
       {
         name: "Launch Announcement",
-        path: "/tools/launch-announcement",
+        path: "/error.html?status=coming-soon",
         internal: true,
         pending: true,
       },
-      { name: "Follow-up Templates", path: "/tools/follow-up", pending: true },
+      { name: "Follow-up Templates", path: "/error.html?status=coming-soon", pending: true },
     ],
   },
   "code-tools": {
@@ -75,8 +75,8 @@ export const toolCategories = {
     tools: [
       { name: "Embed Code Generator", path: "/tools/embed-code-generator", internal: true },
       { name: "QR Code Creator", path: "/tools/qr-code-generator", internal: true },
-      { name: "HTML Snippet Tools", path: "/tools/html-snippet", pending: true },
-      { name: "CSS Generator", path: "/tools/css-generator", pending: true },
+      { name: "HTML Snippet Tools", path: "/error.html?status=coming-soon", pending: true },
+      { name: "CSS Generator", path: "/error.html?status=coming-soon", pending: true },
     ],
   },
   "file-tools": {
@@ -87,12 +87,12 @@ export const toolCategories = {
     tools: [
       {
         name: "Image Compressor",
-        path: "/tools/image-compressor",
+        path: "/error.html?status=coming-soon",
         pending: true,
       },
-      { name: "PDF Tools", path: "/toosl/pdf-tools", pending: true },
-      { name: "File Converter", path: "/tools/file-converter", pending: true },
-      { name: "Batch Processor", path: "/tools/batch-processor", pending: true },
+      { name: "PDF Tools", path: "/error.html?status=coming-soon", pending: true },
+      { name: "File Converter", path: "/error.html?status=coming-soon", pending: true },
+      { name: "Batch Processor", path: "/error.html?status=coming-soon", pending: true },
     ],
   },
   "business-tools": {
@@ -108,13 +108,13 @@ export const toolCategories = {
       },
       {
         name: "Schema Generator",
-        path: "/tools/schema-generator",
+        path: "/error.html?status=coming-soon",
         pending: true,
       },
-      { name: "Invoice Creator", path: "/tools/invoice-creator", pending: true },
+      { name: "Invoice Creator", path: "/error.html?status=coming-soon", pending: true },
       {
         name: "Report Templates",
-        path: "/tools/report-templates",
+        path: "/error.html?status=coming-soon",
         pending: true,
       },
     ],
@@ -127,14 +127,14 @@ export const toolCategories = {
     tools: [
       {
         name: "Logo Placeholder",
-        path: "/tools/logo-placeholder",
+        path: "/error.html?status=coming-soon",
         pending: true,
       },
-      { name: "Color Palette", path: "/tools/color-palette", pending: true },
-      { name: "Icon Generator", path: "/tools/icon-generator", pending: true },
+      { name: "Color Palette", path: "/error.html?status=coming-soon", pending: true },
+      { name: "Icon Generator", path: "/error.html?status=coming-soon", pending: true },
       {
         name: "Social Media Templates",
-        path: "/tools/social-templates",
+        path: "/error.html?status=coming-soon",
         pending: true,
       },
     ],

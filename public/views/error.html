@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">404 - Page Not Found | Work Tools Hub</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .error-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 3rem 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .error-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.8;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .error-code {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .error-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #2d3748;
+        }
+
+        .error-description {
+            color: #718096;
+            margin-bottom: 2rem;
+            font-size: 1rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.8);
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .footer {
+            padding: 1rem;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+
+        .footer a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .footer a:hover {
+            color: white;
+            text-decoration: underline;
+        }
+
+        .coming-soon-badge {
+            background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+            color: #2d3436;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: inline-block;
+            animation: pulse 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.8; }
+            100% { opacity: 1; }
+        }
+
+        @media (max-width: 640px) {
+            .error-card {
+                padding: 2rem 1.5rem;
+                margin: 1rem;
+            }
+
+            .error-code {
+                font-size: 2.5rem;
+            }
+
+            .error-title {
+                font-size: 1.25rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+
+        .tool-suggestion {
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1.5rem;
+            border-left: 4px solid #667eea;
+        }
+
+        .tool-suggestion h4 {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .tool-suggestion p {
+            font-size: 0.9rem;
+            color: #718096;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="error-card">
+            <div id="error-icon" class="error-icon">🔧</div>
+            <div id="coming-soon-badge" class="coming-soon-badge" style="display: none;">Coming Soon</div>
+            <div id="error-code" class="error-code">404</div>
+            <h1 id="error-title" class="error-title">Page Not Found</h1>
+            <p id="error-description" class="error-description">
+                The page you're looking for doesn't exist or has been moved.
+            </p>
+
+            <div class="tool-suggestion" id="tool-suggestion">
+                <h4>While You're Here</h4>
+                <p>Check out our available tools for generating professional notes, emails, and more!</p>
+            </div>
+
+            <div class="action-buttons">
+                <a href="/" class="btn btn-primary">
+                    🏠 Back to Home
+                </a>
+                <button onclick="history.back()" class="btn btn-secondary">
+                    ← Go Back
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2024 <a href="/">Work Tools Hub</a> - Free Online Tools for Support Teams</p>
+    </footer>
+
+    <script>
+        // Auto-detect error type from URL or set manually
+        function initializeErrorPage() {
+            const path = window.location.pathname.toLowerCase();
+            const urlParams = new URLSearchParams(window.location.search);
+            const statusCode = urlParams.get('status') || getStatusFromPath(path);
+            
+            setErrorContent(statusCode);
+        }
+
+        function getStatusFromPath(path) {
+            if (path.includes('404')) return '404';
+            if (path.includes('405')) return '405';
+            if (path.includes('500')) return '500';
+            if (path.includes('503')) return '503';
+            if (path.includes('coming-soon')) return 'coming-soon';
+            return '404'; // default
+        }
+
+        function setErrorContent(statusCode) {
+            const errorIcon = document.getElementById('error-icon');
+            const comingSoonBadge = document.getElementById('coming-soon-badge');
+            const errorCode = document.getElementById('error-code');
+            const errorTitle = document.getElementById('error-title');
+            const errorDescription = document.getElementById('error-description');
+            const pageTitle = document.getElementById('page-title');
+            const toolSuggestion = document.getElementById('tool-suggestion');
+
+            const errorConfigs = {
+                '404': {
+                    icon: '🔧',
+                    code: '404',
+                    title: 'Page Not Found',
+                    description: 'The page you\'re looking for doesn\'t exist or has been moved.',
+                    pageTitle: '404 - Page Not Found | Work Tools Hub',
+                    showBadge: false
+                },
+                '405': {
+                    icon: '🚫',
+                    code: '405',
+                    title: 'Method Not Allowed',
+                    description: 'The request method is not supported for this resource.',
+                    pageTitle: '405 - Method Not Allowed | Work Tools Hub',
+                    showBadge: false
+                },
+                '500': {
+                    icon: '⚠️',
+                    code: '500',
+                    title: 'Server Error',
+                    description: 'Something went wrong on our end. We\'re working to fix it!',
+                    pageTitle: '500 - Server Error | Work Tools Hub',
+                    showBadge: false
+                },
+                '503': {
+                    icon: '🔧',
+                    code: '503',
+                    title: 'Service Unavailable',
+                    description: 'This service is temporarily unavailable. Please try again later.',
+                    pageTitle: '503 - Service Unavailable | Work Tools Hub',
+                    showBadge: false
+                },
+                'coming-soon': {
+                    icon: '🚀',
+                    code: '',
+                    title: 'Tool Coming Soon',
+                    description: 'This powerful tool is currently under development. We\'re working hard to bring it to you soon!',
+                    pageTitle: 'Coming Soon | Work Tools Hub',
+                    showBadge: true
+                }
+            };
+
+            const config = errorConfigs[statusCode] || errorConfigs['404'];
+            
+            errorIcon.textContent = config.icon;
+            errorCode.textContent = config.code;
+            errorTitle.textContent = config.title;
+            errorDescription.textContent = config.description;
+            pageTitle.textContent = config.pageTitle;
+            
+            if (config.showBadge) {
+                comingSoonBadge.style.display = 'inline-block';
+                errorCode.style.display = 'none';
+            } else {
+                comingSoonBadge.style.display = 'none';
+                errorCode.style.display = 'block';
+            }
+
+            // Update tool suggestion for coming soon pages
+            if (statusCode === 'coming-soon') {
+                toolSuggestion.innerHTML = `
+                    <h4>📧 Get Notified</h4>
+                    <p>Want to be the first to know when this tool launches? Follow our updates!</p>
+                `;
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', initializeErrorPage);
+
+        // Add some interactive touches
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+            });
+            
+            btn.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+</body>
+</html>
