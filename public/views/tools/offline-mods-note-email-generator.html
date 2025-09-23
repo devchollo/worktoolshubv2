@@ -529,7 +529,7 @@
         formatURL(e) {
           let value = e.target.value.trim();
           if (value && !value.startsWith("http")) {
-            e.target.value = "https://" + value;
+            e.target.value = value;
           }
         }
 
