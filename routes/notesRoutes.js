@@ -115,14 +115,7 @@ Make sure to:
       template = generateLaunchTemplate(data);
       prompt = `Please review and improve the following site launch documentation for grammar, clarity, and professionalism. Maintain the structure and all important details:
 
-${template}
-
-Make sure to:
-- Fix any grammar or spelling errors
-- Improve clarity and readability
-- Maintain professional tone
-- Keep all technical details and requirements intact
-- Ensure proper formatting and structure`;
+${template}`;
 
       systemMessage = "You are a professional technical writer who specializes in creating clear, concise, and well-structured technical documentation. Your task is to improve grammar, clarity, and professionalism while maintaining all technical details and the original structure.";
     }
@@ -189,17 +182,7 @@ ${data.troubleshooting}
 ==========================================
 CONTACT INFORMATION
 ==========================================
-${data.contactPerson}
-
-==========================================
-STATUS & NEXT STEPS
-==========================================
-- Issue documented and troubleshooting steps recorded
-- Contact person identified for follow-up
-- Awaiting further action or escalation as needed
-
----
-Note: This OSAD (Observation, Solution, Action, Documentation) note contains all relevant technical details for issue resolution and team coordination.`;
+${data.contactPerson}`;
 }
 
 // Generate Site Launch template
@@ -248,14 +231,7 @@ LAUNCH CHECKLIST & STATUS
 ${data.sslPurchased === 'yes' ? '✅' : '⚠️'} SSL Certificate ${data.sslPurchased === 'yes' ? 'confirmed' : 'not purchased'}
 ✅ Contact person identified
 ${data.domainVerification === 'needs-action' ? '🔄 Domain merge/transfer required' : '✅ Domain configuration verified'}
-
-==========================================
-NEXT STEPS
-==========================================
-${generateNextSteps(data)}
-
----
-Note: This site launch documentation ensures all technical requirements are met and proper contacts are established for successful website deployment.`;
+${generateNextSteps(data)}`;
 }
 
 // Helper function to get domain status text
