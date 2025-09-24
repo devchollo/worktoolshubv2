@@ -1404,84 +1404,157 @@
               this.updateResultsCount();
           }
 
-          renderArticles() {
-              const grid = document.getElementById('articlesGrid');
-              const noResults = document.getElementById('noResults');
+          // renderArticles() {
+          //     const grid = document.getElementById('articlesGrid');
+          //     const noResults = document.getElementById('noResults');
 
-              if (this.filteredArticles.length === 0) {
-                  grid.style.display = 'none';
-                  noResults.style.display = 'block';
-                  return;
-              }
+          //     if (this.filteredArticles.length === 0) {
+          //         grid.style.display = 'none';
+          //         noResults.style.display = 'block';
+          //         return;
+          //     }
 
-              grid.style.display = 'grid';
-              noResults.style.display = 'none';
+          //     grid.style.display = 'grid';
+          //     noResults.style.display = 'none';
 
-              grid.innerHTML = this.filteredArticles.map(article => `
-                  <article class="article-card fade-in" data-id="${article.id}">
-                      <div class="article-header">
-                          <span class="article-category">${this.formatCategory(article.category)}</span>
-                      </div>
-                      <h3 class="article-title">${article.title}</h3>
-                      <p class="article-excerpt">${article.excerpt}</p>
-                      <div class="article-tags">
-                          ${article.tags.slice(0, 3).map(tag =>
-                              `<span class="article-tag">${tag}</span>`
-                          ).join('')}
-                      </div>
-                      <div class="article-meta">
-                          <div>
-                              <strong>${article.author}</strong> • ${this.formatDate(article.date)}
-                          </div>
-                          <div>
-                              ${article.readTime} • ${article.views.toLocaleString()} views
-                          </div>
-                      </div>
-                      <div class="article-actions">
-                          <button class="action-btn upvote-btn ${article.userUpvoted ? 'upvoted' : ''}"
-                                  data-id="${article.id}" title="Mark as helpful">
-                              <span>👍</span>
-                              <span>${article.upvotes || 0}</span>
-                          </button>
-                          <button class="action-btn helpful-btn" data-id="${article.id}" title="This helped me">
-                              <span>✅</span>
-                              <span>Helped ${article.helpfulCount || 0}</span>
-                          </button>
-                          <button class="action-btn suggest-edit" data-id="${article.id}" title="Suggest edit">
-                              <span>✏️</span>
-                              <span>Suggest Edit</span>
-                          </button>
-                      </div>
-                  </article>
-              `).join('');
+          //     grid.innerHTML = this.filteredArticles.map(article => `
+          //         <article class="article-card fade-in" data-id="${article.id}">
+          //             <div class="article-header">
+          //                 <span class="article-category">${this.formatCategory(article.category)}</span>
+          //             </div>
+          //             <h3 class="article-title">${article.title}</h3>
+          //             <p class="article-excerpt">${article.excerpt}</p>
+          //             <div class="article-tags">
+          //                 ${article.tags.slice(0, 3).map(tag =>
+          //                     `<span class="article-tag">${tag}</span>`
+          //                 ).join('')}
+          //             </div>
+          //             <div class="article-meta">
+          //                 <div>
+          //                     <strong>${article.author}</strong> • ${this.formatDate(article.date)}
+          //                 </div>
+          //                 <div>
+          //                     ${article.readTime} • ${article.views.toLocaleString()} views
+          //                 </div>
+          //             </div>
+          //             <div class="article-actions">
+          //                 <button class="action-btn upvote-btn ${article.userUpvoted ? 'upvoted' : ''}"
+          //                         data-id="${article.id}" title="Mark as helpful">
+          //                     <span>👍</span>
+          //                     <span>${article.upvotes || 0}</span>
+          //                 </button>
+          //                 <button class="action-btn helpful-btn" data-id="${article.id}" title="This helped me">
+          //                     <span>✅</span>
+          //                     <span>Helped ${article.helpfulCount || 0}</span>
+          //                 </button>
+          //                 <button class="action-btn suggest-edit" data-id="${article.id}" title="Suggest edit">
+          //                     <span>✏️</span>
+          //                     <span>Suggest Edit</span>
+          //                 </button>
+          //             </div>
+          //         </article>
+          //     `).join('');
 
-              // Add click handlers for article cards and actions
-              grid.querySelectorAll('.article-card').forEach(card => {
-                  // Article title click - open article
-                  card.querySelector('.article-title').addEventListener('click', (e) => {
-                      e.stopPropagation();
-                      this.openArticle(card.dataset.id);
-                  });
+          //     // Add click handlers for article cards and actions
+          //     grid.querySelectorAll('.article-card').forEach(card => {
+          //         // Article title click - open article
+          //         card.querySelector('.article-title').addEventListener('click', (e) => {
+          //             e.stopPropagation();
+          //             this.openArticle(card.dataset.id);
+          //         });
 
-                  // Upvote button
-                  card.querySelector('.upvote-btn').addEventListener('click', (e) => {
-                      e.stopPropagation();
-                      this.handleUpvote(card.dataset.id);
-                  });
+          //         // Upvote button
+          //         card.querySelector('.upvote-btn').addEventListener('click', (e) => {
+          //             e.stopPropagation();
+          //             this.handleUpvote(card.dataset.id);
+          //         });
 
-                  // Helpful button
-                  card.querySelector('.helpful-btn').addEventListener('click', (e) => {
-                      e.stopPropagation();
-                      this.handleHelpful(card.dataset.id);
-                  });
+          //         // Helpful button
+          //         card.querySelector('.helpful-btn').addEventListener('click', (e) => {
+          //             e.stopPropagation();
+          //             this.handleHelpful(card.dataset.id);
+          //         });
 
-                  // Suggest edit button
-                  card.querySelector('.suggest-edit').addEventListener('click', (e) => {
-                      e.stopPropagation();
-                      this.showEditModal(card.dataset.id);
-                  });
-              });
-          }
+          //         // Suggest edit button
+          //         card.querySelector('.suggest-edit').addEventListener('click', (e) => {
+          //             e.stopPropagation();
+          //             this.showEditModal(card.dataset.id);
+          //         });
+          //     });
+          // }
+renderArticles() {
+    const grid = document.getElementById('articlesGrid');
+    const noResults = document.getElementById('noResults');
+
+    if (this.filteredArticles.length === 0) {
+        grid.style.display = 'none';
+        noResults.style.display = 'block';
+        return;
+    }
+
+    grid.style.display = 'grid';
+    noResults.style.display = 'none';
+
+    // Render articles
+    grid.innerHTML = this.filteredArticles.map(article => `
+        <article class="article-card fade-in" data-id="${article.id}">
+            <div class="article-header">
+                <span class="article-category">${this.formatCategory(article.category)}</span>
+            </div>
+            <h3 class="article-title">${article.title}</h3>
+            <p class="article-excerpt">${article.excerpt}</p>
+            <div class="article-tags">
+                ${article.tags.slice(0, 3).map(tag => `<span class="article-tag">${tag}</span>`).join('')}
+            </div>
+            <div class="article-meta">
+                <div>
+                    <strong>${article.author}</strong> • ${this.formatDate(article.date)}
+                </div>
+                <div>
+                    ${article.readTime} • ${article.views.toLocaleString()} views
+                </div>
+            </div>
+            <div class="article-actions">
+                <button class="action-btn upvote-btn ${article.userUpvoted ? 'upvoted' : ''}" data-id="${article.id}" title="Mark as helpful">
+                    <span>👍</span>
+                    <span>${article.upvotes || 0}</span>
+                </button>
+                <button class="action-btn helpful-btn" data-id="${article.id}" title="This helped me">
+                    <span>✅</span>
+                    <span>Helped ${article.helpfulCount || 0}</span>
+                </button>
+                <button class="action-btn suggest-edit" data-id="${article.id}" title="Suggest edit">
+                    <span>✏️</span>
+                    <span>Suggest Edit</span>
+                </button>
+            </div>
+        </article>
+    `).join('');
+
+    // Add click handlers
+    grid.querySelectorAll('.article-card').forEach(card => {
+        // Make the whole card clickable
+        card.addEventListener('click', () => {
+            this.openArticle(card.dataset.id);
+        });
+
+        // Stop propagation for buttons so they don't trigger card click
+        card.querySelector('.upvote-btn')?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.handleUpvote(card.dataset.id);
+        });
+
+        card.querySelector('.helpful-btn')?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.handleHelpful(card.dataset.id);
+        });
+
+        card.querySelector('.suggest-edit')?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.showEditModal(card.dataset.id);
+        });
+    });
+}
 
           async handleUpvote(articleId) {
               try {
