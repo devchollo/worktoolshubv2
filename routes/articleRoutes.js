@@ -1,7 +1,7 @@
 // routes/articleRoutes.js - Enhanced with better error handling
 const express = require('express');
 const mongoose = require('mongoose');
-const Article = require('../models/Articles');
+const Article = require('../models/articleModel');
 const EditSuggestion = require('../models/editSuggestions');
 const AIService = require('../services/AIService');
 
@@ -49,58 +49,88 @@ const getDemoArticles = () => [
 ];
 
 // GET /api/knowledge-base/articles
+// router.get('/articles', async (req, res) => {
+//   try {
+//     const { search, category, difficulty, date, page = 1, limit = 20 } = req.query;
+    
+//     // Check if database is connected
+//     if (!checkDBConnection()) {
+//       console.log('Database not connected, returning demo articles');
+//       return res.json(getDemoArticles());
+//     }
+
+//     let query = { published: true };
+
+//     if (search) {
+//       query.$or = [
+//         { title: { $regex: search, $options: 'i' } },
+//         { excerpt: { $regex: search, $options: 'i' } },
+//         { tags: { $in: [new RegExp(search, 'i')] } },
+//         { content: { $regex: search, $options: 'i' } }
+//       ];
+//     }
+
+//     if (category) query.category = category;
+//     if (difficulty) query.difficulty = difficulty;
+
+//     if (date) {
+//       const now = new Date();
+//       let cutoffDate;
+//       switch (date) {
+//         case 'week': cutoffDate = new Date(now - 7 * 24 * 60 * 60 * 1000); break;
+//         case 'month': cutoffDate = new Date(now - 30 * 24 * 60 * 60 * 1000); break;
+//         case 'quarter': cutoffDate = new Date(now - 90 * 24 * 60 * 60 * 1000); break;
+//         case 'year': cutoffDate = new Date(now - 365 * 24 * 60 * 60 * 1000); break;
+//       }
+//       if (cutoffDate) query.date = { $gte: cutoffDate };
+//     }
+
+//     // Set a timeout for the database operation
+//     const articles = await Article.find(query)
+//       .skip((page - 1) * limit)
+//       .limit(Number(limit))
+//       .sort({ date: -1 })
+//       .maxTimeMS(5000); // 5 second timeout
+
+//     res.json(articles.length > 0 ? articles : getDemoArticles());
+    
+//   } catch (error) {
+//     console.error('Error fetching articles:', error);
+    
+//     // Return demo articles on any error
+//     res.json(getDemoArticles());
+//   }
+// });
+
+// GET all articles
 router.get('/articles', async (req, res) => {
   try {
-    const { search, category, difficulty, date, page = 1, limit = 20 } = req.query;
-    
-    // Check if database is connected
-    if (!checkDBConnection()) {
-      console.log('Database not connected, returning demo articles');
-      return res.json(getDemoArticles());
+    console.log('📥 Incoming request: GET /articles');
+    console.log('🔎 Query params:', req.query);
+
+    // Try hitting Mongo
+    if (Article && Article.find) {
+      const articles = await Article.find({});
+      console.log(`✅ Retrieved ${articles.length} articles from MongoDB`);
+      return res.json(articles);
+    } else {
+      console.warn('⚠️ Article model not available — falling back to demo data');
     }
 
-    let query = { published: true };
+    // Fallback demo data
+    const demoArticles = [
+      { id: 1, title: 'Demo Article', content: 'MongoDB not connected' },
+    ];
+    res.json(demoArticles);
 
-    if (search) {
-      query.$or = [
-        { title: { $regex: search, $options: 'i' } },
-        { excerpt: { $regex: search, $options: 'i' } },
-        { tags: { $in: [new RegExp(search, 'i')] } },
-        { content: { $regex: search, $options: 'i' } }
-      ];
-    }
-
-    if (category) query.category = category;
-    if (difficulty) query.difficulty = difficulty;
-
-    if (date) {
-      const now = new Date();
-      let cutoffDate;
-      switch (date) {
-        case 'week': cutoffDate = new Date(now - 7 * 24 * 60 * 60 * 1000); break;
-        case 'month': cutoffDate = new Date(now - 30 * 24 * 60 * 60 * 1000); break;
-        case 'quarter': cutoffDate = new Date(now - 90 * 24 * 60 * 60 * 1000); break;
-        case 'year': cutoffDate = new Date(now - 365 * 24 * 60 * 60 * 1000); break;
-      }
-      if (cutoffDate) query.date = { $gte: cutoffDate };
-    }
-
-    // Set a timeout for the database operation
-    const articles = await Article.find(query)
-      .skip((page - 1) * limit)
-      .limit(Number(limit))
-      .sort({ date: -1 })
-      .maxTimeMS(5000); // 5 second timeout
-
-    res.json(articles.length > 0 ? articles : getDemoArticles());
-    
   } catch (error) {
-    console.error('Error fetching articles:', error);
-    
-    // Return demo articles on any error
-    res.json(getDemoArticles());
+    console.error('❌ Error fetching articles:', error);
+    res.status(500).json({ error: 'Failed to fetch articles', details: error.message });
   }
 });
+
+module.exports = router;
+
 
 // GET /api/knowledge-base/articles/:id - Get single article
 router.get('/articles/:id', async (req, res) => {
