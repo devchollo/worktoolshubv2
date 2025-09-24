@@ -1040,7 +1040,7 @@
               </p>
               <button
                 class="btn-primary"
-                onclick="window.kbSystem.showAIAssistant()"
+                id="noResultsAiBtn"
               >
                 Ask AI Assistant
               </button>
@@ -1718,7 +1718,10 @@
       // Initialize Knowledge Base when DOM is loaded
       document.addEventListener('DOMContentLoaded', () => {
           window.kbSystem = new KnowledgeBase();
-
+          // AI NO RESULT
+          document.getElementById("noResultsAiBtn").addEventListener("click", () => {
+  window.kbSystem.showAIAssistant();
+});
           // AI Assistant toggle
           document.getElementById('aiToggle').addEventListener('click', () => {
               const panel = document.getElementById('aiPanel');
