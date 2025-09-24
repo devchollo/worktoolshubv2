@@ -5,7 +5,6 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 require('dotenv').config();
 
-
 // Import routes
 const emailRoutes = require('./routes/emailRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
@@ -14,7 +13,6 @@ const sitemapRoutes = require('./routes/sitemapRoutes');
 const notesRoutes = require('./routes/notesRoutes');
 const articleRoutes = require('./routes/articleRoutes');
 
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -22,11 +20,13 @@ const PORT = process.env.PORT || 3000;
 app.use(cors({
   origin: [
     'http://localhost:3000', 
+    'http://localhost:5000',
+    'http://127.0.0.1:5500', // For local development
     'https://worktoolshub.info',
     'https://www.worktoolshub.info',
     'https://wthv2.vercel.app', 
   ],
-  methods: ['GET', 'POST', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 }));
@@ -34,22 +34,66 @@ app.use(cors({
 app.options('*', cors());
 
 app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Request logging middleware (optional)
+// Serve static files from public directory
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Request logging middleware
 if (process.env.NODE_ENV === 'development') {
   app.use((req, res, next) => {
     console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
     next();
   });
 }
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
-.then(() => console.log('✅ MongoDB connected'))
-.catch(err => console.error('MongoDB connection error:', err));
 
+// Enhanced MongoDB Connection
+const connectDB = async () => {
+  try {
+    const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URI;
+    
+    if (!mongoUri) {
+      console.error('❌ MongoDB URI not found in environment variables');
+      console.log('Please set MONGODB_URI or MONGO_URI in your .env file');
+      return;
+    }
+
+    console.log('🔄 Connecting to MongoDB...');
+    
+    await mongoose.connect(mongoUri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+    });
+    
+    console.log('✅ MongoDB connected successfully');
+    
+    // Handle connection events
+    mongoose.connection.on('error', (err) => {
+      console.error('❌ MongoDB connection error:', err);
+    });
+
+    mongoose.connection.on('disconnected', () => {
+      console.warn('⚠️ MongoDB disconnected');
+    });
+
+  } catch (error) {
+    console.error('❌ MongoDB connection failed:', error.message);
+    
+    if (error.name === 'MongooseServerSelectionError') {
+      console.log('💡 Tips for fixing connection issues:');
+      console.log('   • Check if MongoDB URI is correct');
+      console.log('   • Verify network access (whitelist IP in Atlas)');
+      console.log('   • Ensure MongoDB service is running');
+    }
+    
+    console.log('⚠️  Server will continue without database connection');
+  }
+};
+
+// Connect to database
+connectDB();
 
 // API Routes
 app.use('/api/email', emailRoutes);
@@ -59,7 +103,22 @@ app.use('/api', sitemapRoutes);
 app.use('/api/notes', notesRoutes);
 app.use('/api/knowledge-base', articleRoutes);
 
+// Serve Knowledge Base HTML pages
+app.get('/knowledge-base', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'knowledge-base.html'));
+});
 
+app.get('/knowledge-base.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'knowledge-base.html'));
+});
+
+app.get('/article', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'article.html'));
+});
+
+app.get('/article.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'article.html'));
+});
 
 // Sitemap.xml endpoint
 app.get('/sitemap.xml', (req, res) => {
@@ -71,7 +130,7 @@ app.get('/robots.txt', (req, res) => {
   res.redirect(301, '/api/robots.txt');
 });
 
-// Authentication endpoint (keep this here since it's not email-related)
+// Authentication endpoint
 app.post('/api/auth/verify-email', (req, res) => {
   try {
     const { email } = req.body;
@@ -83,12 +142,10 @@ app.post('/api/auth/verify-email', (req, res) => {
       });
     }
 
-    // Get authorized emails from environment variables
     const authorizedEmails = process.env.AUTHORIZED_EMAILS?.split(',') || [];
     const normalizedEmail = email.toLowerCase().trim();
     const isAuthorized = authorizedEmails.includes(normalizedEmail);
     
-    // Log authentication attempts (optional - remove in production if not needed)
     console.log(`Auth attempt: ${email} - ${isAuthorized ? 'GRANTED' : 'DENIED'}`);
     
     res.json({ 
@@ -105,8 +162,10 @@ app.post('/api/auth/verify-email', (req, res) => {
   }
 });
 
-// Health check endpoint
+// Enhanced health check endpoint
 app.get('/api/health', (req, res) => {
+  const dbStatus = mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected';
+  
   res.json({ 
     status: 'OK', 
     timestamp: new Date().toISOString(),
@@ -114,16 +173,18 @@ app.get('/api/health', (req, res) => {
     services: {
       auth: 'Available',
       email: 'Available',
+      database: dbStatus,
+      knowledgeBase: 'Available',
       ai: process.env.OPENAI_API_KEY ? 'Configured' : 'Not configured'
     }
   });
 });
 
-// API documentation endpoint
+// Enhanced API documentation endpoint
 app.get('/api/docs', (req, res) => {
   res.json({
     title: 'WorkToolsHub API',
-    version: '1.0.0',
+    version: '2.0.0',
     endpoints: {
       auth: {
         'POST /api/auth/verify-email': 'Verify user email authorization'
@@ -133,9 +194,22 @@ app.get('/api/docs', (req, res) => {
         'POST /api/email/generate-lbl-email': 'Generate business listing update emails',
         'GET /api/email/health': 'Email service health check'
       },
+      knowledgeBase: {
+        'GET /api/knowledge-base/articles': 'Get all articles',
+        'GET /api/knowledge-base/articles/:id': 'Get single article',
+        'POST /api/knowledge-base/articles': 'Create new article',
+        'POST /api/knowledge-base/articles/:id/upvote': 'Upvote an article',
+        'POST /api/knowledge-base/articles/:id/helpful': 'Mark article as helpful',
+        'POST /api/knowledge-base/edit-suggestions': 'Submit edit suggestion',
+        'POST /api/knowledge-base/ai-query': 'Query AI assistant'
+      },
       system: {
         'GET /api/health': 'System health check',
         'GET /api/docs': 'API documentation'
+      },
+      pages: {
+        'GET /knowledge-base': 'Knowledge Base interface',
+        'GET /article': 'Individual article page'
       }
     }
   });
@@ -146,9 +220,10 @@ app.get('/', (req, res) => {
   res.json({ 
     message: 'WorkToolsHub API Server',
     status: 'running',
-    version: '1.0.0',
+    version: '2.0.0',
     documentation: '/api/docs',
-    health: '/api/health'
+    health: '/api/health',
+    knowledgeBase: '/knowledge-base'
   });
 });
 
@@ -161,12 +236,10 @@ app.use('/api/*', (req, res) => {
   });
 });
 
-
 // Global error handling middleware
 app.use((error, req, res, next) => {
   console.error('Server error:', error);
   
-  // Don't leak error details in production
   const isDevelopment = process.env.NODE_ENV === 'development';
   
   res.status(500).json({ 
@@ -176,9 +249,6 @@ app.use((error, req, res, next) => {
   });
 });
 
-
-
-
 // Start server
 const server = app.listen(PORT, () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
@@ -186,24 +256,38 @@ const server = app.listen(PORT, () => {
   console.log(`🔐 Auth emails: ${process.env.AUTHORIZED_EMAILS ? 'Configured' : 'Not configured'}`);
   console.log(`🤖 OpenAI API: ${process.env.OPENAI_API_KEY ? 'Configured' : 'Not configured'}`);
   console.log(`📖 API docs: http://localhost:${PORT}/api/docs`);
-  console.log("Loaded MONGO_URI:", process.env.MONGO_URI);
+  console.log(`📚 Knowledge Base: http://localhost:${PORT}/knowledge-base`);
+  
+  const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URI;
+  console.log("MongoDB URI configured:", mongoUri ? 'Yes' : 'No');
   
   if (!process.env.AUTHORIZED_EMAILS) {
     console.warn('⚠️  WARNING: AUTHORIZED_EMAILS not set in environment variables');
   }
   
   if (!process.env.OPENAI_API_KEY) {
-    console.warn('⚠️  WARNING: OPENAI_API_KEY not set - email generation will fail');
+    console.warn('⚠️  WARNING: OPENAI_API_KEY not set - AI assistant will not work');
+  }
+
+  if (!mongoUri) {
+    console.warn('⚠️  WARNING: MongoDB URI not configured - database features disabled');
   }
 });
-
-
 
 // Graceful shutdown
 const gracefulShutdown = (signal) => {
   console.log(`\n📴 Received ${signal}. Shutting down gracefully...`);
-  server.close(() => {
-    console.log('📴 Server closed');
+  
+  server.close(async () => {
+    console.log('📴 HTTP server closed');
+    
+    try {
+      await mongoose.connection.close();
+      console.log('📴 Database connection closed');
+    } catch (error) {
+      console.error('Error closing database connection:', error);
+    }
+    
     process.exit(0);
   });
 };
@@ -211,4 +295,4 @@ const gracefulShutdown = (signal) => {
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
-module.exports = app; // For testing purposes
+module.exports = app;
