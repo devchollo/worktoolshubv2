@@ -1720,7 +1720,15 @@
           window.kbSystem = new KnowledgeBase();
           // AI NO RESULT
           document.getElementById("noResultsAiBtn").addEventListener("click", () => {
+  // Make sure the panel is visible
   window.kbSystem.showAIAssistant();
+
+  // Use your default query
+  const query = "I didn’t find any articles, please help me with this search.";
+  document.getElementById("aiInput").value = query;
+
+  // Send to AI
+  window.kbSystem.handleAIQuery(query);
 });
           // AI Assistant toggle
           document.getElementById('aiToggle').addEventListener('click', () => {

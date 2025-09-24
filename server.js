@@ -186,6 +186,7 @@ const server = app.listen(PORT, () => {
   console.log(`🔐 Auth emails: ${process.env.AUTHORIZED_EMAILS ? 'Configured' : 'Not configured'}`);
   console.log(`🤖 OpenAI API: ${process.env.OPENAI_API_KEY ? 'Configured' : 'Not configured'}`);
   console.log(`📖 API docs: http://localhost:${PORT}/api/docs`);
+  console.log("Loaded MONGO_URI:", process.env.MONGO_URI);
   
   if (!process.env.AUTHORIZED_EMAILS) {
     console.warn('⚠️  WARNING: AUTHORIZED_EMAILS not set in environment variables');
