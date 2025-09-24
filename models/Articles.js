@@ -4,13 +4,13 @@ const articleSchema = new mongoose.Schema({
   title: { type: String, required: true, index: true },
   excerpt: { type: String, required: true },
   content: { type: String, required: true },
-  category: { 
-    type: String, 
+  category: {
+    type: String,
     required: true,
     enum: ['technical', 'tutorials', 'troubleshooting', 'best-practices', 'tools']
   },
-  difficulty: { 
-    type: String, 
+  difficulty: {
+    type: String,
     required: true,
     enum: ['beginner', 'intermediate', 'advanced', 'expert']
   },
@@ -20,7 +20,12 @@ const articleSchema = new mongoose.Schema({
   views: { type: Number, default: 0 },
   readTime: String,
   published: { type: Boolean, default: true },
-  slug: { type: String, unique: true }
+  slug: { type: String, unique: true },
+
+  // 👇 Add these for frontend compatibility
+  upvotes: { type: Number, default: 0 },
+  helpfulCount: { type: Number, default: 0 },
+  upvotedBy: [{ type: String }]
 });
 
 // Text search index

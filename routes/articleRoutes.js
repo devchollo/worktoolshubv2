@@ -1,14 +1,16 @@
 const express = require('express');
 const Article = require('../models/Articles');
+const EditSuggestion = require('../models/EditSuggestion');
+const AIService = require('../services/AIService');
+
 const router = express.Router();
 
 // GET /api/knowledge-base/articles
 router.get('/articles', async (req, res) => {
   try {
     const { search, category, difficulty, date, page = 1, limit = 20 } = req.query;
-    
     let query = {};
-    
+
     if (search) {
       query.$or = [
         { title: { $regex: search, $options: 'i' } },
@@ -17,10 +19,10 @@ router.get('/articles', async (req, res) => {
         { content: { $regex: search, $options: 'i' } }
       ];
     }
-    
+
     if (category) query.category = category;
     if (difficulty) query.difficulty = difficulty;
-    
+
     if (date) {
       const now = new Date();
       let cutoffDate;
@@ -32,12 +34,12 @@ router.get('/articles', async (req, res) => {
       }
       if (cutoffDate) query.date = { $gte: cutoffDate };
     }
-    
+
     const articles = await Article.find(query)
       .skip((page - 1) * limit)
       .limit(Number(limit))
       .sort({ date: -1 });
-    
+
     res.json(articles);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -46,75 +48,86 @@ router.get('/articles', async (req, res) => {
 
 // POST /api/knowledge-base/articles/:id/upvote
 router.post('/articles/:id/upvote', async (req, res) => {
-  const { upvote } = req.body;
-  const userId = req.user?.id || req.ip;
+  try {
+    const { upvote } = req.body;
+    const userId = req.user?.id || req.ip;
 
-  const article = await Article.findById(req.params.id);
-  if (!article) return res.status(404).json({ error: 'Article not found' });
+    const article = await Article.findById(req.params.id);
+    if (!article) return res.status(404).json({ error: 'Article not found' });
 
-  if (upvote) {
-    if (!article.upvotedBy.includes(userId)) {
-      article.upvotes = (article.upvotes || 0) + 1;
-      article.upvotedBy.push(userId);
+    if (upvote) {
+      if (!article.upvotedBy.includes(userId)) {
+        article.upvotes += 1;
+        article.upvotedBy.push(userId);
+      }
+    } else {
+      article.upvotes = Math.max(0, article.upvotes - 1);
+      article.upvotedBy = article.upvotedBy.filter(id => id !== userId);
     }
-  } else {
-    article.upvotes = Math.max(0, (article.upvotes || 0) - 1);
-    article.upvotedBy = article.upvotedBy.filter(id => id !== userId);
-  }
 
-  await article.save();
-  res.json({ upvotes: article.upvotes });
+    await article.save();
+    res.json({ upvotes: article.upvotes });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // POST /api/knowledge-base/articles/:id/helpful
 router.post('/articles/:id/helpful', async (req, res) => {
-  const article = await Article.findByIdAndUpdate(
-    req.params.id,
-    { $inc: { helpfulCount: 1 } },
-    { new: true }
-  );
-  res.json({ helpfulCount: article.helpfulCount });
+  try {
+    const article = await Article.findByIdAndUpdate(
+      req.params.id,
+      { $inc: { helpfulCount: 1 } },
+      { new: true }
+    );
+    if (!article) return res.status(404).json({ error: 'Article not found' });
+    res.json({ helpfulCount: article.helpfulCount });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // POST /api/knowledge-base/edit-suggestions
 router.post('/edit-suggestions', async (req, res) => {
-  const suggestion = new EditSuggestion({
-    articleId: req.body.articleId,
-    editorName: req.body.editorName,
-    editType: req.body.editType,
-    suggestion: req.body.suggestion,
-    status: 'pending',
-    createdAt: new Date()
-  });
+  try {
+    const suggestion = new EditSuggestion({
+      articleId: req.body.articleId,
+      editorName: req.body.editorName,
+      editType: req.body.editType,
+      suggestion: req.body.suggestion,
+      status: 'pending'
+    });
 
-  await suggestion.save();
-  res.json({ message: 'Suggestion submitted successfully' });
+    await suggestion.save();
+    res.json({ message: 'Suggestion submitted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // POST /api/knowledge-base/ai-query
 router.post('/ai-query', async (req, res) => {
   const { query, context } = req.body;
   try {
-    const response = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [
-        {
-          role: "system", 
-          content: `You are a helpful technical assistant. Answer based on the knowledge base context provided. If the answer isn't in the context, provide helpful general guidance and suggest they contact support for specific issues.`
-        },
-        {
-          role: "user", 
-          content: `Context: ${JSON.stringify(context)}\n\nQuestion: ${query}`
-        }
-      ],
-      max_tokens: 500
-    });
+    const messages = [
+      {
+        role: "system",
+        content: "You are a helpful technical assistant. Answer based on the knowledge base context provided. If the answer isn't in the context, provide helpful general guidance and suggest they contact support."
+      },
+      {
+        role: "user",
+        content: `Context: ${JSON.stringify(context)}\n\nQuestion: ${query}`
+      }
+    ];
 
-    res.json({ 
-      answer: response.choices[0].message.content,
-      relatedArticles: []
+    const answer = await AIService.query(messages);
+
+    res.json({
+      answer,
+      relatedArticles: [] // You can implement matching later
     });
   } catch (error) {
+    console.error("AI query error:", error);
     res.status(500).json({ error: 'AI service temporarily unavailable' });
   }
 });

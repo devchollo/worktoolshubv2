@@ -43,6 +43,13 @@ if (process.env.NODE_ENV === 'development') {
     next();
   });
 }
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => console.log('✅ MongoDB connected'))
+.catch(err => console.error('MongoDB connection error:', err));
+
 
 // API Routes
 app.use('/api/email', emailRoutes);
@@ -171,12 +178,6 @@ app.use((error, req, res, next) => {
 
 
 
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
-.then(() => console.log('✅ MongoDB connected'))
-.catch(err => console.error('MongoDB connection error:', err));
 
 // Start server
 const server = app.listen(PORT, () => {
