@@ -61,7 +61,7 @@ const connectDB = async () => {
     }
 
     console.log('Connecting to MongoDB...');
-    
+    console.log("MongoDB URI value:", process.env.MONGODB_URI || process.env.MONGO_URI);
     // Enhanced connection options for better timeout handling
     const connectionOptions = {
       useNewUrlParser: true,
@@ -134,22 +134,7 @@ app.use('/api', sitemapRoutes);
 app.use('/api/notes', notesRoutes);
 app.use('/api/knowledge-base', articleRoutes);
 
-// Serve Knowledge Base HTML pages
-app.get('/knowledge-base', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'knowledge-base.html'));
-});
 
-app.get('/knowledge-base.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'knowledge-base.html'));
-});
-
-app.get('/article', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'article.html'));
-});
-
-app.get('/article.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'article.html'));
-});
 
 // Sitemap.xml endpoint
 app.get('/sitemap.xml', (req, res) => {
