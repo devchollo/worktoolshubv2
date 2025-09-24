@@ -2,16 +2,11 @@ const express = require('express');
 const Article = require('../models/Articles');
 const router = express.Router();
 
-
-
-// Newfold-core
-
 // GET /api/knowledge-base/articles
-app.get('/articles', async (req, res) => {
+router.get('/articles', async (req, res) => {
   try {
     const { search, category, difficulty, date, page = 1, limit = 20 } = req.query;
     
-    // Build MongoDB query
     let query = {};
     
     if (search) {
@@ -40,7 +35,7 @@ app.get('/articles', async (req, res) => {
     
     const articles = await Article.find(query)
       .skip((page - 1) * limit)
-      .limit(limit)
+      .limit(Number(limit))
       .sort({ date: -1 });
     
     res.json(articles);
@@ -49,17 +44,14 @@ app.get('/articles', async (req, res) => {
   }
 });
 
-
-
 // POST /api/knowledge-base/articles/:id/upvote
-app.post('/articles/:id/upvote', async (req, res) => {
+router.post('/articles/:id/upvote', async (req, res) => {
   const { upvote } = req.body;
-  const userId = req.user?.id || req.ip; // Use IP as fallback
-  
+  const userId = req.user?.id || req.ip;
+
   const article = await Article.findById(req.params.id);
   if (!article) return res.status(404).json({ error: 'Article not found' });
-  
-  // Toggle upvote
+
   if (upvote) {
     if (!article.upvotedBy.includes(userId)) {
       article.upvotes = (article.upvotes || 0) + 1;
@@ -69,13 +61,13 @@ app.post('/articles/:id/upvote', async (req, res) => {
     article.upvotes = Math.max(0, (article.upvotes || 0) - 1);
     article.upvotedBy = article.upvotedBy.filter(id => id !== userId);
   }
-  
+
   await article.save();
   res.json({ upvotes: article.upvotes });
 });
 
 // POST /api/knowledge-base/articles/:id/helpful
-app.post('/articles/:id/helpful', async (req, res) => {
+router.post('/articles/:id/helpful', async (req, res) => {
   const article = await Article.findByIdAndUpdate(
     req.params.id,
     { $inc: { helpfulCount: 1 } },
@@ -84,10 +76,8 @@ app.post('/articles/:id/helpful', async (req, res) => {
   res.json({ helpfulCount: article.helpfulCount });
 });
 
-
-
 // POST /api/knowledge-base/edit-suggestions
-app.post('/edit-suggestions', async (req, res) => {
+router.post('/edit-suggestions', async (req, res) => {
   const suggestion = new EditSuggestion({
     articleId: req.body.articleId,
     editorName: req.body.editorName,
@@ -96,24 +86,15 @@ app.post('/edit-suggestions', async (req, res) => {
     status: 'pending',
     createdAt: new Date()
   });
-  
+
   await suggestion.save();
-  
-  // Optional: Send notification to admin team
-  // await sendEditNotification(suggestion);
-  
   res.json({ message: 'Suggestion submitted successfully' });
 });
 
-
-
-
-// POST /api/knowledge-base/ai-query  
-app.post('/ai-query', async (req, res) => {
+// POST /api/knowledge-base/ai-query
+router.post('/ai-query', async (req, res) => {
   const { query, context } = req.body;
-  
   try {
-    // Use OpenAI or your preferred AI service
     const response = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [
@@ -128,18 +109,14 @@ app.post('/ai-query', async (req, res) => {
       ],
       max_tokens: 500
     });
-    
+
     res.json({ 
       answer: response.choices[0].message.content,
-      relatedArticles: [] // Could implement similarity search here
+      relatedArticles: []
     });
   } catch (error) {
     res.status(500).json({ error: 'AI service temporarily unavailable' });
   }
 });
-
-
-
-
 
 module.exports = router;
