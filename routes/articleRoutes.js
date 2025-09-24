@@ -175,6 +175,33 @@ router.get('/articles/:id', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch article' });
   }
 });
+// POST /api/knowledge-base/articles
+router.post('/', async (req, res) => {
+  try {
+    const { title, excerpt, content, category, difficulty, tags, author } = req.body;
+
+    const newArticle = new Article({
+      title,
+      excerpt,
+      content,
+      category,
+      difficulty,
+      tags,
+      author,
+      date: new Date(),
+      views: 0,
+      readTime: "5 min read",
+      upvotes: 0,
+      helpfulCount: 0
+    });
+
+    await newArticle.save();
+    res.status(201).json(newArticle);
+  } catch (err) {
+    console.error('Error creating article:', err);
+    res.status(500).json({ error: 'Failed to create article' });
+  }
+});
 
 // POST /api/knowledge-base/articles/:id/upvote
 router.post('/articles/:id/upvote', async (req, res) => {
