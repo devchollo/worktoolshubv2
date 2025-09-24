@@ -25,7 +25,7 @@
     "mongoose": "^8.18.2",
     "multer": "^2.0.2",
     "qrcode": "^1.5.4",
-    "marked": "^8.3.0"
+    "marked": "^8.2.1"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
