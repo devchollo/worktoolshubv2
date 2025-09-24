@@ -1,3 +1,4 @@
+// services/AIService.js
 class AIService {
   constructor() {
     this.apiKey = process.env.OPENAI_API_KEY;
@@ -12,6 +13,7 @@ class AIService {
     }
 
     try {
+      // Using native fetch (Node 18+)
       const response = await fetch(this.baseUrl, {
         method: "POST",
         headers: {
