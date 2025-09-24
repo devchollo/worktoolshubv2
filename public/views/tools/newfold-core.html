@@ -1497,7 +1497,7 @@ renderArticles() {
     grid.style.display = 'grid';
     noResults.style.display = 'none';
 
-    // Build HTML
+    // Render the cards
     grid.innerHTML = this.filteredArticles.map(article => `
         <article class="article-card fade-in" data-id="${article.id}">
             <div class="article-header">
@@ -1536,43 +1536,47 @@ renderArticles() {
         </article>
     `).join('');
 
-    // Event delegation for card clicks
-    grid.onclick = (e) => {
-        const card = e.target.closest('.article-card');
-        if (!card) return;
+    // Attach click handlers
+    grid.querySelectorAll('.article-card').forEach(card => {
+        // Make entire card clickable
+        card.addEventListener('click', (e) => {
+            // Prevent triggering when clicking buttons inside the card
+            if (e.target.closest('.action-btn')) return;
 
-        // If click was on a button, do nothing
-        if (e.target.closest('.upvote-btn') || e.target.closest('.helpful-btn') || e.target.closest('.suggest-edit')) {
-            return;
+            const articleId = Number(card.dataset.id);
+            console.log('Card clicked!', articleId);
+            this.openArticle(articleId);
+        });
+
+        // Upvote button
+        const upvoteBtn = card.querySelector('.upvote-btn');
+        if (upvoteBtn) {
+            upvoteBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.handleUpvote(Number(upvoteBtn.dataset.id));
+            });
         }
 
-        const articleId = card.dataset.id;
-        console.log('Card clicked!', articleId);
-        this.openArticle(articleId);
-    };
+        // Helpful button
+        const helpfulBtn = card.querySelector('.helpful-btn');
+        if (helpfulBtn) {
+            helpfulBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.handleHelpful(Number(helpfulBtn.dataset.id));
+            });
+        }
 
-    // Buttons still need their own listeners
-    grid.querySelectorAll('.upvote-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            this.handleUpvote(btn.dataset.id);
-        });
-    });
-
-    grid.querySelectorAll('.helpful-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            this.handleHelpful(btn.dataset.id);
-        });
-    });
-
-    grid.querySelectorAll('.suggest-edit').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            this.showEditModal(btn.dataset.id);
-        });
+        // Suggest edit button
+        const editBtn = card.querySelector('.suggest-edit');
+        if (editBtn) {
+            editBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.showEditModal(Number(editBtn.dataset.id));
+            });
+        }
     });
 }
+
 
 
 
