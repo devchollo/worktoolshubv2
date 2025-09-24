@@ -1,5 +1,3 @@
-const fetch = require('node-fetch');
-
 class AIService {
   constructor() {
     this.apiKey = process.env.OPENAI_API_KEY;
