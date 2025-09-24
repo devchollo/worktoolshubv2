@@ -1694,7 +1694,8 @@
               const article = this.articles.find(a => a.id == articleId);
               if (article) {
                   // In a real implementation, this would route to /knowledge-base/article/{id}
-                  window.location.href = `articlePage.html?id=${articleId}`;
+                  window.location.href = `article.html?id=${articleId}`;
+                  console.log('clickedd!!!!');
 
                   // Increment view count (would be done server-side in real implementation)
                   article.views++;
