@@ -2,6 +2,7 @@
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
+const mongoose = require('mongoose');
 require('dotenv').config();
 
 
@@ -11,6 +12,8 @@ const uploadRoutes = require('./routes/uploadRoutes');
 const qrRoutes = require('./routes/qrRoutes');
 const sitemapRoutes = require('./routes/sitemapRoutes');
 const notesRoutes = require('./routes/notesRoutes');
+const articleRoutes = require('./routes/articleRoutes');
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -47,6 +50,8 @@ app.use('/api', uploadRoutes);
 app.use('/api', qrRoutes);
 app.use('/api', sitemapRoutes);
 app.use('/api/notes', notesRoutes);
+app.use('/api/knowledge-base', articleRoutes);
+
 
 
 // Sitemap.xml endpoint
@@ -149,6 +154,7 @@ app.use('/api/*', (req, res) => {
   });
 });
 
+
 // Global error handling middleware
 app.use((error, req, res, next) => {
   console.error('Server error:', error);
@@ -162,6 +168,16 @@ app.use((error, req, res, next) => {
     ...(isDevelopment && { stack: error.stack })
   });
 });
+
+
+const mongoose = require('mongoose');
+
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => console.log('✅ MongoDB connected'))
+.catch(err => console.error('MongoDB connection error:', err));
 
 // Start server
 const server = app.listen(PORT, () => {
@@ -179,6 +195,8 @@ const server = app.listen(PORT, () => {
     console.warn('⚠️  WARNING: OPENAI_API_KEY not set - email generation will fail');
   }
 });
+
+
 
 // Graceful shutdown
 const gracefulShutdown = (signal) => {
