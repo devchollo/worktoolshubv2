@@ -1,6 +1,6 @@
 const express = require('express');
 const Article = require('../models/Articles');
-const EditSuggestion = require('../models/EditSuggestion');
+const EditSuggestion = require('../models/editSuggestions');
 const AIService = require('../services/AIService');
 
 const router = express.Router();
