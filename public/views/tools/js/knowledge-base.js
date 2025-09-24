@@ -697,8 +697,8 @@ class KnowledgeBase {
     }
 
     openArticle(articleId) {
-        // Navigate to individual article page
-        window.location.href = `/article?id=${articleId}`;
+        // Navigate to articlePage.html and pass the article ID in the URL
+    window.location.href = `articlePage.html?id=${articleId}`;
     }
 
     debounce(func, wait) {

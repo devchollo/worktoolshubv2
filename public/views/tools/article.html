@@ -533,7 +533,7 @@ if (articleBody) {
             }
 
             showEditModal() {
-                alert(`Edit suggestions for article: ${this.article.title}\n\nIn a full implementation, this would open an edit suggestion modal.`);
+                window.location.href = `articlePage.html?id=${articleId}`;
             }
 
             showError(message) {
