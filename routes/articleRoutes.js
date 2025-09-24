@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const Article = require('../models/articleModel');
 const EditSuggestion = require('../models/editSuggestions');
 const AIService = require('../services/AIService');
+const {marked} = require('marked');
 
 const router = express.Router();
 
@@ -111,8 +112,16 @@ router.get('/articles', async (req, res) => {
     // Try hitting Mongo
     if (Article && Article.find) {
       const articles = await Article.find({});
-      console.log(`✅ Retrieved ${articles.length} articles from MongoDB`);
-      return res.json(articles);
+console.log(`✅ Retrieved ${articles.length} articles from MongoDB`);
+
+// Add rendered HTML for frontend
+const articlesWithHtml = articles.map(article => ({
+  ...article.toObject(),
+  contentHtml: marked(article.content || "")
+}));
+
+return res.json(articlesWithHtml);
+
     } else {
       console.warn('⚠️ Article model not available — falling back to demo data');
     }
@@ -163,7 +172,10 @@ router.get('/articles/:id', async (req, res) => {
     article.views += 1;
     await article.save();
 
-    res.json(article);
+    res.json({
+  ...article.toObject(),
+  contentHtml: marked(article.content || "")
+});
     
   } catch (error) {
     console.error('Error fetching article:', error);
@@ -196,7 +208,10 @@ router.post('/', async (req, res) => {
     });
 
     await newArticle.save();
-    res.status(201).json(newArticle);
+    res.status(201).json({
+  ...newArticle.toObject(),
+  contentHtml: marked(newArticle.content || "")
+});
   } catch (err) {
     console.error('Error creating article:', err);
     res.status(500).json({ error: 'Failed to create article' });

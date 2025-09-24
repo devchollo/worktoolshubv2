@@ -342,7 +342,7 @@
             <strong>Error:</strong> <span id="errorMessage"></span>
         </div>
     </div>
-    
+
 <script src="/js/knowledge-base.js"></script>
     <script>
         class ArticlePage {
@@ -383,42 +383,55 @@
                 }
             }
 
-            renderArticle() {
-                // Hide loading, show content
-                document.getElementById('loadingState').style.display = 'none';
-                document.getElementById('articleContent').style.display = 'block';
+    renderArticle() {
+    // Hide loading, show content
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('articleContent').style.display = 'block';
 
-                // Update page title
-                document.title = `${this.article.title} - WorkToolsHub Knowledge Base`;
+    // Update page title
+    document.title = `${this.article.title} - WorkToolsHub Knowledge Base`;
 
-                // Populate content
-                document.getElementById('articleCategory').textContent = this.formatCategory(this.article.category);
-                document.getElementById('articleTitle').textContent = this.article.title;
-                document.getElementById('articleExcerpt').textContent = this.article.excerpt;
-                document.getElementById('articleAuthor').textContent = this.article.author;
-                document.getElementById('articleDate').textContent = this.formatDate(this.article.date);
-                document.getElementById('articleReadTime').textContent = this.article.readTime || '5 min read';
-                document.getElementById('articleViews').textContent = this.article.views.toLocaleString();
+    // Helper to set text safely
+    const setText = (id, value, fallback = '') => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value ?? fallback;
+    };
 
-                // Render tags
-                const tagsContainer = document.getElementById('articleTags');
-                tagsContainer.innerHTML = this.article.tags.map(tag => 
-                    `<span class="article-tag">${tag}</span>`
-                ).join('');
+    // Populate header fields
+    setText('articleCategory', this.formatCategory(this.article.category));
+    setText('articleTitle', this.article.title);
+    setText('articleExcerpt', this.article.excerpt);
+    setText('articleAuthor', this.article.author);
+    setText('articleDate', this.formatDate(this.article.date));
+    setText('articleReadTime', this.article.readTime, '5 min read');
+    setText('articleViews', this.article.views?.toLocaleString() || '0');
 
-                // Render article content (convert markdown-like content to HTML)
-                document.getElementById('articleBody').innerHTML = this.formatContent(this.article.content);
+    // Render tags
+    const tagsContainer = document.getElementById('articleTags');
+    if (tagsContainer) {
+        tagsContainer.innerHTML = (this.article.tags || [])
+            .map(tag => `<span class="article-tag">${tag}</span>`)
+            .join('');
+    }
 
-                // Update action buttons
-                document.getElementById('upvoteCount').textContent = this.article.upvotes || 0;
-                document.getElementById('helpfulText').textContent = `Helped ${this.article.helpfulCount || 0}`;
+    // Render article body (prefer backend-rendered HTML)
+    const articleBody = document.getElementById('articleBody');
+    if (articleBody) {
+        articleBody.innerHTML = this.article.contentHtml 
+            || this.formatContent(this.article.content || '');
+    }
 
-                // Check if user has upvoted (simplified - in real app would check user session)
-                const upvoteBtn = document.getElementById('upvoteBtn');
-                if (this.article.userUpvoted) {
-                    upvoteBtn.classList.add('upvoted');
-                }
-            }
+    // Action buttons
+    setText('upvoteCount', this.article.upvotes || 0);
+    setText('helpfulText', `Helped ${this.article.helpfulCount || 0}`);
+
+    // Upvote button state
+    const upvoteBtn = document.getElementById('upvoteBtn');
+    if (upvoteBtn && this.article.userUpvoted) {
+        upvoteBtn.classList.add('upvoted');
+    }
+}
+
 
             formatContent(content) {
                 // Basic markdown-to-HTML conversion (simplified)
