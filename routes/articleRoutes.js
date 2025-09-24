@@ -1,10 +1,9 @@
-// routes/articleRoutes.js - Enhanced with better error handling
+// routes/articleRoutes.js - Refactored to remove marked
 const express = require('express');
 const mongoose = require('mongoose');
 const Article = require('../models/articleModel');
 const EditSuggestion = require('../models/editSuggestions');
 const AIService = require('../services/AIService');
-const {marked} = require('marked');
 
 const router = express.Router();
 
@@ -49,84 +48,20 @@ const getDemoArticles = () => [
   }
 ];
 
-// GET /api/knowledge-base/articles
-// router.get('/articles', async (req, res) => {
-//   try {
-//     const { search, category, difficulty, date, page = 1, limit = 20 } = req.query;
-    
-//     // Check if database is connected
-//     if (!checkDBConnection()) {
-//       console.log('Database not connected, returning demo articles');
-//       return res.json(getDemoArticles());
-//     }
-
-//     let query = { published: true };
-
-//     if (search) {
-//       query.$or = [
-//         { title: { $regex: search, $options: 'i' } },
-//         { excerpt: { $regex: search, $options: 'i' } },
-//         { tags: { $in: [new RegExp(search, 'i')] } },
-//         { content: { $regex: search, $options: 'i' } }
-//       ];
-//     }
-
-//     if (category) query.category = category;
-//     if (difficulty) query.difficulty = difficulty;
-
-//     if (date) {
-//       const now = new Date();
-//       let cutoffDate;
-//       switch (date) {
-//         case 'week': cutoffDate = new Date(now - 7 * 24 * 60 * 60 * 1000); break;
-//         case 'month': cutoffDate = new Date(now - 30 * 24 * 60 * 60 * 1000); break;
-//         case 'quarter': cutoffDate = new Date(now - 90 * 24 * 60 * 60 * 1000); break;
-//         case 'year': cutoffDate = new Date(now - 365 * 24 * 60 * 60 * 1000); break;
-//       }
-//       if (cutoffDate) query.date = { $gte: cutoffDate };
-//     }
-
-//     // Set a timeout for the database operation
-//     const articles = await Article.find(query)
-//       .skip((page - 1) * limit)
-//       .limit(Number(limit))
-//       .sort({ date: -1 })
-//       .maxTimeMS(5000); // 5 second timeout
-
-//     res.json(articles.length > 0 ? articles : getDemoArticles());
-    
-//   } catch (error) {
-//     console.error('Error fetching articles:', error);
-    
-//     // Return demo articles on any error
-//     res.json(getDemoArticles());
-//   }
-// });
-
 // GET all articles
 router.get('/articles', async (req, res) => {
   try {
     console.log('📥 Incoming request: GET /articles');
     console.log('🔎 Query params:', req.query);
 
-    // Try hitting Mongo
     if (Article && Article.find) {
       const articles = await Article.find({});
-console.log(`✅ Retrieved ${articles.length} articles from MongoDB`);
-
-// Add rendered HTML for frontend
-const articlesWithHtml = articles.map(article => ({
-  ...article.toObject(),
-  contentHtml: marked(article.content || "")
-}));
-
-return res.json(articlesWithHtml);
-
+      console.log(`✅ Retrieved ${articles.length} articles from MongoDB`);
+      return res.json(articles); // send raw content
     } else {
       console.warn('⚠️ Article model not available — falling back to demo data');
     }
 
-    // Fallback demo data
     const demoArticles = [
       { id: 1, title: 'Demo Article', content: 'MongoDB not connected' },
     ];
@@ -138,56 +73,38 @@ return res.json(articlesWithHtml);
   }
 });
 
-module.exports = router;
-
-
-// GET /api/knowledge-base/articles/:id - Get single article
+// GET single article
 router.get('/articles/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    
-    // Check if database is connected
+
     if (!checkDBConnection()) {
       const demoArticles = getDemoArticles();
       const demoArticle = demoArticles.find(a => a._id === id);
-      if (demoArticle) {
-        return res.json(demoArticle);
-      } else {
-        return res.status(404).json({ error: 'Article not found' });
-      }
+      if (demoArticle) return res.json(demoArticle);
+      return res.status(404).json({ error: 'Article not found' });
     }
 
-    // Validate MongoDB ObjectId format
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ error: 'Invalid article ID format' });
     }
 
     const article = await Article.findById(id).maxTimeMS(5000);
-    
-    if (!article) {
-      return res.status(404).json({ error: 'Article not found' });
-    }
+    if (!article) return res.status(404).json({ error: 'Article not found' });
 
-    // Increment view count
     article.views += 1;
     await article.save();
 
-    res.json({
-  ...article.toObject(),
-  contentHtml: marked(article.content || "")
-});
-    
+    res.json(article); // raw content
+
   } catch (error) {
     console.error('Error fetching article:', error);
-    
-    if (error.name === 'CastError') {
-      return res.status(400).json({ error: 'Invalid article ID' });
-    }
-    
+    if (error.name === 'CastError') return res.status(400).json({ error: 'Invalid article ID' });
     res.status(500).json({ error: 'Failed to fetch article' });
   }
 });
-// POST /api/knowledge-base/articles
+
+// POST new article
 router.post('/', async (req, res) => {
   try {
     const { title, excerpt, content, category, difficulty, tags, author } = req.body;
@@ -208,17 +125,15 @@ router.post('/', async (req, res) => {
     });
 
     await newArticle.save();
-    res.status(201).json({
-  ...newArticle.toObject(),
-  contentHtml: marked(newArticle.content || "")
-});
+    res.status(201).json(newArticle); // raw content
+
   } catch (err) {
     console.error('Error creating article:', err);
     res.status(500).json({ error: 'Failed to create article' });
   }
 });
 
-// POST /api/knowledge-base/articles/:id/upvote
+// POST /articles/:id/upvote
 router.post('/articles/:id/upvote', async (req, res) => {
   try {
     const { upvote } = req.body;
@@ -234,9 +149,7 @@ router.post('/articles/:id/upvote', async (req, res) => {
     }
 
     const article = await Article.findById(id).maxTimeMS(5000);
-    if (!article) {
-      return res.status(404).json({ error: 'Article not found' });
-    }
+    if (!article) return res.status(404).json({ error: 'Article not found' });
 
     const hasUpvoted = article.upvotedBy.includes(userId);
 
@@ -245,7 +158,7 @@ router.post('/articles/:id/upvote', async (req, res) => {
       article.upvotedBy.push(userId);
     } else if (!upvote && hasUpvoted) {
       article.upvotes = Math.max(0, article.upvotes - 1);
-      article.upvotedBy = article.upvotedBy.filter(id => id !== userId);
+      article.upvotedBy = article.upvotedBy.filter(uid => uid !== userId);
     }
 
     await article.save();
@@ -253,14 +166,14 @@ router.post('/articles/:id/upvote', async (req, res) => {
       upvotes: article.upvotes, 
       userUpvoted: article.upvotedBy.includes(userId) 
     });
-    
+
   } catch (error) {
     console.error('Error updating upvote:', error);
     res.status(500).json({ error: 'Failed to update upvote' });
   }
 });
 
-// POST /api/knowledge-base/articles/:id/helpful
+// POST /articles/:id/helpful
 router.post('/articles/:id/helpful', async (req, res) => {
   try {
     const { id } = req.params;
@@ -278,31 +191,28 @@ router.post('/articles/:id/helpful', async (req, res) => {
       { $inc: { helpfulCount: 1 } },
       { new: true }
     ).maxTimeMS(5000);
-    
-    if (!article) {
-      return res.status(404).json({ error: 'Article not found' });
-    }
-    
+
+    if (!article) return res.status(404).json({ error: 'Article not found' });
+
     res.json({ helpfulCount: article.helpfulCount });
-    
+
   } catch (error) {
     console.error('Error updating helpful count:', error);
     res.status(500).json({ error: 'Failed to update helpful count' });
   }
 });
 
-// POST /api/knowledge-base/ai-query
+// POST /ai-query
 router.post('/ai-query', async (req, res) => {
   const { query, context } = req.body;
-  
+
   if (!query || query.trim().length === 0) {
     return res.status(400).json({ error: 'Query is required' });
   }
 
   try {
-    // Create relevant context from articles
     const relevantContext = AIService.createKnowledgeBaseContext(context || [], query);
-    
+
     const systemPrompt = `You are a helpful technical assistant for WorkToolsHub. 
 Your role is to help users find solutions and information based on our knowledge base.
 
@@ -317,19 +227,12 @@ Guidelines:
 - Always be professional and helpful`;
 
     const messages = [
-      {
-        role: "system",
-        content: systemPrompt
-      },
-      {
-        role: "user",
-        content: query
-      }
+      { role: "system", content: systemPrompt },
+      { role: "user", content: query }
     ];
 
     const answer = await AIService.query(messages);
 
-    // Find related articles based on the query
     const relatedArticles = (context || [])
       .filter(article => {
         const searchText = `${article.title} ${article.excerpt} ${article.tags?.join(' ') || ''}`.toLowerCase();
@@ -346,11 +249,10 @@ Guidelines:
         category: article.category
       }))
     });
-    
+
   } catch (error) {
     console.error("AI query error:", error);
-    
-    // Provide fallback response when AI service fails
+
     res.json({
       answer: "The AI assistant is temporarily unavailable. Please try browsing our knowledge base categories or use the search function to find relevant articles. If you need further assistance, please contact our support team.",
       relatedArticles: []

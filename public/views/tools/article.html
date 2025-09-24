@@ -342,7 +342,7 @@
             <strong>Error:</strong> <span id="errorMessage"></span>
         </div>
     </div>
-
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="/js/knowledge-base.js"></script>
     <script>
         class ArticlePage {
@@ -414,12 +414,12 @@
             .join('');
     }
 
-    // Render article body (prefer backend-rendered HTML)
-    const articleBody = document.getElementById('articleBody');
-    if (articleBody) {
-        articleBody.innerHTML = this.article.contentHtml 
-            || this.formatContent(this.article.content || '');
-    }
+   // Render article body using marked (frontend Markdown -> HTML)
+const articleBody = document.getElementById('articleBody');
+if (articleBody) {
+    articleBody.innerHTML = this.article.contentHtml 
+        || marked(this.article.content || '');
+}
 
     // Action buttons
     setText('upvoteCount', this.article.upvotes || 0);
