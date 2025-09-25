@@ -117,8 +117,8 @@
     </script>
 
     <!-- MANIFEST / PWA -->
-     <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#2563eb">
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#2563eb" />
   </head>
   <body>
     <div id="header"></div>
@@ -150,6 +150,385 @@
       <!-- Categories Section -->
       <section class="categories-section">
         <div class="container-wide">
+          <div class="custom-center">
+            <!-- Newfold Core Announcement Card - True Landscape -->
+<div class="newfold-announcement-card" onclick="window.location.href='/tools/newfold-core'">
+    <div class="newfold-bg-effects">
+        <div class="newfold-gradient-orb newfold-orb-1"></div>
+        <div class="newfold-gradient-orb newfold-orb-2"></div>
+        <div class="newfold-shimmer"></div>
+    </div>
+    
+    <div class="newfold-content-wrapper">
+        <div class="newfold-left-section">
+            <div class="newfold-icon-wrapper">
+                <div class="newfold-icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+        
+        <div class="newfold-right-section">
+            <div class="newfold-top-row">
+                <div class="newfold-title-group">
+                    <h2 class="newfold-title">Newfold Core</h2>
+                    <p class="newfold-subtitle">Pro Modifications Own Knowledgebase</p>
+                </div>
+                <div class="newfold-status-badge">NEW</div>
+            </div>
+            
+            <p class="newfold-description">
+                Your comprehensive resource for professional modifications and advanced configurations. Everything you need in one place.
+            </p>
+            
+            <div class="newfold-action-area">
+                <button class="newfold-cta-btn">
+                    <span>Launch Knowledgebase</span>
+                    <div class="newfold-btn-arrow">→</div>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.newfold-announcement-card {
+    width: 100%;
+    max-width: 600px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 30%, #0f3460 70%, #533483 100%);
+    border-radius: 20px;
+    margin: 20px auto;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(15, 52, 96, 0.3);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.newfold-announcement-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(15, 52, 96, 0.4);
+}
+
+.newfold-bg-effects {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.newfold-gradient-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(40px);
+    opacity: 0.3;
+    animation: newfold-float-orb 6s ease-in-out infinite;
+}
+
+.newfold-orb-1 {
+    width: 120px;
+    height: 120px;
+    background: radial-gradient(circle, #667eea, #764ba2);
+    top: -30px;
+    right: -30px;
+}
+
+.newfold-orb-2 {
+    width: 80px;
+    height: 80px;
+    background: radial-gradient(circle, #f093fb, #f5576c);
+    bottom: -20px;
+    left: 20px;
+    animation-delay: -3s;
+}
+
+@keyframes newfold-float-orb {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(10px, -10px) scale(1.1); }
+}
+
+.newfold-shimmer {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.8s ease;
+}
+
+.newfold-announcement-card:hover .newfold-shimmer {
+    left: 100%;
+}
+
+.newfold-content-wrapper {
+    display: flex;
+    height: 100%;
+    position: relative;
+    z-index: 2;
+}
+
+.newfold-left-section {
+    flex: 0 0 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.newfold-icon-wrapper {
+    position: relative;
+}
+
+.newfold-icon {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    padding: 16px;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    animation: newfold-icon-pulse 3s ease-in-out infinite;
+    transition: all 0.3s ease;
+}
+
+.newfold-icon svg {
+    color: #e2e8f0;
+    display: block;
+}
+
+@keyframes newfold-icon-pulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.1); }
+    50% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+}
+
+.newfold-announcement-card:hover .newfold-icon {
+    background: rgba(255, 255, 255, 0.15);
+    transform: rotate(5deg);
+}
+
+.newfold-right-section {
+    flex: 1;
+    padding: 24px 28px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    color: white;
+}
+
+.newfold-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.newfold-title-group {
+    flex: 1;
+}
+
+.newfold-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0 0 4px 0;
+    background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.2;
+}
+
+.newfold-subtitle {
+    font-size: 13px;
+    margin: 0;
+    opacity: 0.8;
+    color: #cbd5e1;
+    font-weight: 500;
+}
+
+.newfold-status-badge {
+    background: linear-gradient(45deg, #10b981, #34d399);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    animation: newfold-badge-glow 2s ease-in-out infinite;
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+}
+
+@keyframes newfold-badge-glow {
+    0%, 100% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); }
+    50% { box-shadow: 0 0 30px rgba(16, 185, 129, 0.6); }
+}
+
+.newfold-description {
+    font-size: 14px;
+    line-height: 1.5;
+    color: #94a3b8;
+    margin: 0 0 16px 0;
+}
+
+.newfold-action-area {
+    display: flex;
+    align-items: center;
+}
+
+.newfold-cta-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.newfold-btn-arrow {
+    background: rgba(255, 255, 255, 0.15);
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.newfold-announcement-card:hover .newfold-cta-btn {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateX(4px);
+}
+
+.newfold-announcement-card:hover .newfold-btn-arrow {
+    transform: translateX(4px);
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.newfold-announcement-card:active {
+    transform: translateY(-4px) scale(0.98);
+}
+
+/* Mobile Responsive */
+@media (max-width: 640px) {
+    .newfold-announcement-card {
+        max-width: 100%;
+        height: auto;
+        min-height: 160px;
+        margin: 16px;
+    }
+    
+    .newfold-content-wrapper {
+        flex-direction: row;
+    }
+    
+    .newfold-left-section {
+        flex: 0 0 120px;
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .newfold-icon {
+        padding: 12px;
+    }
+    
+    .newfold-icon svg {
+        width: 36px;
+        height: 36px;
+    }
+    
+    .newfold-right-section {
+        padding: 20px;
+    }
+    
+    .newfold-title {
+        font-size: 20px;
+    }
+    
+    .newfold-subtitle {
+        font-size: 12px;
+    }
+    
+    .newfold-description {
+        font-size: 13px;
+        margin-bottom: 12px;
+    }
+    
+    .newfold-cta-btn {
+        padding: 10px 16px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 480px) {
+    .newfold-content-wrapper {
+        flex-direction: column;
+    }
+    
+    .newfold-left-section {
+        flex: 0 0 80px;
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .newfold-top-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const card = document.querySelector('.newfold-announcement-card');
+    
+    if (card) {
+        // Smooth entrance animation
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(30px) scale(0.95)';
+        
+        setTimeout(() => {
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s cubic-bezier(0.23, 1, 0.320, 1)';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0) scale(1)';
+        }, 100);
+        
+        // Click tracking
+        card.addEventListener('click', function(e) {
+            // Prevent double-firing if clicking the button
+            if (e.target.closest('.newfold-cta-btn')) return;
+            
+        });
+        
+        // Button click with ripple effect
+        const btn = card.querySelector('.newfold-cta-btn');
+        if (btn) {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                // Brief scale effect
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = 'translateX(4px)';
+                }, 100);
+            });
+        }
+    }
+});
+</script>
+          </div>
           <h2 class="section-title">Tool Categories</h2>
           <div class="categories-grid" id="categoriesGrid">
             <!-- Categories will be loaded dynamically -->
