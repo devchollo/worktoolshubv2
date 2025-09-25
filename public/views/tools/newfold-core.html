@@ -1492,13 +1492,7 @@
           card.addEventListener('click', (e) => {
             // Prevent triggering when clicking buttons inside the card
             if (e.target.closest('.action-btn')) return;
-            const articleIdStr = card.dataset.id;
-            const articleId = parseInt(articleIdStr, 10);
-
-            if (isNaN(articleId)) {
-              console.error('Invalid article ID:', articleIdStr);
-              return;
-            }
+            const articleId = card.dataset.id
 
             console.log('Card clicked!', articleId);
             this.openArticle(articleId);
@@ -1743,19 +1737,20 @@
       }
 
       async openArticle(articleId) {
-        // This would typically navigate to the full article page
-        // For now, we'll show an alert as a placeholder
-        const article = this.articles.find(a => a.id == articleId);
-        if (article) {
-          // In a real implementation, this would route to /knowledge-base/article/{id}
-          window.location.href = `article.html?id=${articleId}`;
-          console.log('clickedd!!!!');
+    const article = this.articles.find(a => a._id === articleId);
+    if (!article) {
+        console.error('Article not found for ID:', articleId);
+        return;
+    }
 
-          // Increment view count (would be done server-side in real implementation)
-          article.views++;
-          this.renderArticles();
-        }
-      }
+    console.log('Card clicked! ID:', articleId);
+    window.location.href = `article.html?id=${articleId}`;
+
+    // Increment views locally
+    article.views++;
+    this.renderArticles();
+}
+
 
       debounce(func, wait) {
         let timeout;
