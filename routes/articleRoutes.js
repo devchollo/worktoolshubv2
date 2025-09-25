@@ -248,45 +248,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-// POST /articles/:id/upvote
-// router.post('/articles/:id/upvote', async (req, res) => {
-//   try {
-//     const { upvote } = req.body;
-//     const userId = req.user?.id || req.ip;
-//     const { id } = req.params;
 
-//     if (!checkDBConnection()) {
-//       return res.json({ upvotes: 0, userUpvoted: false });
-//     }
-
-//     if (!mongoose.Types.ObjectId.isValid(id)) {
-//       return res.status(400).json({ error: 'Invalid article ID format' });
-//     }
-
-//     const article = await Article.findById(id).maxTimeMS(5000);
-//     if (!article) return res.status(404).json({ error: 'Article not found' });
-
-//     const hasUpvoted = article.upvotedBy.includes(userId);
-
-//     if (upvote && !hasUpvoted) {
-//       article.upvotes += 1;
-//       article.upvotedBy.push(userId);
-//     } else if (!upvote && hasUpvoted) {
-//       article.upvotes = Math.max(0, article.upvotes - 1);
-//       article.upvotedBy = article.upvotedBy.filter(uid => uid !== userId);
-//     }
-
-//     await article.save();
-//     res.json({ 
-//       upvotes: article.upvotes, 
-//       userUpvoted: article.upvotedBy.includes(userId) 
-//     });
-
-//   } catch (error) {
-//     console.error('Error updating upvote:', error);
-//     res.status(500).json({ error: 'Failed to update upvote' });
-//   }
-// });
 
 router.post('/articles/:id/upvote', async (req, res) => {
   try {
@@ -420,6 +382,191 @@ Guidelines:
       answer: "The AI assistant is temporarily unavailable. Please try browsing our knowledge base categories or use the search function to find relevant articles. If you need further assistance, please contact our support team.",
       relatedArticles: []
     });
+  }
+});
+
+
+
+// PUT /articles/:id - Update an existing article
+router.put('/articles/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, excerpt, content, category, difficulty, tags, author } = req.body;
+
+    if (!checkDBConnection()) {
+      return res.status(503).json({ error: 'Database unavailable' });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: 'Invalid article ID format' });
+    }
+
+    // Validate required fields
+    if (!title || !content) {
+      return res.status(400).json({ error: 'Title and content are required' });
+    }
+
+    const updateData = {
+      title: title.trim(),
+      excerpt: excerpt?.trim() || '',
+      content: content.trim(),
+      category: category || 'general',
+      difficulty: difficulty || 'beginner',
+      tags: Array.isArray(tags) ? tags : [],
+      author: author?.trim() || 'Anonymous',
+      lastModified: new Date()
+    };
+
+    const updatedArticle = await Article.findByIdAndUpdate(
+      id,
+      updateData,
+      { new: true, runValidators: true }
+    ).maxTimeMS(10000);
+
+    if (!updatedArticle) {
+      return res.status(404).json({ error: 'Article not found' });
+    }
+
+    console.log(`Article updated: ${updatedArticle.title} (ID: ${id})`);
+    
+    res.json({
+      success: true,
+      message: 'Article updated successfully',
+      article: updatedArticle
+    });
+
+  } catch (error) {
+    console.error('Error updating article:', error);
+    
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ 
+        error: 'Validation failed', 
+        details: error.message 
+      });
+    }
+    
+    if (error.name === 'CastError') {
+      return res.status(400).json({ error: 'Invalid article ID' });
+    }
+    
+    res.status(500).json({ error: 'Failed to update article' });
+  }
+});
+
+// PATCH /articles/:id - Partially update an article
+router.patch('/articles/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updates = req.body;
+
+    if (!checkDBConnection()) {
+      return res.status(503).json({ error: 'Database unavailable' });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: 'Invalid article ID format' });
+    }
+
+    // Remove any fields that shouldn't be updated directly
+    const allowedUpdates = ['title', 'excerpt', 'content', 'category', 'difficulty', 'tags', 'author', 'published'];
+    const filteredUpdates = {};
+    
+    Object.keys(updates).forEach(key => {
+      if (allowedUpdates.includes(key)) {
+        filteredUpdates[key] = updates[key];
+      }
+    });
+
+    if (Object.keys(filteredUpdates).length === 0) {
+      return res.status(400).json({ error: 'No valid fields to update' });
+    }
+
+    // Add lastModified timestamp
+    filteredUpdates.lastModified = new Date();
+
+    const updatedArticle = await Article.findByIdAndUpdate(
+      id,
+      filteredUpdates,
+      { new: true, runValidators: true }
+    ).maxTimeMS(10000);
+
+    if (!updatedArticle) {
+      return res.status(404).json({ error: 'Article not found' });
+    }
+
+    console.log(`Article partially updated: ${updatedArticle.title} (ID: ${id})`);
+    
+    res.json({
+      success: true,
+      message: 'Article updated successfully',
+      article: updatedArticle
+    });
+
+  } catch (error) {
+    console.error('Error partially updating article:', error);
+    
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ 
+        error: 'Validation failed', 
+        details: error.message 
+      });
+    }
+    
+    if (error.name === 'CastError') {
+      return res.status(400).json({ error: 'Invalid article ID' });
+    }
+    
+    res.status(500).json({ error: 'Failed to update article' });
+  }
+});
+
+// DELETE /articles/:id - Delete a specific article
+router.delete('/articles/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!checkDBConnection()) {
+      return res.status(503).json({ error: 'Database unavailable' });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: 'Invalid article ID format' });
+    }
+
+    const deletedArticle = await Article.findByIdAndDelete(id).maxTimeMS(10000);
+
+    if (!deletedArticle) {
+      return res.status(404).json({ error: 'Article not found' });
+    }
+
+    console.log(`Article deleted: ${deletedArticle.title} (ID: ${id})`);
+
+    // Optional: Clean up related edit suggestions
+    try {
+      await EditSuggestion.deleteMany({ articleId: id });
+      console.log(`Deleted edit suggestions for article ${id}`);
+    } catch (cleanupError) {
+      console.warn('Failed to clean up edit suggestions:', cleanupError);
+      // Don't fail the deletion if cleanup fails
+    }
+
+    res.json({
+      success: true,
+      message: 'Article deleted successfully',
+      deletedArticle: {
+        id: deletedArticle._id,
+        title: deletedArticle.title
+      }
+    });
+
+  } catch (error) {
+    console.error('Error deleting article:', error);
+    
+    if (error.name === 'CastError') {
+      return res.status(400).json({ error: 'Invalid article ID' });
+    }
+    
+    res.status(500).json({ error: 'Failed to delete article' });
   }
 });
 
