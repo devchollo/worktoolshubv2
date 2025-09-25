@@ -20,7 +20,6 @@ const articleSchema = new mongoose.Schema({
   views: { type: Number, default: 0 },
   readTime: String,
   published: { type: Boolean, default: true },
-  slug: { type: String, unique: true },
 
   // 👇 Add these for frontend compatibility
   upvotes: { type: Number, default: 0 },
