@@ -134,11 +134,53 @@ router.post('/', async (req, res) => {
 });
 
 // POST /articles/:id/upvote
+// router.post('/articles/:id/upvote', async (req, res) => {
+//   try {
+//     const { upvote } = req.body;
+//     const userId = req.user?.id || req.ip;
+//     const { id } = req.params;
+
+//     if (!checkDBConnection()) {
+//       return res.json({ upvotes: 0, userUpvoted: false });
+//     }
+
+//     if (!mongoose.Types.ObjectId.isValid(id)) {
+//       return res.status(400).json({ error: 'Invalid article ID format' });
+//     }
+
+//     const article = await Article.findById(id).maxTimeMS(5000);
+//     if (!article) return res.status(404).json({ error: 'Article not found' });
+
+//     const hasUpvoted = article.upvotedBy.includes(userId);
+
+//     if (upvote && !hasUpvoted) {
+//       article.upvotes += 1;
+//       article.upvotedBy.push(userId);
+//     } else if (!upvote && hasUpvoted) {
+//       article.upvotes = Math.max(0, article.upvotes - 1);
+//       article.upvotedBy = article.upvotedBy.filter(uid => uid !== userId);
+//     }
+
+//     await article.save();
+//     res.json({ 
+//       upvotes: article.upvotes, 
+//       userUpvoted: article.upvotedBy.includes(userId) 
+//     });
+
+//   } catch (error) {
+//     console.error('Error updating upvote:', error);
+//     res.status(500).json({ error: 'Failed to update upvote' });
+//   }
+// });
+
 router.post('/articles/:id/upvote', async (req, res) => {
   try {
     const { upvote } = req.body;
-    const userId = req.user?.id || req.ip;
+    // Better user identification for production
+    const userId = req.user?.id || req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || req.connection.remoteAddress || req.ip || 'anonymous';
     const { id } = req.params;
+
+    console.log(`Upvote attempt: ${upvote} by user ${userId} for article ${id}`); // Debug log
 
     if (!checkDBConnection()) {
       return res.json({ upvotes: 0, userUpvoted: false });
@@ -152,19 +194,24 @@ router.post('/articles/:id/upvote', async (req, res) => {
     if (!article) return res.status(404).json({ error: 'Article not found' });
 
     const hasUpvoted = article.upvotedBy.includes(userId);
+    console.log(`User ${userId} has upvoted: ${hasUpvoted}`); // Debug log
 
     if (upvote && !hasUpvoted) {
       article.upvotes += 1;
       article.upvotedBy.push(userId);
+      console.log(`Added upvote. New count: ${article.upvotes}`); // Debug log
     } else if (!upvote && hasUpvoted) {
       article.upvotes = Math.max(0, article.upvotes - 1);
       article.upvotedBy = article.upvotedBy.filter(uid => uid !== userId);
+      console.log(`Removed upvote. New count: ${article.upvotes}`); // Debug log
     }
 
-    await article.save();
+    const savedArticle = await article.save();
+    console.log(`Article saved with ${savedArticle.upvotes} upvotes`); // Debug log
+
     res.json({ 
-      upvotes: article.upvotes, 
-      userUpvoted: article.upvotedBy.includes(userId) 
+      upvotes: savedArticle.upvotes, 
+      userUpvoted: savedArticle.upvotedBy.includes(userId) 
     });
 
   } catch (error) {
@@ -172,6 +219,7 @@ router.post('/articles/:id/upvote', async (req, res) => {
     res.status(500).json({ error: 'Failed to update upvote' });
   }
 });
+
 
 // POST /articles/:id/helpful
 router.post('/articles/:id/helpful', async (req, res) => {
