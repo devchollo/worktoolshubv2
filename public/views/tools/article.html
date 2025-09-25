@@ -589,9 +589,42 @@ async handleHelpful() {
 }
 
 
-            showEditModal() {
-                window.location.href = `article.html?id=${this.articleId}`;
-            }
+            // showEditModal() {
+            //     window.location.href = `article.html?id=${this.articleId}`;
+            // }
+
+showEditModal() {
+    const message = `Suggest an edit for: "${this.article.title}"\n\nWhat would you like to suggest?\n\n(In a full implementation, this would open a proper edit modal)`;
+    const suggestion = prompt(message);
+    
+    if (suggestion && suggestion.trim()) {
+        // Simple submission without modal
+        this.submitEditSuggestion({
+            articleId: this.articleId,
+            articleTitle: this.article.title,
+            suggestion: suggestion.trim(),
+            timestamp: new Date().toISOString()
+        });
+    }
+}
+async submitEditSuggestion(formData) {
+    try {
+        const response = await fetch('https://worktoolshubv2.onrender.com/api/knowledge-base/edit-suggestions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+            alert('Thank you! Your edit suggestion has been submitted for review.');
+        } else {
+            throw new Error('Failed to submit suggestion');
+        }
+    } catch (error) {
+        console.error('Edit suggestion error:', error);
+        alert('Sorry, there was an error submitting your suggestion. Please try again.');
+    }
+}
 
             showError(message) {
                 document.getElementById('loadingState').style.display = 'none';
