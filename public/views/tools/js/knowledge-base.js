@@ -175,7 +175,7 @@ class KnowledgeBase {
         this.showLoading();
 
         try {
-            const response = await fetch('/api/knowledge-base/articles');
+            const response = await fetch('https://worktoolshubv2.onrender.com/api/knowledge-base/articles');
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -458,7 +458,7 @@ class KnowledgeBase {
         if (submitLoading) submitLoading.style.display = 'flex';
 
         try {
-            const response = await fetch('/api/knowledge-base/ai-query', {
+            const response = await fetch('https://worktoolshubv2.onrender.com/api/knowledge-base/ai-query', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -523,7 +523,7 @@ class KnowledgeBase {
             }
 
             // Send to backend
-            await fetch(`/api/knowledge-base/articles/${articleId}/upvote`, {
+            await fetch(`https://worktoolshubv2.onrender.com/api/knowledge-base/articles/${articleId}/upvote`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ upvote: newUpvoteState })
@@ -560,7 +560,7 @@ class KnowledgeBase {
             }
 
             // Send to backend
-            await fetch(`/api/knowledge-base/articles/${articleId}/helpful`, {
+            await fetch(`https://worktoolshubv2.onrender.com/api/knowledge-base/articles/${articleId}/helpful`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' }
             });
@@ -603,7 +603,7 @@ class KnowledgeBase {
 
     async submitEditSuggestion(formData) {
         try {
-            const response = await fetch('/api/knowledge-base/edit-suggestions', {
+            const response = await fetch('https://worktoolshubv2.onrender.com/api/knowledge-base/edit-suggestions', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
