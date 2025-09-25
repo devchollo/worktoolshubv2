@@ -4,6 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Article - WorkToolsHub Knowledge Base</title>
+    
+  <link rel="preconnect" href="https://worktoolshubv2.onrender.com" />
+
+  <!-- Styling / CSS -->
+  <link rel="stylesheet" href="../../styles/main.css" />
     <style>
       * {
         margin: 0;
@@ -473,6 +478,8 @@
     </style>
   </head>
   <body>
+      <div id="header"></div>
+  <div id="bread"></div>
     <div class="container">
       <a href="/tools/newfold-core" class="back-button">
         ← Back to Knowledge Base
@@ -932,5 +939,11 @@ async submitEditSuggestion(formData) {
         new ArticlePage();
       });
     </script>
+
+
+  <div id="footer"></div>
+
+  <script src="../../scripts/layout.js"></script>
+  <script type="module" src="../../scripts/main.js" defer></script>
   </body>
 </html>
