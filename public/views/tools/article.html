@@ -767,28 +767,7 @@ hideEditModal() {
     document.getElementById('editForm').reset();
 }
 
-async submitEditSuggestion(formData) {
-    try {
-        const response = await fetch(
-            "https://worktoolshubv2.onrender.com/api/knowledge-base/edit-suggestions",
-            {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData),
-            }
-        );
 
-        if (response.ok) {
-            this.showToast('success', 'Success!', 'Your edit suggestion has been submitted for review.');
-            this.hideEditModal();
-        } else {
-            throw new Error("Failed to submit suggestion");
-        }
-    } catch (error) {
-        console.error("Edit suggestion error:", error);
-        this.showToast('error', 'Error', 'There was an error submitting your suggestion. Please try again.');
-    }
-}
 bindEvents() {
     // Upvote button
     document.getElementById('upvoteBtn').addEventListener('click', () => {
@@ -918,31 +897,28 @@ bindEvents() {
           document.getElementById("editTitle").value = this.article.title;
           document.getElementById("editModal").classList.add("active");
         }
-        async submitEditSuggestion(formData) {
-          try {
-            const response = await fetch(
-              "https://worktoolshubv2.onrender.com/api/knowledge-base/edit-suggestions",
-              {
+async submitEditSuggestion(formData) {
+    try {
+        const response = await fetch(
+            "https://worktoolshubv2.onrender.com/api/knowledge-base/edit-suggestions",
+            {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(formData),
-              }
-            );
-
-            if (response.ok) {
-              alert(
-                "Thank you! Your edit suggestion has been submitted for review."
-              );
-            } else {
-              throw new Error("Failed to submit suggestion");
             }
-          } catch (error) {
-            console.error("Edit suggestion error:", error);
-            alert(
-              "Sorry, there was an error submitting your suggestion. Please try again."
-            );
-          }
+        );
+
+        if (response.ok) {
+            this.showToast('success', 'Success!', 'Your edit suggestion has been submitted for review.');
+            this.hideEditModal();
+        } else {
+            throw new Error("Failed to submit suggestion");
         }
+    } catch (error) {
+        console.error("Edit suggestion error:", error);
+        this.showToast('error', 'Error', 'There was an error submitting your suggestion. Please try again.');
+    }
+}
 
         showError(message) {
           document.getElementById("loadingState").style.display = "none";
