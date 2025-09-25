@@ -418,7 +418,7 @@
 const articleBody = document.getElementById('articleBody');
 if (articleBody) {
     articleBody.innerHTML = this.article.contentHtml 
-        || marked(this.article.content || '');
+    || marked.parse(this.article.content || '');
 }
 
     // Action buttons
