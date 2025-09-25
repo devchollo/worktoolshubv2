@@ -12,6 +12,80 @@ const checkDBConnection = () => {
   return mongoose.connection.readyState === 1;
 };
 
+// GET /stats - Get knowledge base statistics
+router.get('/stats', async (req, res) => {
+  try {
+    if (!checkDBConnection()) {
+      // Fallback stats if database unavailable
+      return res.json({
+        totalArticles: 0,
+        categories: [],
+        popularTags: []
+      });
+    }
+
+    // Get all articles
+    const articles = await Article.find({}).maxTimeMS(10000);
+
+    // Calculate category counts
+    const categoryStats = {};
+    articles.forEach(article => {
+      if (article.category) {
+        categoryStats[article.category] = (categoryStats[article.category] || 0) + 1;
+      }
+    });
+
+    // Calculate tag popularity (by total upvotes of articles containing each tag)
+    const tagStats = {};
+    articles.forEach(article => {
+      if (article.tags && Array.isArray(article.tags)) {
+        article.tags.forEach(tag => {
+          if (!tagStats[tag]) {
+            tagStats[tag] = { count: 0, totalUpvotes: 0 };
+          }
+          tagStats[tag].count++;
+          tagStats[tag].totalUpvotes += (article.upvotes || 0);
+        });
+      }
+    });
+
+    // Sort tags by total upvotes and get top 7
+    const popularTags = Object.entries(tagStats)
+      .sort(([,a], [,b]) => b.totalUpvotes - a.totalUpvotes)
+      .slice(0, 7)
+      .map(([tag]) => tag);
+
+    // Format categories for frontend
+    const categories = Object.entries(categoryStats).map(([category, count]) => ({
+      id: category,
+      name: formatCategoryName(category),
+      count: count
+    }));
+
+    res.json({
+      totalArticles: articles.length,
+      categories: categories,
+      popularTags: popularTags
+    });
+
+  } catch (error) {
+    console.error('Error fetching stats:', error);
+    res.status(500).json({ error: 'Failed to fetch statistics' });
+  }
+});
+
+// Helper function to format category names
+function formatCategoryName(category) {
+  const categoryMap = {
+    'technical': 'Technical Guides',
+    'tutorials': 'Tutorials', 
+    'troubleshooting': 'Troubleshooting',
+    'best-practices': 'Best Practices',
+    'tools': 'Tools & Resources'
+  };
+  return categoryMap[category] || category;
+}
+
 // POST /edit-suggestions
 router.post('/edit-suggestions', async (req, res) => {
   try {

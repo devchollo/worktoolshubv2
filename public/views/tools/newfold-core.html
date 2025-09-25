@@ -25,7 +25,7 @@
     content="Comprehensive knowledge base with advanced search and expert documentation" />
   <meta property="twitter:image" content="https://worktoolshub.info/assets/og-image.jpg" />
 
-  <title>Knowledge Base - WorkToolsHub</title>
+  <title>Newfold Core - WorkToolsHub</title>
   <link rel="icon" type="image/x-icon" href="/favicon.ico" />
 
   <link rel="preconnect" href="https://worktoolshubv2.onrender.com" />
@@ -861,7 +861,7 @@
       <!-- Hero Section -->
       <section class="kb-hero">
         <div class="kb-hero-content">
-          <h1>Knowledge Base</h1>
+          <h1>Newfold Core</h1>
           <p class="kb-hero-subtitle">
             Discover comprehensive documentation, tutorials, and expert
             insights. Your definitive resource for technical knowledge and
@@ -1105,15 +1105,147 @@
           date: '',
           tags: []
         };
+        this.stats = {
+      totalArticles: 0,
+      categories: [],
+      popularTags: []
+    };
 
         this.init();
       }
 
-      async init() {
-        this.bindEvents();
-        await this.loadArticles();
-        this.renderArticles();
+        async init() {
+    this.bindEvents();
+    await Promise.all([
+      this.loadArticles(),
+      this.loadStats()
+    ]);
+    this.renderArticles();
+    this.renderStats();
+  }
+async loadStats() {
+    try {
+      const response = await fetch('https://worktoolshubv2.onrender.com/api/knowledge-base/stats');
+      
+      if (response.ok) {
+        this.stats = await response.json();
+      } else {
+        // Fallback to calculating from loaded articles
+        this.calculateStatsFromArticles();
       }
+    } catch (error) {
+      console.error('Failed to load stats:', error);
+      this.calculateStatsFromArticles();
+    }
+  }
+
+  calculateStatsFromArticles() {
+    // Calculate categories
+    const categoryStats = {};
+    this.articles.forEach(article => {
+      if (article.category) {
+        categoryStats[article.category] = (categoryStats[article.category] || 0) + 1;
+      }
+    });
+
+    // Calculate popular tags
+    const tagStats = {};
+    this.articles.forEach(article => {
+      if (article.tags && Array.isArray(article.tags)) {
+        article.tags.forEach(tag => {
+          if (!tagStats[tag]) {
+            tagStats[tag] = { count: 0, totalUpvotes: 0 };
+          }
+          tagStats[tag].count++;
+          tagStats[tag].totalUpvotes += (article.upvotes || 0);
+        });
+      }
+    });
+
+    const popularTags = Object.entries(tagStats)
+      .sort(([,a], [,b]) => b.totalUpvotes - a.totalUpvotes)
+      .slice(0, 7)
+      .map(([tag]) => tag);
+
+    const categories = Object.entries(categoryStats).map(([category, count]) => ({
+      id: category,
+      name: this.formatCategory(category),
+      count: count
+    }));
+
+    this.stats = {
+      totalArticles: this.articles.length,
+      categories: categories,
+      popularTags: popularTags
+    };
+  }
+
+  renderStats() {
+    // Update sidebar categories
+    const categoryList = document.getElementById('categoryList');
+    if (categoryList) {
+      const allCount = this.stats.totalArticles;
+      
+      categoryList.innerHTML = `
+        <li class="category-item">
+          <a href="#" class="category-link active" data-category="">
+            <span>All Articles</span>
+            <span class="category-count">${allCount}</span>
+          </a>
+        </li>
+        ${this.stats.categories.map(cat => `
+          <li class="category-item">
+            <a href="#" class="category-link" data-category="${cat.id}">
+              <span>${cat.name}</span>
+              <span class="category-count">${cat.count}</span>
+            </a>
+          </li>
+        `).join('')}
+      `;
+
+      // Re-bind category click events
+      categoryList.querySelectorAll('.category-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          this.handleCategoryClick(e.target.closest('.category-link'));
+        });
+      });
+    }
+
+    // Update popular tags in sidebar
+    const popularTagsContainer = document.querySelector('.sidebar-section:last-child .search-tags');
+    if (popularTagsContainer && this.stats.popularTags.length > 0) {
+      popularTagsContainer.innerHTML = this.stats.popularTags.map(tag => 
+        `<span class="search-tag">${tag}</span>`
+      ).join('');
+
+      // Re-bind tag click events
+      popularTagsContainer.querySelectorAll('.search-tag').forEach(tag => {
+        tag.addEventListener('click', (e) => {
+          this.handleTagClick(e.target.textContent);
+        });
+      });
+    }
+
+    // Update results count
+    this.updateResultsCount();
+
+
+    // Update search tags section
+  const searchTags = document.getElementById('searchTags');
+  if (searchTags && this.stats.popularTags.length > 0) {
+    searchTags.innerHTML = this.stats.popularTags.map(tag => 
+      `<span class="search-tag">${tag}</span>`
+    ).join('');
+
+    // Re-bind search tag click events
+    searchTags.querySelectorAll('.search-tag').forEach(tag => {
+      tag.addEventListener('click', (e) => {
+        this.handleTagClick(e.target.textContent);
+      });
+    });
+  }
+  }
 
       bindEvents() {
         // Search input
