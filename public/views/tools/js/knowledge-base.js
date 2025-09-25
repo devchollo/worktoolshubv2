@@ -348,7 +348,7 @@ class KnowledgeBase {
                         <span class="article-category">${this.formatCategory(article.category)}</span>
                     </div>
                     <h3 class="article-title" onclick="window.kbSystem.openArticle('${articleId}')" style="cursor: pointer;">${article.title}</h3>
-                    <p class="article-excerpt">${article.excerpt}</p>
+                    <p class="article-excerpt">${article.excerpt}</p> <p style=padding-top="2rem" class="article-content"> ${article.content}</p>
                     <div class="article-tags">
                         ${article.tags.slice(0, 3).map(tag =>
                             `<span class="article-tag">${tag}</span>`
