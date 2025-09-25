@@ -12,7 +12,49 @@ const checkDBConnection = () => {
   return mongoose.connection.readyState === 1;
 };
 
-// Demo articles fallback
+// POST /edit-suggestions
+router.post('/edit-suggestions', async (req, res) => {
+  try {
+    const { articleId, articleTitle, editorName, editType, suggestion, timestamp } = req.body;
+
+    if (!suggestion || suggestion.trim().length === 0) {
+      return res.status(400).json({ error: 'Suggestion is required' });
+    }
+
+    if (!checkDBConnection()) {
+      // If no database, just return success for now
+      console.log('Edit suggestion received (no DB):', req.body);
+      return res.json({ success: true, message: 'Suggestion received' });
+    }
+
+    // Create new edit suggestion document
+    const editSuggestion = new EditSuggestion({
+      articleId,
+      articleTitle,
+      editorName: editorName || 'Anonymous',
+      editType,
+      suggestion: suggestion.trim(),
+      timestamp: timestamp || new Date(),
+      status: 'pending'
+    });
+
+    await editSuggestion.save();
+    
+    console.log('Edit suggestion saved:', editSuggestion._id);
+    
+    res.json({ 
+      success: true, 
+      message: 'Edit suggestion submitted successfully',
+      id: editSuggestion._id 
+    });
+
+  } catch (error) {
+    console.error('Error saving edit suggestion:', error);
+    res.status(500).json({ error: 'Failed to save edit suggestion' });
+  }
+});
+
+
 const getDemoArticles = () => [
   {
     _id: 'demo-1',
@@ -48,7 +90,6 @@ const getDemoArticles = () => [
   }
 ];
 
-// GET all articles
 router.get('/articles', async (req, res) => {
   try {
     console.log('📥 Incoming request: GET /articles');
