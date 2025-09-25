@@ -56,16 +56,16 @@ router.get('/articles', async (req, res) => {
 
     if (Article && Article.find) {
       const articles = await Article.find({});
-      console.log(`✅ Retrieved ${articles.length} articles from MongoDB`);
-      return res.json(articles); // send raw content
-    } else {
-      console.warn('⚠️ Article model not available — falling back to demo data');
+      
+      // Add this transformation:
+      const articlesWithStringIds = articles.map(article => ({
+        ...article.toObject(),
+        id: article._id.toString() // Convert ObjectId to string
+      }));
+      
+      console.log(`✅ Retrieved ${articlesWithStringIds.length} articles from MongoDB`);
+      return res.json(articlesWithStringIds);
     }
-
-    const demoArticles = [
-      { id: 1, title: 'Demo Article', content: 'MongoDB not connected' },
-    ];
-    res.json(demoArticles);
 
   } catch (error) {
     console.error('❌ Error fetching articles:', error);
