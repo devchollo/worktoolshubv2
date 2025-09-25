@@ -1,6 +1,7 @@
 {
   "version": 2,
   "rewrites": [
+    { "source": "/js/:file", "destination": "/views/tools/js/:file" },
     { "source": "/tools/article.html", "destination": "/views/tools/article.html" },
     { "source": "/tools/:slug", "destination": "/views/tools/:slug.html" },
     { "source": "/tools/:slug/:rest*", "destination": "/views/tools/:slug/:rest*.html" },
