@@ -276,6 +276,47 @@ app.put("/api/admin/edit", async (req, res) => {
   }
 });
 
+app.delete("/api/admin/delete", async (req, res) => {
+  try {
+    // Check for JWT_SECRET header
+    const jwtSecret = req.headers['jwt_secret'] || req.headers['JWT_SECRET'];
+    
+    if (!jwtSecret) {
+      return res.status(401).json({ error: "JWT_SECRET header is required" });
+    }
+    
+    // Verify the JWT_SECRET matches your environment variable
+    if (jwtSecret !== process.env.JWT_SECRET) {
+      return res.status(403).json({ error: "Invalid JWT_SECRET" });
+    }
+
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: "Email is required" });
+    }
+
+    if (!admins.has(email)) {
+      return res.status(404).json({ error: "Admin not found" });
+    }
+
+    // Get admin info before deletion (for response)
+    const deletedAdmin = admins.get(email);
+    const { password: _, ...adminResponse } = deletedAdmin;
+
+    // Delete the admin
+    admins.delete(email);
+
+    res.json({ 
+      message: "Admin deleted successfully", 
+      deletedAdmin: adminResponse 
+    });
+  } catch (error) {
+    console.error("Admin deletion error:", error);
+    res.status(500).json({ error: "Deletion failed" });
+  }
+});
+
 app.post("/api/admin/login", async (req, res) => {
   try {
     const { email, password } = req.body;
