@@ -38,6 +38,7 @@ app.use(
       "JWT_SECRET",
       "jwt_secret",
       "jwt-secret",
+      'x-jwt-secret'
     ],
     credentials: true,
   })
@@ -179,11 +180,25 @@ const admins = new Map();
 
 app.post("/api/admin/register", async (req, res) => {
   try {
-    // Check for JWT_SECRET header
-    const jwtSecret = req.headers['jwt_secret'] || req.headers['JWT_SECRET'] || req.headers['jwt-secret'];
+    // Debug: log all headers
+    console.log('All headers received:', JSON.stringify(req.headers, null, 2));
+    
+    // Check for JWT_SECRET header in multiple formats
+    const jwtSecret = req.headers['jwt_secret'] || 
+                     req.headers['JWT_SECRET'] || 
+                     req.headers['jwt-secret'] ||
+                     req.headers['x-jwt-secret'] ||
+                     req.body.jwt_secret; // Also check body as fallback
+    
+    console.log('JWT_SECRET found:', jwtSecret);
+    console.log('Environment JWT_SECRET:', process.env.JWT_SECRET);
     
     if (!jwtSecret) {
-      return res.status(401).json({ error: "JWT_SECRET header is required" });
+      return res.status(401).json({ 
+        error: "JWT_SECRET header is required",
+        receivedHeaders: Object.keys(req.headers),
+        note: "Make sure to include JWT_SECRET header in your request"
+      });
     }
     
     // Verify the JWT_SECRET matches your environment variable
