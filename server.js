@@ -298,7 +298,7 @@ app.put("/api/admin/edit", async (req, res) => {
     }
 
     const admin = await Admin.findByEmail(email);
-    if (!admin) {
+    if (!id) {
       return res.status(404).json({ error: "Admin not found" });
     }
 
