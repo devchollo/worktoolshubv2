@@ -881,6 +881,183 @@
 }
 
 
+
+/* Add/update these styles in newfold-core.html */
+
+/* Admin Login Modal - Dark Mode Support */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 2000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.edit-modal {
+  background: var(--kb-surface-elevated);
+  border-radius: 16px;
+  padding: 0;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--kb-border-soft);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid var(--kb-border-soft);
+}
+
+.modal-header h3 {
+  color: var(--text-primary);
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--kb-text-muted);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.modal-close:hover {
+  color: var(--danger, #ef4444);
+}
+
+/* Form styles with dark mode support */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+
+.form-label {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 2px solid var(--kb-border-soft);
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: var(--bg-color);
+  color: var(--text-primary);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--kb-primary);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+.form-input::placeholder {
+  color: var(--kb-text-muted);
+  opacity: 0.6;
+}
+
+/* Login error message */
+#loginError {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+[data-theme="dark"] #loginError {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+/* Button styles */
+.btn-primary {
+  width: 100%;
+  padding: 0.875rem;
+  background: var(--kb-gradient);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+}
+
+.btn-secondary {
+  padding: 0.5rem 1.5rem;
+  background: var(--kb-surface-elevated);
+  border: 1px solid var(--kb-border-soft);
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: var(--kb-border-soft);
+}
+
+/* Ensure proper text colors in dark mode */
+[data-theme="dark"] .edit-modal {
+  background: var(--kb-surface-elevated);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .form-input {
+  background: var(--bg-color);
+  color: var(--text-primary);
+  border-color: var(--kb-border-soft);
+}
+
+[data-theme="dark"] .form-input:focus {
+  border-color: var(--kb-primary);
+  background: var(--kb-surface-elevated);
+}
+
+[data-theme="dark"] {
+  --kb-primary: #818cf8;
+  --kb-primary-dark: #6366f1;
+  --kb-secondary: #a78bfa;
+  --kb-accent: #34d399;
+  --kb-surface: #1f2937;
+  --kb-surface-elevated: #374151;
+  --kb-text-muted: #9ca3af;
+  --kb-border-soft: #4b5563;
+  --bg-color: #111827;
+  --text-primary: #f9fafb;
+}
+
     </style>
 
     <!-- Structured Data -->
@@ -913,7 +1090,7 @@
       style="display: none; text-align: center; margin-bottom: 2rem"
     >
       <a
-        href="/views/admin.html"
+        href="/tools/admin"
         class="btn-primary"
         style="
           display: inline-block;
