@@ -183,27 +183,38 @@ app.post("/api/admin/register", async (req, res) => {
     // Debug: log all headers
     console.log('All headers received:', JSON.stringify(req.headers, null, 2));
     
-    // Check for JWT_SECRET header in multiple formats
-    const jwtSecret = req.headers['jwt_secret'] || 
+    // Check for JWT_SECRET in multiple locations and formats
+    const jwtSecret = req.headers['x-api-key'] ||           // Standard API key header
+                     req.headers['authorization']?.replace(/^Bearer\s+/, '') || // Authorization Bearer
+                     req.headers['x-jwt-secret'] ||         // Custom header with X prefix
+                     req.headers['jwt_secret'] || 
                      req.headers['JWT_SECRET'] || 
                      req.headers['jwt-secret'] ||
-                     req.headers['x-jwt-secret'] ||
-                     req.body.jwt_secret; // Also check body as fallback
+                     req.body.jwt_secret ||                 // Fallback to body
+                     req.query.jwt_secret;                  // Fallback to query param
     
-    console.log('JWT_SECRET found:', jwtSecret);
-    console.log('Environment JWT_SECRET:', process.env.JWT_SECRET);
+    console.log('JWT_SECRET found:', jwtSecret ? '***FOUND***' : 'NOT FOUND');
+    console.log('Environment JWT_SECRET exists:', process.env.JWT_SECRET ? 'YES' : 'NO');
     
     if (!jwtSecret) {
       return res.status(401).json({ 
-        error: "JWT_SECRET header is required",
+        error: "JWT_SECRET is required",
         receivedHeaders: Object.keys(req.headers),
-        note: "Make sure to include JWT_SECRET header in your request"
+        solutions: [
+          "Try using 'X-API-Key' header",
+          "Try using 'Authorization: Bearer your-secret' header", 
+          "Try passing jwt_secret in request body",
+          "Try passing jwt_secret as query parameter: ?jwt_secret=your-secret"
+        ]
       });
     }
     
     // Verify the JWT_SECRET matches your environment variable
     if (jwtSecret !== process.env.JWT_SECRET) {
-      return res.status(403).json({ error: "Invalid JWT_SECRET" });
+      return res.status(403).json({ 
+        error: "Invalid JWT_SECRET",
+        hint: "Make sure your JWT_SECRET matches the server environment variable"
+      });
     }
 
     const { email, password, name, avatar } = req.body;
