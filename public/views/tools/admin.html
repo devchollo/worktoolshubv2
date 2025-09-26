@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - WorkToolsHub</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --gradient: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        /* Login Page */
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gradient);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.7;
+        }
+
+        .login-card {
+            background: var(--surface);
+            padding: 3rem;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 400px;
+            position: relative;
+            z-index: 2;
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-header h1 {
+            font-size: 2rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-header p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+            font-size: 0.9rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: var(--bg);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 0.875rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--gradient);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: var(--danger);
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+            animation: shake 0.3s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* Dashboard Layout */
+        .dashboard {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .dashboard.active {
+            display: flex;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 2rem;
+            background: var(--gradient);
+            color: white;
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-header p {
+            opacity: 0.9;
+            font-size: 0.875rem;
+        }
+
+        .nav-menu {
+            flex: 1;
+            padding: 1.5rem 0;
+        }
+
+        .nav-item {
+            padding: 0.875rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .nav-item.active {
+            background: var(--bg);
+            color: var(--primary);
+            border-left-color: var(--primary);
+            font-weight: 600;
+        }
+
+        .user-profile {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary);
+        }
+
+        .user-info h4 {
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .user-info p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .topbar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .topbar h1 {
+            font-size: 1.75rem;
+        }
+
+        .btn-logout {
+            padding: 0.5rem 1.5rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .btn-logout:hover {
+            background: var(--danger);
+            color: white;
+            border-color: var(--danger);
+        }
+
+        .content-area {
+            padding: 2rem;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        /* Articles Table */
+        .articles-section {
+            background: var(--surface);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .section-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-header h2 {
+            font-size: 1.25rem;
+        }
+
+        .btn-new {
+            padding: 0.625rem 1.25rem;
+            background: var(--gradient);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn-new:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .articles-table {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 1rem 1.5rem;
+        }
+
+        th {
+            background: var(--bg);
+            font-weight: 600;
+            color: var(--text);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        tr {
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:hover {
+            background: var(--bg);
+        }
+
+        .category-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: var(--gradient);
+            color: white;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-icon {
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.875rem;
+        }
+
+        .btn-icon:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-edit:hover {
+            background: var(--warning);
+            color: white;
+            border-color: var(--warning);
+        }
+
+        .btn-delete:hover {
+            background: var(--danger);
+            color: white;
+            border-color: var(--danger);
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--surface);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        .modal-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 1.5rem;
+        }
+
+        .btn-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+
+        .btn-close:hover {
+            color: var(--danger);
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        textarea.form-input {
+            min-height: 150px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .tags-input-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg);
+        }
+
+        .tag-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            background: var(--primary);
+            color: white;
+            border-radius: 50px;
+            font-size: 0.875rem;
+        }
+
+        .tag-remove {
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .tag-input {
+            border: none;
+            outline: none;
+            background: transparent;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .modal-footer {
+            padding: 1.5rem 2rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .btn-secondary {
+            padding: 0.625rem 1.25rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg);
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            padding: 16px 20px;
+            max-width: 400px;
+            z-index: 2000;
+            transform: translateX(500px);
+            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success {
+            border-left: 4px solid var(--success);
+        }
+
+        .toast.error {
+            border-left: 4px solid var(--danger);
+        }
+
+        .toast-icon {
+            font-size: 20px;
+        }
+
+        .toast.success .toast-icon {
+            color: var(--success);
+        }
+
+        .toast.error .toast-icon {
+            color: var(--danger);
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .articles-table {
+                font-size: 0.875rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Page -->
+    <div class="login-container" id="loginPage">
+        <div class="login-card">
+            <div class="login-header">
+                <h1>Admin Dashboard</h1>
+                <p>Sign in to manage your knowledge base</p>
+            </div>
+            <div class="error-message" id="loginError"></div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" id="loginEmail" required placeholder="admin@worktoolshub.info">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" id="loginPassword" required placeholder="Enter your password">
+                </div>
+                <button type="submit" class="btn btn-primary">Sign In</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="dashboard" id="dashboard">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>WorkToolsHub</h2>
+                <p>Admin Panel</p>
+            </div>
+            <nav class="nav-menu">
+                <div class="nav-item active" data-view="articles">
+                    <span>📚</span>
+                    <span>Articles</span>
+                </div>
+                <div class="nav-item" data-view="stats">
+                    <span>📊</span>
+                    <span>Statistics</span>
+                </div>
+            </nav>
+            <div class="user-profile">
+                <img src="" alt="Admin" class="user-avatar" id="userAvatar">
+                <div class="user-info">
+                    <h4 id="userName">Admin User</h4>
+                    <p id="userRole">Administrator</p>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="topbar">
+                <h1 id="pageTitle">Articles Management</h1>
+                <button class="btn-logout" id="logoutBtn">Logout</button>
+            </div>
+
+            <div class="content-area">
+                <!-- Stats Section -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon" style="background: #dbeafe; color: #3b82f6;">📄</div>
+                        </div>
+                        <div class="stat-value" id="totalArticles">0</div>
+                        <div class="stat-label">Total Articles</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon" style="background: #dcfce7; color: #22c55e;">👁️</div>
+                        </div>
+                        <div class="stat-value" id="totalViews">0</div>
+                        <div class="stat-label">Total Views</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon" style="background: #fef3c7; color: #f59e0b;">👍</div>
+                        </div>
+                        <div class="stat-value" id="totalUpvotes">0</div>
+                        <div class="stat-label">Total Upvotes</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon" style="background: #fce7f3; color: #ec4899;">📂</div>
+                        </div>
+                        <div class="stat-value" id="totalCategories">0</div>
+                        <div class="stat-label">Categories</div>
+                    </div>
+                </div>
+
+                <!-- Articles Section -->
+                <div class="articles-section">
+                    <div class="section-header">
+                        <h2>All Articles</h2>
+                        <button class="btn-new" id="newArticleBtn">+ New Article</button>
+                    </div>
+                    <div class="articles-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Category</th>
+                                    <th>Views</th>
+                                    <th>Upvotes</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="articlesTableBody">
+                                <!-- Will be populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Article Modal -->
+    <div class="modal" id="articleModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">New Article</h3>
+                <button class="btn-close" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="articleForm">
+                    <input type="hidden" id="articleId">
+                    <div class="form-group">
+                        <label class="form-label">Title *</label>
+                        <input type="text" class="form-input" id="articleTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Excerpt *</label>
+                        <textarea class="form-input" id="articleExcerpt" required rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Content (Markdown) *</label>
+                        <textarea class="form-input" id="articleContent" required rows="10"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Category *</label>
+                            <select class="form-input" id="articleCategory" required>
+                                <option value="">Select category</option>
+                                <option value="technical">Technical Guides</option>
+                                <option value="tutorials">Tutorials</option>
+                                <option value="troubleshooting">Troubleshooting</option>
+                                <option value="best-practices">Best Practices</option>
+                                <option value="tools">Tools & Resources</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Difficulty *</label>
+                            <select class="form-input" id="articleDifficulty" required>
+                                <option value="">Select difficulty</option>
+                                <option value="beginner">Beginner</option>
+                                <option value="intermediate">Intermediate</option>
+                                <option value="advanced">Advanced</option>
+                                <option value="expert">Expert</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Author *</label>
+                        <input type="text" class="form-input" id="articleAuthor" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Tags (press Enter to add)</label>
+                        <div class="tags-input-container" id="tagsContainer">
+                            <input type="text" class="tag-input" id="tagInput" placeholder="Add a tag...">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="cancelBtn">Cancel</button>
+                <button class="btn btn-primary" id="saveArticleBtn">Save Article</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://worktoolshubv2.onrender.com/api';
+        
+        class AdminDashboard {
+            constructor() {
+                this.user = null;
+                this.articles = [];
+                this.tags = [];
+                this.currentArticle = null;
+                this.init();
+            }
+
+            init() {
+                this.checkAuth();
+                this.bindEvents();
+            }
+
+            async checkAuth() {
+    const token = localStorage.getItem('adminToken');
+    
+    if (token) {
+        try {
+            const response = await fetch(`${API_BASE}/admin/verify`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                this.user = data.user;
+                this.showDashboard();
+            } else {
+                localStorage.removeItem('adminToken');
+                localStorage.removeItem('adminUser');
+                this.showLogin();
+            }
+        } catch (error) {
+            this.showLogin();
+        }
+    } else {
+        this.showLogin();
+    }
+}
+
+async handleLogin() {
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+
+    try {
+        const response = await fetch(`${API_BASE}/admin/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            localStorage.setItem('adminToken', data.token);
+            localStorage.setItem('adminUser', JSON.stringify(data.user));
+            this.user = data.user;
+            this.showDashboard();
+        } else {
+            this.showError(data.error || 'Invalid credentials');
+        }
+    } catch (error) {
+        this.showError('Login failed. Please try again.');
+    }
+}
+
+            bindEvents() {
+                document.getElementById('loginForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handleLogin();
+                });
+
+                document.getElementById('logoutBtn').addEventListener('click', () => this.handleLogout());
+                document.getElementById('newArticleBtn').addEventListener('click', () => this.openModal());
+                document.getElementById('closeModal').addEventListener('click', () => this.closeModal());
+                document.getElementById('cancelBtn').addEventListener('click', () => this.closeModal());
+                document.getElementById('saveArticleBtn').addEventListener('click', () => this.saveArticle());
+
+                // Tag input
+                document.getElementById('tagInput').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        this.addTag(e.target.value);
+                        e.target.value = '';
+                    }
+                });
+            }
+
+            async handleLogin() {
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+
+                try {
+                    const response = await fetch(`${API_BASE}/auth/verify-email`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.authorized) {
+                        // In production, verify password against backend
+                        // For now, simple check
+                        if (password) {
+                            this.user = {
+                                email,
+                                name: email.split('@')[0],
+                                avatar: `https://ui-avatars.com/api/?name=${email.split('@')[0]}&background=6366f1&color=fff`,
+                                role: 'Administrator'
+                            };
+                            localStorage.setItem('adminUser', JSON.stringify(this.user));
+                            this.showDashboard();
+                        }
+                    } else {
+                        this.showError('Access denied. You are not authorized.');
+                    }
+                } catch (error) {
+                    this.showError('Login failed. Please try again.');
+                }
+            }
+
+            handleLogout() {
+                localStorage.removeItem('adminUser');
+                this.user = null;
+                this.showLogin();
+            }
+
+            showLogin() {
+                document.getElementById('loginPage').style.display = 'flex';
+                document.getElementById('dashboard').classList.remove('active');
+            }
+
+            showDashboard() {
+                document.getElementById('loginPage').style.display = 'none';
+                document.getElementById('dashboard').classList.add('active');
+                
+                document.getElementById('userName').textContent = this.user.name;
+                document.getElementById('userRole').textContent = this.user.role;
+                document.getElementById('userAvatar').src = this.user.avatar;
+
+                this.loadArticles();
+            }
+
+            showError(message) {
+                const errorDiv = document.getElementById('loginError');
+                errorDiv.textContent = message;
+                errorDiv.classList.add('show');
+                setTimeout(() => errorDiv.classList.remove('show'), 3000);
+            }
+
+            async loadArticles() {
+                try {
+                    const response = await fetch(`${API_BASE}/knowledge-base/articles`);
+                    this.articles = await response.json();
+                    this.renderArticles();
+                    this.updateStats();
+                } catch (error) {
+                    console.error('Failed to load articles:', error);
+                    this.showToast('error', 'Failed to load articles');
+                }
+            }
+
+            renderArticles() {
+                const tbody = document.getElementById('articlesTableBody');
+                tbody.innerHTML = this.articles.map(article => `
+                    <tr>
+                        <td><strong>${article.title}</strong></td>
+                        <td><span class="category-badge">${this.formatCategory(article.category)}</span></td>
+                        <td>${article.views || 0}</td>
+                        <td>${article.upvotes || 0}</td>
+                        <td>${new Date(article.date).toLocaleDateString()}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-icon btn-edit" onclick="adminDashboard.editArticle('${article._id}')">✏️</button>
+                                <button class="btn-icon btn-delete" onclick="adminDashboard.deleteArticle('${article._id}')">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            updateStats() {
+                const totalViews = this.articles.reduce((sum, a) => sum + (a.views || 0), 0);
+                const totalUpvotes = this.articles.reduce((sum, a) => sum + (a.upvotes || 0), 0);
+                const categories = new Set(this.articles.map(a => a.category)).size;
+
+                document.getElementById('totalArticles').textContent = this.articles.length;
+                document.getElementById('totalViews').textContent = totalViews.toLocaleString();
+                document.getElementById('totalUpvotes').textContent = totalUpvotes.toLocaleString();
+                document.getElementById('totalCategories').textContent = categories;
+            }
+
+            formatCategory(category) {
+                const map = {
+                    'technical': 'Technical',
+                    'tutorials': 'Tutorials',
+                    'troubleshooting': 'Troubleshooting',
+                    'best-practices': 'Best Practices',
+                    'tools': 'Tools'
+                };
+                return map[category] || category;
+            }
+
+            openModal(article = null) {
+                this.currentArticle = article;
+                this.tags = article?.tags || [];
+
+                if (article) {
+                    document.getElementById('modalTitle').textContent = 'Edit Article';
+                    document.getElementById('articleId').value = article._id;
+                    document.getElementById('articleTitle').value = article.title;
+                    document.getElementById('articleExcerpt').value = article.excerpt;
+                    document.getElementById('articleContent').value = article.content;
+                    document.getElementById('articleCategory').value = article.category;
+                    document.getElementById('articleDifficulty').value = article.difficulty;
+                    document.getElementById('articleAuthor').value = article.author;
+                } else {
+                    document.getElementById('modalTitle').textContent = 'New Article';
+                    document.getElementById('articleForm').reset();
+                    document.getElementById('articleId').value = '';
+                }
+
+                this.renderTags();
+                document.getElementById('articleModal').classList.add('active');
+            }
+
+            closeModal() {
+                document.getElementById('articleModal').classList.remove('active');
+                this.tags = [];
+                this.currentArticle = null;
+            }
+
+            addTag(tag) {
+                const trimmed = tag.trim();
+                if (trimmed && !this.tags.includes(trimmed)) {
+                    this.tags.push(trimmed);
+                    this.renderTags();
+                }
+            }
+
+            removeTag(tag) {
+                this.tags = this.tags.filter(t => t !== tag);
+                this.renderTags();
+            }
+
+            renderTags() {
+                const container = document.getElementById('tagsContainer');
+                const input = document.getElementById('tagInput');
+                
+                container.innerHTML = this.tags.map(tag => `
+                    <span class="tag-item">
+                        ${tag}
+                        <span class="tag-remove" onclick="adminDashboard.removeTag('${tag}')">×</span>
+                    </span>
+                `).join('') + input.outerHTML;
+
+                // Re-bind input event
+                const newInput = container.querySelector('.tag-input');
+                newInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        this.addTag(e.target.value);
+                        e.target.value = '';
+                    }
+                });
+            }
+
+            async saveArticle() {
+                const id = document.getElementById('articleId').value;
+                const data = {
+                    title: document.getElementById('articleTitle').value,
+                    excerpt: document.getElementById('articleExcerpt').value,
+                    content: document.getElementById('articleContent').value,
+                    category: document.getElementById('articleCategory').value,
+                    difficulty: document.getElementById('articleDifficulty').value,
+                    author: document.getElementById('articleAuthor').value,
+                    tags: this.tags,
+                    date: id ? this.currentArticle.date : new Date().toISOString(),
+                    views: id ? this.currentArticle.views : 0,
+                    readTime: this.calculateReadTime(document.getElementById('articleContent').value),
+                    upvotes: id ? this.currentArticle.upvotes : 0,
+                    helpfulCount: id ? this.currentArticle.helpfulCount : 0
+                };
+
+                try {
+                    const url = id 
+                        ? `${API_BASE}/knowledge-base/articles/${id}`
+                        : `${API_BASE}/knowledge-base/articles`;
+                    
+                    const method = id ? 'PUT' : 'POST';
+
+                    const response = await fetch(url, {
+                        method,
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+
+                    if (response.ok) {
+                        this.showToast('success', `Article ${id ? 'updated' : 'created'} successfully`);
+                        this.closeModal();
+                        this.loadArticles();
+                    } else {
+                        throw new Error('Failed to save article');
+                    }
+                } catch (error) {
+                    console.error('Save error:', error);
+                    this.showToast('error', 'Failed to save article');
+                }
+            }
+
+            async editArticle(id) {
+                const article = this.articles.find(a => a._id === id);
+                if (article) {
+                    this.openModal(article);
+                }
+            }
+
+            async deleteArticle(id) {
+                if (!confirm('Are you sure you want to delete this article?')) return;
+
+                try {
+                    const response = await fetch(`${API_BASE}/knowledge-base/articles/${id}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (response.ok) {
+                        this.showToast('success', 'Article deleted successfully');
+                        this.loadArticles();
+                    } else {
+                        throw new Error('Failed to delete article');
+                    }
+                } catch (error) {
+                    console.error('Delete error:', error);
+                    this.showToast('error', 'Failed to delete article');
+                }
+            }
+
+            calculateReadTime(content) {
+                const wordsPerMinute = 200;
+                const words = content.trim().split(/\s+/).length;
+                const minutes = Math.ceil(words / wordsPerMinute);
+                return `${minutes} min read`;
+            }
+
+            showToast(type, message) {
+                const existing = document.querySelector('.toast');
+                if (existing) existing.remove();
+
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.innerHTML = `
+                    <div class="toast-icon">${type === 'success' ? '✓' : '✕'}</div>
+                    <div>
+                        <div style="font-weight: 600;">${type === 'success' ? 'Success' : 'Error'}</div>
+                        <div style="font-size: 0.875rem; color: var(--text-muted);">${message}</div>
+                    </div>
+                `;
+
+                document.body.appendChild(toast);
+                setTimeout(() => toast.classList.add('show'), 10);
+                
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            }
+        }
+
+        const adminDashboard = new AdminDashboard();
+    </script>
+</body>
+</html>

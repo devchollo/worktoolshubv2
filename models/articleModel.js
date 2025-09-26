@@ -7,7 +7,7 @@ const articleSchema = new mongoose.Schema({
   category: [{
     type: String,
     required: true,
-    enum: ['technical', 'tutorials', 'troubleshooting', 'best-practices', 'tools', 'guide']
+    enum: ['technical', 'tutorials', 'troubleshooting', 'best-practices', 'tools & resources', 'guide']
   }],
   difficulty: {
     type: String,
@@ -20,6 +20,7 @@ const articleSchema = new mongoose.Schema({
   views: { type: Number, default: 0 },
   readTime: String,
   published: { type: Boolean, default: true },
+  updatedAt: { type: Date, default: Date.now },
 
   // 👇 Add these for frontend compatibility
   upvotes: { type: Number, default: 0 },

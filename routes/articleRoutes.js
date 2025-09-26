@@ -220,7 +220,7 @@ router.get('/articles/:id', async (req, res) => {
 });
 
 // POST new article
-router.post('/', async (req, res) => {
+router.post('/articles', async (req, res) => {
   try {
     const { title, excerpt, content, category, difficulty, tags, author } = req.body;
 

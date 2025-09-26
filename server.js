@@ -12,6 +12,8 @@ const qrRoutes = require('./routes/qrRoutes');
 const sitemapRoutes = require('./routes/sitemapRoutes');
 const notesRoutes = require('./routes/notesRoutes');
 const articleRoutes = require('./routes/articleRoutes');
+const adminRoutes = require('./routes/adminRoutes');
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -49,67 +51,6 @@ if (process.env.NODE_ENV === 'development') {
 
 
 
-// Enhanced MongoDB Connection with better timeout handling
-// const connectDB = async () => {
-//   try {
-//     const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URI;
-    
-//     if (!mongoUri) {
-//       console.error('MongoDB URI not found in environment variables');
-//       console.log('Please set MONGODB_URI in your .env file');
-//       return;
-//     }
-
-//     console.log('Connecting to MongoDB...');
-//     console.log("MongoDB URI value:", process.env.MONGODB_URI || process.env.MONGO_URI);
-//     // Enhanced connection options for better timeout handling
-//     const connectionOptions = {
-//       useNewUrlParser: true,
-//       useUnifiedTopology: true,
-//       serverSelectionTimeoutMS: 30000, // 30 seconds
-//       socketTimeoutMS: 45000, // 45 seconds
-//       connectTimeoutMS: 30000, // 30 seconds
-//       maxPoolSize: 10, // Maintain up to 10 socket connections
-//       minPoolSize: 5, // Maintain a minimum of 5 socket connections
-//       maxIdleTimeMS: 30000, // Close connections after 30s of inactivity
-//       bufferMaxEntries: 0, // Disable mongoose buffering
-//       bufferCommands: false, // Disable mongoose buffering
-//     };
-
-//     await mongoose.connect(mongoUri, connectionOptions);
-    
-//     console.log('MongoDB connected successfully');
-    
-//     // Handle connection events
-//     mongoose.connection.on('error', (err) => {
-//       console.error('MongoDB connection error:', err);
-//     });
-
-//     mongoose.connection.on('disconnected', () => {
-//       console.warn('MongoDB disconnected. Attempting to reconnect...');
-//     });
-
-//     mongoose.connection.on('reconnected', () => {
-//       console.log('MongoDB reconnected successfully');
-//     });
-
-//   } catch (error) {
-//     console.error('MongoDB connection failed:', error.message);
-    
-//     if (error.name === 'MongooseServerSelectionError') {
-//       console.log('Connection troubleshooting tips:');
-//       console.log('• Check if MongoDB URI is correct');
-//       console.log('• Verify network access (whitelist IP in MongoDB Atlas)');
-//       console.log('• Ensure database service is running');
-//       console.log('• Check if firewall is blocking the connection');
-//     }
-    
-//     // Don't exit - let app continue with fallback data
-//     console.log('Server will continue with limited functionality');
-//   }
-// };
-
-// Enhanced MongoDB Connection with modern options
 const connectDB = async () => {
   try {
     const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URI;
@@ -165,20 +106,7 @@ const connectDB = async () => {
 // Connect to database
 connectDB();
 
-// Test MongoDB connection
-// app.get('/api/test-db', async (req, res) => {
-//   try {
-//     const dbState = mongoose.connection.readyState;
-//     const states = ['disconnected', 'connected', 'connecting', 'disconnecting'];
-    
-//     res.json({
-//       status: states[dbState],
-//       message: dbState === 1 ? 'Database connected' : 'Database not connected'
-//     });
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// });
+
 
 // Test MongoDB connection with extra details
 app.get('/api/test-db', async (req, res) => {
@@ -230,7 +158,7 @@ app.use('/api', qrRoutes);
 app.use('/api', sitemapRoutes);
 app.use('/api/notes', notesRoutes);
 app.use('/api/knowledge-base', articleRoutes);
-
+app.use('/api', adminRoutes);
 
 
 // Sitemap.xml endpoint
