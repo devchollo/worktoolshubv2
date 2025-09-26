@@ -158,6 +158,9 @@ app.use('/api', qrRoutes);
 app.use('/api', sitemapRoutes);
 app.use('/api/notes', notesRoutes);
 app.use('/api/knowledge-base', articleRoutes);
+
+console.log('adminRoutes type:', typeof adminRoutes);
+console.log('adminRoutes:', adminRoutes);
 app.use('/api', adminRoutes);
 
 
