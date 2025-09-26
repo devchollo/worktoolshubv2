@@ -222,26 +222,53 @@ adminSchema.methods.hasPermission = function(permission) {
 };
 
 // Method to add session
+// adminSchema.methods.addSession = function(sessionId, userAgent, ipAddress) {
+//   // Keep only last 10 sessions
+//   if (this.sessionIds.length >= 10) {
+//     this.sessionIds = this.sessionIds.slice(-9);
+//   }
+  
+//   this.sessionIds.push({
+//     sessionId,
+//     userAgent,
+//     ipAddress,
+//     createdAt: new Date()
+//   });
+  
+//   return this.save();
+// };
+
 adminSchema.methods.addSession = function(sessionId, userAgent, ipAddress) {
-  // Keep only last 10 sessions
-  if (this.sessionIds.length >= 10) {
-    this.sessionIds = this.sessionIds.slice(-9);
-  }
-  
-  this.sessionIds.push({
-    sessionId,
-    userAgent,
-    ipAddress,
-    createdAt: new Date()
-  });
-  
-  return this.save();
+  return this.constructor.updateOne(
+    { _id: this._id },
+    {
+      $push: {
+        sessionIds: {
+          $each: [{
+            sessionId,
+            userAgent,
+            ipAddress,
+            createdAt: new Date()
+          }],
+          $slice: -10 // keep last 10 only
+        }
+      }
+    }
+  );
 };
 
+
 // Method to remove session
+// adminSchema.methods.removeSession = function(sessionId) {
+//   this.sessionIds = this.sessionIds.filter(session => session.sessionId !== sessionId);
+//   return this.save();
+// };
+
 adminSchema.methods.removeSession = function(sessionId) {
-  this.sessionIds = this.sessionIds.filter(session => session.sessionId !== sessionId);
-  return this.save();
+  return this.constructor.updateOne(
+    { _id: this._id },
+    { $pull: { sessionIds: { sessionId } } }
+  );
 };
 
 // Method to generate password reset token
