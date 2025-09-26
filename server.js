@@ -584,6 +584,88 @@ app.get("/api/admin/stats", authenticateAdmin, async (req, res) => {
   }
 });
 
+
+// Check if user can access a specific tool
+app.post("/api/auth/check-tool-access", authenticateAdmin, async (req, res) => {
+  try {
+    const { tool } = req.body;
+    const userRole = req.admin.role;
+    
+    // Define which tools require authentication
+    const protectedTools = [
+      'email-generator',
+      'escalation-email',
+      'business-listing',
+      'admin-panel'
+    ];
+    
+    // Define role-based tool access
+    const toolAccess = {
+      'admin-panel': ['Super Admin', 'Administrator', 'Moderator'], // Users blocked
+      'email-generator': ['Super Admin', 'Administrator', 'Moderator', 'User'],
+      'escalation-email': ['Super Admin', 'Administrator', 'Moderator', 'User'],
+      'business-listing': ['Super Admin', 'Administrator', 'Moderator', 'User']
+    };
+    
+    const hasAccess = !protectedTools.includes(tool) || 
+                     (toolAccess[tool] && toolAccess[tool].includes(userRole));
+    
+    res.json({
+      hasAccess,
+      userRole,
+      userName: req.admin.name,
+      redirectUrl: hasAccess ? null : '/auth.html'
+    });
+    
+  } catch (error) {
+    console.error("Tool access check error:", error);
+    res.status(500).json({ error: "Access check failed" });
+  }
+});
+
+// Public route to check if a tool requires authentication (no token needed)
+app.get("/api/auth/tool-info/:toolName", (req, res) => {
+  const { toolName } = req.params;
+  
+  const toolInfo = {
+    'email-generator': {
+      name: 'Email Generator',
+      description: 'Generate professional emails',
+      requiresAuth: true
+    },
+    'escalation-email': {
+      name: 'Escalation Email Tool',
+      description: 'Create escalation emails',
+      requiresAuth: true
+    },
+    'business-listing': {
+      name: 'Business Listing Tool', 
+      description: 'Update business listings',
+      requiresAuth: true
+    },
+    'qr-generator': {
+      name: 'QR Code Generator',
+      description: 'Generate QR codes',
+      requiresAuth: false
+    },
+    'sitemap-generator': {
+      name: 'Sitemap Generator',
+      description: 'Generate XML sitemaps',
+      requiresAuth: false
+    }
+  };
+  
+  const info = toolInfo[toolName] || {
+    name: 'Tool',
+    description: 'WorkToolsHub Tool',
+    requiresAuth: true
+  };
+  
+  res.json(info);
+});
+
+
+
 // OTHER ROUTES
 
 // Sitemap and robots
