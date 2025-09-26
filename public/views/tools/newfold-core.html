@@ -17,7 +17,7 @@
     <meta property="og:type" content="website" />
     <meta
       property="og:url"
-      content="https://worktoolshub.info/knowledge-base"
+      content="https://www.worktoolshub.info/assets/icon-192.png"
     />
     <meta property="og:title" content="Knowledge Base - WorkToolsHub" />
     <meta
@@ -26,7 +26,7 @@
     />
     <meta
       property="og:image"
-      content="https://worktoolshub.info/assets/og-image.jpg"
+      content="https://www.worktoolshub.info/assets/icon-192.png"
     />
 
     <!-- Twitter -->
@@ -42,11 +42,11 @@
     />
     <meta
       property="twitter:image"
-      content="https://worktoolshub.info/assets/og-image.jpg"
+      content="https://www.worktoolshub.info/assets/icon-192.png"
     />
 
     <title>Newfold Core - WorkToolsHub</title>
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/x-icon" href="https://www.worktoolshub.info/assets/icon-192.png" />
 
     <link rel="preconnect" href="https://worktoolshubv2.onrender.com" />
 
@@ -1254,22 +1254,25 @@
     }
 
         async loadStats() {
-          try {
-            const response = await fetch(
-              "https://worktoolshubv2.onrender.com/api/knowledge-base/stats"
-            );
-
-            if (response.ok) {
-              this.stats = await response.json();
-            } else {
-              // Fallback to calculating from loaded articles
-              this.calculateStatsFromArticles();
+    try {
+        const cacheBuster = `?_=${Date.now()}`;
+        const response = await fetch(`https://worktoolshubv2.onrender.com/api/knowledge-base/stats${cacheBuster}`, {
+            headers: {
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache'
             }
-          } catch (error) {
-            console.error("Failed to load stats:", error);
+        });
+        
+        if (response.ok) {
+            this.stats = await response.json();
+        } else {
             this.calculateStatsFromArticles();
-          }
         }
+    } catch (error) {
+        console.error('Failed to load stats:', error);
+        this.calculateStatsFromArticles();
+    }
+}
 
         calculateStatsFromArticles() {
           // Calculate categories
@@ -1588,27 +1591,30 @@ async handleAdminLogin() {
     }
 
         async loadArticles() {
-          this.showLoading();
+    this.showLoading();
 
-          try {
-            const response = await fetch(
-              "https://worktoolshubv2.onrender.com/api/knowledge-base/articles"
-            );
-
-            if (!response.ok) {
-              // Fallback to demo data if API is not ready
-              this.articles = this.getDemoArticles();
-            } else {
-              this.articles = await response.json();
+    try {
+        const cacheBuster = `?_=${Date.now()}`;
+        const response = await fetch(`https://worktoolshubv2.onrender.com/api/knowledge-base/articles${cacheBuster}`, {
+            headers: {
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache'
             }
+        });
 
-            this.filteredArticles = [...this.articles];
-          } catch (error) {
-            console.error("Failed to load articles:", error);
+        if (!response.ok) {
             this.articles = this.getDemoArticles();
-            this.filteredArticles = [...this.articles];
-          }
+        } else {
+            this.articles = await response.json();
         }
+
+        this.filteredArticles = [...this.articles];
+    } catch (error) {
+        console.error('Failed to load articles:', error);
+        this.articles = this.getDemoArticles();
+        this.filteredArticles = [...this.articles];
+    }
+}
 
         getDemoArticles() {
           return [

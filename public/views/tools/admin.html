@@ -956,16 +956,22 @@
 
         // ============ ARTICLE MANAGEMENT ============
         async loadArticles() {
-            try {
-                const response = await fetch(`${API_BASE}/knowledge-base/articles`);
-                this.articles = await response.json();
-                this.renderArticles();
-                this.updateStats();
-            } catch (error) {
-                console.error('Failed to load articles:', error);
-                this.showToast('error', 'Failed to load articles');
+    try {
+        const cacheBuster = `?_=${Date.now()}`;
+        const response = await fetch(`${API_BASE}/knowledge-base/articles${cacheBuster}`, {
+            headers: {
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache'
             }
-        }
+        });
+        this.articles = await response.json();
+        this.renderArticles();
+        this.updateStats();
+    } catch (error) {
+        console.error('Failed to load articles:', error);
+        this.showToast('error', 'Failed to load articles');
+    }
+}
 
         renderArticles() {
             const tbody = document.getElementById('articlesTableBody');
