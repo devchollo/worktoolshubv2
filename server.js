@@ -40,7 +40,7 @@ app.use(
       "X-Requested-With",
       "JWT_SECRET",
       "jwt_secret",
-      "jwt-secret",
+      "X-JWT-Secret",
       'x-jwt-secret'
     ],
     credentials: true,
