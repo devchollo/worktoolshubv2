@@ -250,8 +250,7 @@ app.get("/api/test-db", async (req, res) => {
 
 // ADMIN AUTHENTICATION ROUTES
 
-// Initial admin registration (requires JWT_SECRET)
-app.post("/api/admin/register", validateInitialAdminSecret, async (req, res) => {
+app.post("/api/admin/register", authenticateAdmin, async (req, res) => {
   try {
     const { email, password, name, avatar, role, department, phone, permissions } = req.body;
 
