@@ -1097,8 +1097,8 @@
                 Showing 247 articles
               </div>
               <select class="sort-select" id="sortSelect">
-                <option value="relevance">Most Relevant</option>
-                <option value="date" selected>Most Recent</option>
+                <option value="relevance" selected>Most Relevant</option>
+                <option value="date">Most Recent</option>
                 <option value="popular">Most Popular</option>
                 <option value="title">Alphabetical</option>
               </select>
@@ -1573,10 +1573,7 @@
               this.articles = await response.json();
             }
 
-            this.filteredArticles = [...this.articles].sort((a, b) => {
-              // sort by most recent
-              return (a, b) => new Date(b.date) - new Date(a.date);
-            });
+            this.filteredArticles = [...this.articles].sort((a, b) => b.views - a.views);
           } catch (error) {
             console.error("Failed to load articles:", error);
             this.articles = this.getDemoArticles();
