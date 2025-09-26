@@ -1805,7 +1805,7 @@
           }
 
           const data = {
-            _id,
+            id,
             name,
             email,
             role,
@@ -1823,7 +1823,7 @@
           if (id) {
             data.isActive =
               document.getElementById("adminStatus").value === "true";
-            data._id = id; 
+            data.id = id; 
           }
 
           try {
