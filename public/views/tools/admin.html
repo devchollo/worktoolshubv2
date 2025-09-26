@@ -24,11 +24,16 @@
         --text-muted: #64748b;
         --border: #e2e8f0;
         --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        --gradient: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        --gradient: linear-gradient(
+          135deg,
+          var(--primary) 0%,
+          var(--secondary) 100%
+        );
       }
 
       body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
         background: var(--bg);
         color: var(--text);
         line-height: 1.6;
@@ -109,7 +114,8 @@
         font-size: 0.9rem;
       }
 
-      .form-input, .form-select {
+      .form-input,
+      .form-select {
         width: 100%;
         padding: 0.875rem 1rem;
         border: 2px solid var(--border);
@@ -119,7 +125,8 @@
         background: var(--bg);
       }
 
-      .form-input:focus, .form-select:focus {
+      .form-input:focus,
+      .form-select:focus {
         outline: none;
         border-color: var(--primary);
         box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
@@ -169,9 +176,16 @@
       }
 
       @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        25% { transform: translateX(-5px); }
-        75% { transform: translateX(5px); }
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        25% {
+          transform: translateX(-5px);
+        }
+        75% {
+          transform: translateX(5px);
+        }
       }
 
       /* Dashboard Layout */
@@ -404,7 +418,8 @@
         border-collapse: collapse;
       }
 
-      th, td {
+      th,
+      td {
         text-align: left;
         padding: 1rem 1.5rem;
       }
@@ -426,7 +441,9 @@
         background: var(--bg);
       }
 
-      .category-badge, .role-badge, .status-badge {
+      .category-badge,
+      .role-badge,
+      .status-badge {
         display: inline-block;
         padding: 0.25rem 0.75rem;
         border-radius: 50px;
@@ -712,13 +729,27 @@
         <form id="loginForm">
           <div class="form-group">
             <label class="form-label">Email</label>
-            <input type="email" class="form-input" id="loginEmail" required placeholder="admin@worktoolshub.info" />
+            <input
+              type="email"
+              class="form-input"
+              id="loginEmail"
+              required
+              placeholder="admin@worktoolshub.info"
+            />
           </div>
           <div class="form-group">
             <label class="form-label">Password</label>
-            <input type="password" class="form-input" id="loginPassword" required placeholder="Enter your password" />
+            <input
+              type="password"
+              class="form-input"
+              id="loginPassword"
+              required
+              placeholder="Enter your password"
+            />
           </div>
-          <button type="submit" class="btn btn-primary btn-full">Sign In</button>
+          <button type="submit" class="btn btn-primary btn-full">
+            Sign In
+          </button>
         </form>
       </div>
     </div>
@@ -745,7 +776,12 @@
           </div>
         </nav>
         <div class="user-profile">
-          <img src="" alt="Admin" class="user-avatar" id="userAvatar" />
+          <img
+            src="https://via.placeholder.com/48"
+            alt="Admin"
+            class="user-avatar"
+            id="userAvatar"
+          />
           <div class="user-info">
             <h4 id="userName">Admin User</h4>
             <p id="userRole">Administrator</p>
@@ -766,28 +802,48 @@
             <div class="stats-grid">
               <div class="stat-card">
                 <div class="stat-header">
-                  <div class="stat-icon" style="background: #dbeafe; color: #3b82f6">📄</div>
+                  <div
+                    class="stat-icon"
+                    style="background: #dbeafe; color: #3b82f6"
+                  >
+                    📄
+                  </div>
                 </div>
                 <div class="stat-value" id="totalArticles">0</div>
                 <div class="stat-label">Total Articles</div>
               </div>
               <div class="stat-card">
                 <div class="stat-header">
-                  <div class="stat-icon" style="background: #dcfce7; color: #22c55e">👁️</div>
+                  <div
+                    class="stat-icon"
+                    style="background: #dcfce7; color: #22c55e"
+                  >
+                    👁️
+                  </div>
                 </div>
                 <div class="stat-value" id="totalViews">0</div>
                 <div class="stat-label">Total Views</div>
               </div>
               <div class="stat-card">
                 <div class="stat-header">
-                  <div class="stat-icon" style="background: #fef3c7; color: #f59e0b">👍</div>
+                  <div
+                    class="stat-icon"
+                    style="background: #fef3c7; color: #f59e0b"
+                  >
+                    👍
+                  </div>
                 </div>
                 <div class="stat-value" id="totalUpvotes">0</div>
                 <div class="stat-label">Total Upvotes</div>
               </div>
               <div class="stat-card">
                 <div class="stat-header">
-                  <div class="stat-icon" style="background: #fce7f3; color: #ec4899">📂</div>
+                  <div
+                    class="stat-icon"
+                    style="background: #fce7f3; color: #ec4899"
+                  >
+                    📂
+                  </div>
                 </div>
                 <div class="stat-value" id="totalCategories">0</div>
                 <div class="stat-label">Categories</div>
@@ -798,7 +854,9 @@
             <div class="section">
               <div class="section-header">
                 <h2>All Articles</h2>
-                <button class="btn-new" id="newArticleBtn">+ New Article</button>
+                <button class="btn-new" id="newArticleBtn">
+                  + New Article
+                </button>
               </div>
               <div class="table-container">
                 <table>
@@ -825,28 +883,48 @@
             <div class="stats-grid">
               <div class="stat-card">
                 <div class="stat-header">
-                  <div class="stat-icon" style="background: #dbeafe; color: #3b82f6">📈</div>
+                  <div
+                    class="stat-icon"
+                    style="background: #dbeafe; color: #3b82f6"
+                  >
+                    📈
+                  </div>
                 </div>
                 <div class="stat-value" id="statsArticles">0</div>
                 <div class="stat-label">Total Articles</div>
               </div>
               <div class="stat-card">
                 <div class="stat-header">
-                  <div class="stat-icon" style="background: #dcfce7; color: #22c55e">👁️</div>
+                  <div
+                    class="stat-icon"
+                    style="background: #dcfce7; color: #22c55e"
+                  >
+                    👁️
+                  </div>
                 </div>
                 <div class="stat-value" id="statsViews">0</div>
                 <div class="stat-label">Total Views</div>
               </div>
               <div class="stat-card">
                 <div class="stat-header">
-                  <div class="stat-icon" style="background: #fef3c7; color: #f59e0b">👍</div>
+                  <div
+                    class="stat-icon"
+                    style="background: #fef3c7; color: #f59e0b"
+                  >
+                    👍
+                  </div>
                 </div>
                 <div class="stat-value" id="statsUpvotes">0</div>
                 <div class="stat-label">Total Upvotes</div>
               </div>
               <div class="stat-card">
                 <div class="stat-header">
-                  <div class="stat-icon" style="background: #e0e7ff; color: #6366f1">❤️</div>
+                  <div
+                    class="stat-icon"
+                    style="background: #e0e7ff; color: #6366f1"
+                  >
+                    ❤️
+                  </div>
                 </div>
                 <div class="stat-value" id="statsHelpful">0</div>
                 <div class="stat-label">Helpful Marks</div>
@@ -892,28 +970,48 @@
             <div class="stats-grid">
               <div class="stat-card">
                 <div class="stat-header">
-                  <div class="stat-icon" style="background: #dbeafe; color: #3b82f6">👥</div>
+                  <div
+                    class="stat-icon"
+                    style="background: #dbeafe; color: #3b82f6"
+                  >
+                    👥
+                  </div>
                 </div>
                 <div class="stat-value" id="totalAdmins">0</div>
                 <div class="stat-label">Total Admins</div>
               </div>
               <div class="stat-card">
                 <div class="stat-header">
-                  <div class="stat-icon" style="background: #dcfce7; color: #22c55e">✅</div>
+                  <div
+                    class="stat-icon"
+                    style="background: #dcfce7; color: #22c55e"
+                  >
+                    ✅
+                  </div>
                 </div>
                 <div class="stat-value" id="activeAdmins">0</div>
                 <div class="stat-label">Active Admins</div>
               </div>
               <div class="stat-card">
                 <div class="stat-header">
-                  <div class="stat-icon" style="background: #fee2e2; color: #ef4444">🔒</div>
+                  <div
+                    class="stat-icon"
+                    style="background: #fee2e2; color: #ef4444"
+                  >
+                    🔒
+                  </div>
                 </div>
                 <div class="stat-value" id="lockedAdmins">0</div>
                 <div class="stat-label">Locked Accounts</div>
               </div>
               <div class="stat-card">
                 <div class="stat-header">
-                  <div class="stat-icon" style="background: #fef3c7; color: #f59e0b">🔄</div>
+                  <div
+                    class="stat-icon"
+                    style="background: #fef3c7; color: #f59e0b"
+                  >
+                    🔄
+                  </div>
                 </div>
                 <div class="stat-value" id="recentLogins">0</div>
                 <div class="stat-label">Recent Logins (24h)</div>
@@ -960,12 +1058,31 @@
           <form id="articleForm">
             <input type="hidden" id="articleId" />
             <div class="form-group">
+              <label class="form-label">Title *</label>
+              <input
+                type="text"
+                class="form-input"
+                id="articleTitle"
+                required
+              />
+            </div>
+            <div class="form-group">
               <label class="form-label">Excerpt *</label>
-              <textarea class="form-input" id="articleExcerpt" required rows="3"></textarea>
+              <textarea
+                class="form-input"
+                id="articleExcerpt"
+                required
+                rows="3"
+              ></textarea>
             </div>
             <div class="form-group">
               <label class="form-label">Content (Markdown) *</label>
-              <textarea class="form-input" id="articleContent" required rows="10"></textarea>
+              <textarea
+                class="form-input"
+                id="articleContent"
+                required
+                rows="10"
+              ></textarea>
             </div>
             <div class="form-row">
               <div class="form-group">
@@ -993,24 +1110,41 @@
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">Author *</label>
-                <input type="text" class="form-input" id="articleAuthor" required />
+                <input
+                  type="text"
+                  class="form-input"
+                  id="articleAuthor"
+                  required
+                />
               </div>
               <div class="form-group">
                 <label class="form-label">Read Time (optional)</label>
-                <input type="text" class="form-input" id="articleReadTime" placeholder="e.g., '5 min read' (auto-calculated if empty)" />
+                <input
+                  type="text"
+                  class="form-input"
+                  id="articleReadTime"
+                  placeholder="e.g., '5 min read' (auto-calculated if empty)"
+                />
               </div>
             </div>
             <div class="form-group">
               <label class="form-label">Tags (press Enter to add)</label>
               <div class="tags-input-container" id="tagsContainer">
-                <input type="text" class="tag-input" id="tagInput" placeholder="Add a tag..." />
+                <input
+                  type="text"
+                  class="tag-input"
+                  id="tagInput"
+                  placeholder="Add a tag..."
+                />
               </div>
             </div>
           </form>
         </div>
         <div class="modal-footer">
           <button class="btn-secondary" id="cancelArticleBtn">Cancel</button>
-          <button class="btn btn-primary" id="saveArticleBtn">Save Article</button>
+          <button class="btn btn-primary" id="saveArticleBtn">
+            Save Article
+          </button>
         </div>
       </div>
     </div>
@@ -1032,13 +1166,23 @@
               </div>
               <div class="form-group">
                 <label class="form-label">Email *</label>
-                <input type="email" class="form-input" id="adminEmail" required />
+                <input
+                  type="email"
+                  class="form-input"
+                  id="adminEmail"
+                  required
+                />
               </div>
             </div>
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">Password *</label>
-                <input type="password" class="form-input" id="adminPassword" required />
+                <input
+                  type="password"
+                  class="form-input"
+                  id="adminPassword"
+                  required
+                />
               </div>
               <div class="form-group">
                 <label class="form-label">Role *</label>
@@ -1053,18 +1197,33 @@
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">Department</label>
-                <input type="text" class="form-input" id="adminDepartment" placeholder="e.g., IT, Content, Support" />
+                <input
+                  type="text"
+                  class="form-input"
+                  id="adminDepartment"
+                  placeholder="e.g., IT, Content, Support"
+                />
               </div>
               <div class="form-group">
                 <label class="form-label">Phone</label>
-                <input type="tel" class="form-input" id="adminPhone" placeholder="+1234567890" />
+                <input
+                  type="tel"
+                  class="form-input"
+                  id="adminPhone"
+                  placeholder="+1234567890"
+                />
               </div>
             </div>
             <div class="form-group">
               <label class="form-label">Avatar URL (optional)</label>
-              <input type="url" class="form-input" id="adminAvatar" placeholder="https://example.com/avatar.jpg" />
+              <input
+                type="url"
+                class="form-input"
+                id="adminAvatar"
+                placeholder="https://example.com/avatar.jpg"
+              />
             </div>
-            <div class="form-group" id="adminStatusGroup" style="display: none;">
+            <div class="form-group" id="adminStatusGroup" style="display: none">
               <label class="form-label">Status</label>
               <select class="form-select" id="adminStatus">
                 <option value="true">Active</option>
@@ -1091,7 +1250,7 @@
           this.tags = [];
           this.currentArticle = null;
           this.currentAdmin = null;
-          this.currentView = 'articles';
+          this.currentView = "articles";
           this.init();
         }
 
@@ -1102,14 +1261,14 @@
 
         getJWTSecret() {
           let jwtSecret = localStorage.getItem("adminJWTSecret");
-          
+
           if (!jwtSecret) {
             jwtSecret = prompt("Enter JWT_SECRET for admin operations:");
             if (jwtSecret) {
               localStorage.setItem("adminJWTSecret", jwtSecret);
             }
           }
-          
+
           return jwtSecret;
         }
 
@@ -1184,7 +1343,7 @@
           } catch (error) {
             console.error("Logout error:", error);
           }
-          
+
           this.clearAuth();
           this.showLogin();
         }
@@ -1208,7 +1367,14 @@
 
           document.getElementById("userName").textContent = this.user.name;
           document.getElementById("userRole").textContent = this.user.role;
-          document.getElementById("userAvatar").src = this.user.avatar;
+
+          // Handle avatar display with fallback
+          const avatarEl = document.getElementById("userAvatar");
+          if (this.user.avatar) {
+            avatarEl.src = this.user.avatar;
+          } else {
+            avatarEl.src = "https://via.placeholder.com/48";
+          }
 
           this.loadData();
         }
@@ -1222,31 +1388,34 @@
 
         switchView(view) {
           // Update nav
-          document.querySelectorAll('.nav-item').forEach(item => {
-            item.classList.remove('active');
+          document.querySelectorAll(".nav-item").forEach((item) => {
+            item.classList.remove("active");
           });
-          document.querySelector(`[data-view="${view}"]`).classList.add('active');
+          document
+            .querySelector(`[data-view="${view}"]`)
+            .classList.add("active");
 
           // Update content
-          document.querySelectorAll('.view-section').forEach(section => {
-            section.classList.remove('active');
+          document.querySelectorAll(".view-section").forEach((section) => {
+            section.classList.remove("active");
           });
-          document.getElementById(`${view}View`).classList.add('active');
+          document.getElementById(`${view}View`).classList.add("active");
 
           // Update page title
           const titles = {
-            articles: 'Articles Management',
-            stats: 'Statistics & Analytics',
-            admins: 'Admin Management'
+            articles: "Articles Management",
+            stats: "Statistics & Analytics",
+            admins: "Admin Management",
           };
-          document.getElementById('pageTitle').textContent = titles[view] || view;
+          document.getElementById("pageTitle").textContent =
+            titles[view] || view;
 
           this.currentView = view;
 
           // Load view-specific data
-          if (view === 'stats') {
+          if (view === "stats") {
             this.loadStats();
-          } else if (view === 'admins') {
+          } else if (view === "admins") {
             this.loadAdmins();
           }
         }
@@ -1266,8 +1435,8 @@
           bind("logoutBtn", "click", () => this.handleLogout());
 
           // Navigation events
-          document.querySelectorAll('.nav-item').forEach(item => {
-            item.addEventListener('click', () => {
+          document.querySelectorAll(".nav-item").forEach((item) => {
+            item.addEventListener("click", () => {
               const view = item.dataset.view;
               this.switchView(view);
             });
@@ -1285,9 +1454,13 @@
           bind("cancelAdminBtn", "click", () => this.closeAdminModal());
           bind("saveAdminBtn", "click", () => this.saveAdmin());
 
-          // Tag input
-          bind("tagInput", "keypress", (e) => {
-            if (e.key === "Enter") {
+          // Tag input - Using event delegation to handle dynamically created elements
+          document.addEventListener("keypress", (e) => {
+            if (
+              e.target &&
+              e.target.classList.contains("tag-input") &&
+              e.key === "Enter"
+            ) {
               e.preventDefault();
               this.addTag(e.target.value);
               e.target.value = "";
@@ -1298,7 +1471,7 @@
         // ============ DATA LOADING ============
         async loadData() {
           await this.loadArticles();
-          if (this.currentView === 'admins') {
+          if (this.currentView === "admins") {
             await this.loadAdmins();
           }
         }
@@ -1331,8 +1504,8 @@
 
             const response = await fetch(`${API_BASE}/admin/list`, {
               headers: {
-                "X-JWT-Secret": jwtSecret
-              }
+                "X-JWT-Secret": jwtSecret,
+              },
             });
 
             if (response.ok) {
@@ -1342,7 +1515,10 @@
               await this.loadAdminStats();
             } else if (response.status === 401 || response.status === 403) {
               localStorage.removeItem("adminJWTSecret");
-              this.showToast("error", "Invalid JWT_SECRET. Please refresh and try again.");
+              this.showToast(
+                "error",
+                "Invalid JWT_SECRET. Please refresh and try again."
+              );
             }
           } catch (error) {
             console.error("Failed to load admins:", error);
@@ -1357,16 +1533,19 @@
 
             const response = await fetch(`${API_BASE}/admin/stats`, {
               headers: {
-                "X-JWT-Secret": jwtSecret
-              }
+                "X-JWT-Secret": jwtSecret,
+              },
             });
 
             if (response.ok) {
               const stats = await response.json();
               document.getElementById("totalAdmins").textContent = stats.total;
-              document.getElementById("activeAdmins").textContent = stats.active;
-              document.getElementById("lockedAdmins").textContent = stats.locked;
-              document.getElementById("recentLogins").textContent = stats.recentLogins;
+              document.getElementById("activeAdmins").textContent =
+                stats.active;
+              document.getElementById("lockedAdmins").textContent =
+                stats.locked;
+              document.getElementById("recentLogins").textContent =
+                stats.recentLogins;
             }
           } catch (error) {
             console.error("Failed to load admin stats:", error);
@@ -1389,14 +1568,20 @@
               (article) => `
                 <tr>
                     <td><strong>${article.title}</strong></td>
-                    <td><span class="category-badge">${this.formatCategory(article.category)}</span></td>
+                    <td><span class="category-badge">${this.formatCategory(
+                      article.category
+                    )}</span></td>
                     <td>${article.views || 0}</td>
                     <td>${article.upvotes || 0}</td>
                     <td>${new Date(article.date).toLocaleDateString()}</td>
                     <td>
                         <div class="action-buttons">
-                            <button class="btn-icon btn-edit" onclick="adminDashboard.editArticle('${article._id}')">✏️</button>
-                            <button class="btn-icon btn-delete" onclick="adminDashboard.deleteArticle('${article._id}')">🗑️</button>
+                            <button class="btn-icon btn-edit" onclick="adminDashboard.editArticle('${
+                              article._id
+                            }')">✏️</button>
+                            <button class="btn-icon btn-delete" onclick="adminDashboard.deleteArticle('${
+                              article._id
+                            }')">🗑️</button>
                         </div>
                     </td>
                 </tr>
@@ -1407,16 +1592,42 @@
 
         async saveArticle() {
           const id = document.getElementById("articleId").value;
+
+          // Validate required fields
+          const title = document.getElementById("articleTitle").value.trim();
+          const excerpt = document
+            .getElementById("articleExcerpt")
+            .value.trim();
+          const content = document
+            .getElementById("articleContent")
+            .value.trim();
+          const category = document.getElementById("articleCategory").value;
+          const difficulty = document.getElementById("articleDifficulty").value;
+          const author = document.getElementById("articleAuthor").value.trim();
+
+          if (
+            !title ||
+            !excerpt ||
+            !content ||
+            !category ||
+            !difficulty ||
+            !author
+          ) {
+            this.showToast("error", "Please fill in all required fields");
+            return;
+          }
+
           const data = {
-            title: document.getElementById("articleTitle").value,
-            excerpt: document.getElementById("articleExcerpt").value,
-            content: document.getElementById("articleContent").value,
-            category: document.getElementById("articleCategory").value,
-            difficulty: document.getElementById("articleDifficulty").value,
-            author: document.getElementById("articleAuthor").value,
+            title,
+            excerpt,
+            content,
+            category,
+            difficulty,
+            author,
             tags: this.tags,
-            readTime: document.getElementById("articleReadTime").value.trim() || 
-                      this.calculateReadTime(document.getElementById("articleContent").value),
+            readTime:
+              document.getElementById("articleReadTime").value.trim() ||
+              this.calculateReadTime(content),
             date: id ? this.currentArticle.date : new Date().toISOString(),
             views: id ? this.currentArticle.views : 0,
             upvotes: id ? this.currentArticle.upvotes : 0,
@@ -1432,15 +1643,18 @@
 
             const jwtSecret = this.getJWTSecret();
             if (!jwtSecret) {
-              this.showToast("error", "JWT_SECRET is required for admin operations");
+              this.showToast(
+                "error",
+                "JWT_SECRET is required for admin operations"
+              );
               return;
             }
 
             const response = await fetch(url, {
               method,
-              headers: { 
+              headers: {
                 "Content-Type": "application/json",
-                "X-JWT-Secret": jwtSecret
+                "X-JWT-Secret": jwtSecret,
               },
               body: JSON.stringify(data),
             });
@@ -1456,7 +1670,10 @@
               const errorData = await response.json();
               if (response.status === 401 || response.status === 403) {
                 localStorage.removeItem("adminJWTSecret");
-                this.showToast("error", "Invalid JWT_SECRET. Please try again.");
+                this.showToast(
+                  "error",
+                  "Invalid JWT_SECRET. Please try again."
+                );
               } else {
                 throw new Error(errorData.error || "Failed to save article");
               }
@@ -1478,7 +1695,10 @@
           try {
             const jwtSecret = this.getJWTSecret();
             if (!jwtSecret) {
-              this.showToast("error", "JWT_SECRET is required for admin operations");
+              this.showToast(
+                "error",
+                "JWT_SECRET is required for admin operations"
+              );
               return;
             }
 
@@ -1488,8 +1708,8 @@
                 method: "DELETE",
                 headers: {
                   "Content-Type": "application/json",
-                  "X-JWT-Secret": jwtSecret
-                }
+                  "X-JWT-Secret": jwtSecret,
+                },
               }
             );
 
@@ -1500,14 +1720,20 @@
               const errorData = await response.json();
               if (response.status === 401 || response.status === 403) {
                 localStorage.removeItem("adminJWTSecret");
-                this.showToast("error", "Invalid JWT_SECRET. Please try again.");
+                this.showToast(
+                  "error",
+                  "Invalid JWT_SECRET. Please try again."
+                );
               } else {
                 throw new Error(errorData.error || "Failed to delete article");
               }
             }
           } catch (error) {
             console.error("Delete error:", error);
-            this.showToast("error", error.message || "Failed to delete article");
+            this.showToast(
+              "error",
+              error.message || "Failed to delete article"
+            );
           }
         }
 
@@ -1520,19 +1746,33 @@
                 <tr>
                     <td>
                         <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <img src="${admin.avatar || admin.avatarUrl}" alt="${admin.name}" 
+                            <img src="${
+                              admin.avatar ||
+                              admin.avatarUrl ||
+                              "https://via.placeholder.com/32"
+                            }" alt="${admin.name}" 
                                  style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
                             <strong>${admin.name}</strong>
                         </div>
                     </td>
                     <td>${admin.email}</td>
                     <td><span class="role-badge">${admin.role}</span></td>
-                    <td><span class="status-badge ${admin.isActive ? 'active' : 'inactive'}">${admin.isActive ? 'Active' : 'Inactive'}</span></td>
-                    <td>${admin.lastLogin ? new Date(admin.lastLogin).toLocaleDateString() : 'Never'}</td>
+                    <td><span class="status-badge ${
+                      admin.isActive ? "active" : "inactive"
+                    }">${admin.isActive ? "Active" : "Inactive"}</span></td>
+                    <td>${
+                      admin.lastLogin
+                        ? new Date(admin.lastLogin).toLocaleDateString()
+                        : "Never"
+                    }</td>
                     <td>
                         <div class="action-buttons">
-                            <button class="btn-icon btn-edit" onclick="adminDashboard.editAdmin('${admin._id}')">✏️</button>
-                            <button class="btn-icon btn-delete" onclick="adminDashboard.deleteAdmin('${admin._id}')">🗑️</button>
+                            <button class="btn-icon btn-edit" onclick="adminDashboard.editAdmin('${
+                              admin._id
+                            }')">✏️</button>
+                            <button class="btn-icon btn-delete" onclick="adminDashboard.deleteAdmin('${
+                              admin._id
+                            }')">🗑️</button>
                         </div>
                     </td>
                 </tr>
@@ -1543,30 +1783,55 @@
 
         async saveAdmin() {
           const id = document.getElementById("adminId").value;
+
+          // Validate required fields
+          const name = document.getElementById("adminName").value.trim();
+          const email = document.getElementById("adminEmail").value.trim();
+          const role = document.getElementById("adminRole").value;
+          const password = document.getElementById("adminPassword").value;
+
+          if (!name || !email || !role) {
+            this.showToast("error", "Please fill in all required fields");
+            return;
+          }
+
+          // For new admins, password is required
+          if (!id && !password) {
+            this.showToast(
+              "error",
+              "Password is required for new admin accounts"
+            );
+            return;
+          }
+
           const data = {
-            name: document.getElementById("adminName").value,
-            email: document.getElementById("adminEmail").value,
-            role: document.getElementById("adminRole").value,
-            department: document.getElementById("adminDepartment").value,
-            phone: document.getElementById("adminPhone").value,
-            avatar: document.getElementById("adminAvatar").value,
+            name,
+            email,
+            role,
+            department: document.getElementById("adminDepartment").value.trim(),
+            phone: document.getElementById("adminPhone").value.trim(),
+            avatar: document.getElementById("adminAvatar").value.trim(),
           };
 
           // Only include password for new admins or if it's being changed
-          const password = document.getElementById("adminPassword").value;
           if (!id || password) {
             data.password = password;
           }
 
           // Include status for existing admins
           if (id) {
-            data.isActive = document.getElementById("adminStatus").value === 'true';
+            data.isActive =
+              document.getElementById("adminStatus").value === "true";
+            data._id = id; // Include ID for edit operations
           }
 
           try {
             const jwtSecret = this.getJWTSecret();
             if (!jwtSecret) {
-              this.showToast("error", "JWT_SECRET is required for admin operations");
+              this.showToast(
+                "error",
+                "JWT_SECRET is required for admin operations"
+              );
               return;
             }
 
@@ -1581,9 +1846,9 @@
 
             const response = await fetch(url, {
               method,
-              headers: { 
+              headers: {
                 "Content-Type": "application/json",
-                "X-JWT-Secret": jwtSecret
+                "X-JWT-Secret": jwtSecret,
               },
               body: JSON.stringify(data),
             });
@@ -1599,9 +1864,14 @@
               const errorData = await response.json();
               if (response.status === 401 || response.status === 403) {
                 localStorage.removeItem("adminJWTSecret");
-                this.showToast("error", "Invalid JWT_SECRET. Please try again.");
+                this.showToast(
+                  "error",
+                  "Invalid JWT_SECRET. Please try again."
+                );
               } else {
-                throw new Error(errorData.error || "Failed to save admin");
+                throw new Error(
+                  errorData.error || errorData.message || "Failed to save admin"
+                );
               }
             }
           } catch (error) {
@@ -1616,15 +1886,21 @@
         }
 
         async deleteAdmin(id) {
-          const admin = this.admins.find(a => a._id === id);
+          const admin = this.admins.find((a) => a._id === id);
           if (!admin) return;
 
-          if (!confirm(`Are you sure you want to delete admin "${admin.name}"?`)) return;
+          if (
+            !confirm(`Are you sure you want to delete admin "${admin.name}"?`)
+          )
+            return;
 
           try {
             const jwtSecret = this.getJWTSecret();
             if (!jwtSecret) {
-              this.showToast("error", "JWT_SECRET is required for admin operations");
+              this.showToast(
+                "error",
+                "JWT_SECRET is required for admin operations"
+              );
               return;
             }
 
@@ -1632,9 +1908,9 @@
               method: "DELETE",
               headers: {
                 "Content-Type": "application/json",
-                "X-JWT-Secret": jwtSecret
+                "X-JWT-Secret": jwtSecret,
               },
-              body: JSON.stringify({ email: admin.email })
+              body: JSON.stringify({ email: admin.email }),
             });
 
             if (response.ok) {
@@ -1644,7 +1920,10 @@
               const errorData = await response.json();
               if (response.status === 401 || response.status === 403) {
                 localStorage.removeItem("adminJWTSecret");
-                this.showToast("error", "Invalid JWT_SECRET. Please try again.");
+                this.showToast(
+                  "error",
+                  "Invalid JWT_SECRET. Please try again."
+                );
               } else {
                 throw new Error(errorData.error || "Failed to delete admin");
               }
@@ -1660,24 +1939,35 @@
           this.currentArticle = article;
           this.tags = article?.tags || [];
 
+          const modal = document.getElementById("articleModal");
+          const form = document.getElementById("articleForm");
+
           if (article) {
-            document.getElementById("articleModalTitle").textContent = "Edit Article";
+            document.getElementById("articleModalTitle").textContent =
+              "Edit Article";
             document.getElementById("articleId").value = article._id;
-            document.getElementById("articleTitle").value = article.title;
-            document.getElementById("articleExcerpt").value = article.excerpt;
-            document.getElementById("articleContent").value = article.content;
-            document.getElementById("articleCategory").value = article.category;
-            document.getElementById("articleDifficulty").value = article.difficulty;
-            document.getElementById("articleAuthor").value = article.author;
-            document.getElementById("articleReadTime").value = article.readTime || "";
+            document.getElementById("articleTitle").value = article.title || "";
+            document.getElementById("articleExcerpt").value =
+              article.excerpt || "";
+            document.getElementById("articleContent").value =
+              article.content || "";
+            document.getElementById("articleCategory").value =
+              article.category || "";
+            document.getElementById("articleDifficulty").value =
+              article.difficulty || "";
+            document.getElementById("articleAuthor").value =
+              article.author || "";
+            document.getElementById("articleReadTime").value =
+              article.readTime || "";
           } else {
-            document.getElementById("articleModalTitle").textContent = "New Article";
-            document.getElementById("articleForm").reset();
+            document.getElementById("articleModalTitle").textContent =
+              "New Article";
+            form.reset();
             document.getElementById("articleId").value = "";
           }
 
           this.renderTags();
-          document.getElementById("articleModal").classList.add("active");
+          modal.classList.add("active");
         }
 
         closeArticleModal() {
@@ -1689,28 +1979,41 @@
         openAdminModal(admin = null) {
           this.currentAdmin = admin;
 
+          const modal = document.getElementById("adminModal");
+          const form = document.getElementById("adminForm");
+          const passwordField = document.getElementById("adminPassword");
+          const statusGroup = document.getElementById("adminStatusGroup");
+
           if (admin) {
-            document.getElementById("adminModalTitle").textContent = "Edit Admin";
-            document.getElementById("adminId").value = admin._id;
-            document.getElementById("adminName").value = admin.name;
-            document.getElementById("adminEmail").value = admin.email;
-            document.getElementById("adminPassword").value = "";
-            document.getElementById("adminPassword").placeholder = "Leave empty to keep current password";
-            document.getElementById("adminRole").value = admin.role;
-            document.getElementById("adminDepartment").value = admin.department || "";
+            document.getElementById("adminModalTitle").textContent =
+              "Edit Admin";
+            document.getElementById("adminId").value = admin._id || "";
+            document.getElementById("adminName").value = admin.name || "";
+            document.getElementById("adminEmail").value = admin.email || "";
+            passwordField.value = "";
+            passwordField.placeholder = "Leave empty to keep current password";
+            passwordField.required = false;
+            document.getElementById("adminRole").value = admin.role || "";
+            document.getElementById("adminDepartment").value =
+              admin.department || "";
             document.getElementById("adminPhone").value = admin.phone || "";
-            document.getElementById("adminAvatar").value = admin.avatar || "";
-            document.getElementById("adminStatus").value = admin.isActive ? "true" : "false";
-            document.getElementById("adminStatusGroup").style.display = "block";
+            document.getElementById("adminAvatar").value =
+              admin.avatar || admin.avatarUrl || "";
+            document.getElementById("adminStatus").value = admin.isActive
+              ? "true"
+              : "false";
+            statusGroup.style.display = "block";
           } else {
-            document.getElementById("adminModalTitle").textContent = "New Admin";
-            document.getElementById("adminForm").reset();
+            document.getElementById("adminModalTitle").textContent =
+              "New Admin";
+            form.reset();
             document.getElementById("adminId").value = "";
-            document.getElementById("adminPassword").placeholder = "Enter password";
-            document.getElementById("adminStatusGroup").style.display = "none";
+            passwordField.placeholder = "Enter password";
+            passwordField.required = true;
+            statusGroup.style.display = "none";
           }
 
-          document.getElementById("adminModal").classList.add("active");
+          modal.classList.add("active");
         }
 
         closeAdminModal() {
@@ -1734,7 +2037,10 @@
 
         renderTags() {
           const container = document.getElementById("tagsContainer");
-          const input = document.getElementById("tagInput");
+          if (!container) return;
+
+          const existingInput = container.querySelector(".tag-input");
+          const inputValue = existingInput ? existingInput.value : "";
 
           container.innerHTML =
             this.tags
@@ -1746,39 +2052,53 @@
                 </span>
             `
               )
-              .join("") + input.outerHTML;
-
-          const newInput = container.querySelector(".tag-input");
-          newInput.addEventListener("keypress", (e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              this.addTag(e.target.value);
-              e.target.value = "";
-            }
-          });
+              .join("") +
+            `<input type="text" class="tag-input" id="tagInput" placeholder="Add a tag..." value="${inputValue}" />`;
         }
 
         // ============ STATS & UTILITIES ============
         updateArticleStats() {
-          const totalViews = this.articles.reduce((sum, a) => sum + (a.views || 0), 0);
-          const totalUpvotes = this.articles.reduce((sum, a) => sum + (a.upvotes || 0), 0);
+          const totalViews = this.articles.reduce(
+            (sum, a) => sum + (a.views || 0),
+            0
+          );
+          const totalUpvotes = this.articles.reduce(
+            (sum, a) => sum + (a.upvotes || 0),
+            0
+          );
           const categories = new Set(this.articles.map((a) => a.category)).size;
 
-          document.getElementById("totalArticles").textContent = this.articles.length;
-          document.getElementById("totalViews").textContent = totalViews.toLocaleString();
-          document.getElementById("totalUpvotes").textContent = totalUpvotes.toLocaleString();
+          document.getElementById("totalArticles").textContent =
+            this.articles.length;
+          document.getElementById("totalViews").textContent =
+            totalViews.toLocaleString();
+          document.getElementById("totalUpvotes").textContent =
+            totalUpvotes.toLocaleString();
           document.getElementById("totalCategories").textContent = categories;
         }
 
         updateStatsView() {
-          const totalViews = this.articles.reduce((sum, a) => sum + (a.views || 0), 0);
-          const totalUpvotes = this.articles.reduce((sum, a) => sum + (a.upvotes || 0), 0);
-          const totalHelpful = this.articles.reduce((sum, a) => sum + (a.helpfulCount || 0), 0);
+          const totalViews = this.articles.reduce(
+            (sum, a) => sum + (a.views || 0),
+            0
+          );
+          const totalUpvotes = this.articles.reduce(
+            (sum, a) => sum + (a.upvotes || 0),
+            0
+          );
+          const totalHelpful = this.articles.reduce(
+            (sum, a) => sum + (a.helpfulCount || 0),
+            0
+          );
 
-          document.getElementById("statsArticles").textContent = this.articles.length;
-          document.getElementById("statsViews").textContent = totalViews.toLocaleString();
-          document.getElementById("statsUpvotes").textContent = totalUpvotes.toLocaleString();
-          document.getElementById("statsHelpful").textContent = totalHelpful.toLocaleString();
+          document.getElementById("statsArticles").textContent =
+            this.articles.length;
+          document.getElementById("statsViews").textContent =
+            totalViews.toLocaleString();
+          document.getElementById("statsUpvotes").textContent =
+            totalUpvotes.toLocaleString();
+          document.getElementById("statsHelpful").textContent =
+            totalHelpful.toLocaleString();
         }
 
         renderTopArticles() {
@@ -1788,15 +2108,20 @@
             .slice(0, 5);
 
           document.getElementById("mostViewedList").innerHTML = mostViewed
-            .map((article) => `
+            .map(
+              (article) => `
               <li class="top-article-item">
                 <div>
                   <div class="article-title">${article.title}</div>
-                  <div class="article-meta">${this.formatCategory(article.category)}</div>
+                  <div class="article-meta">${this.formatCategory(
+                    article.category
+                  )}</div>
                 </div>
                 <div class="metric-value">${article.views || 0} views</div>
               </li>
-            `).join("");
+            `
+            )
+            .join("");
 
           // Most upvoted
           const mostUpvoted = [...this.articles]
@@ -1804,15 +2129,20 @@
             .slice(0, 5);
 
           document.getElementById("mostUpvotedList").innerHTML = mostUpvoted
-            .map((article) => `
+            .map(
+              (article) => `
               <li class="top-article-item">
                 <div>
                   <div class="article-title">${article.title}</div>
-                  <div class="article-meta">${this.formatCategory(article.category)}</div>
+                  <div class="article-meta">${this.formatCategory(
+                    article.category
+                  )}</div>
                 </div>
                 <div class="metric-value">${article.upvotes || 0} upvotes</div>
               </li>
-            `).join("");
+            `
+            )
+            .join("");
 
           // Most helpful
           const mostHelpful = [...this.articles]
@@ -1820,15 +2150,22 @@
             .slice(0, 5);
 
           document.getElementById("mostHelpfulList").innerHTML = mostHelpful
-            .map((article) => `
+            .map(
+              (article) => `
               <li class="top-article-item">
                 <div>
                   <div class="article-title">${article.title}</div>
-                  <div class="article-meta">${this.formatCategory(article.category)}</div>
+                  <div class="article-meta">${this.formatCategory(
+                    article.category
+                  )}</div>
                 </div>
-                <div class="metric-value">${article.helpfulCount || 0} helpful</div>
+                <div class="metric-value">${
+                  article.helpfulCount || 0
+                } helpful</div>
               </li>
-            `).join("");
+            `
+            )
+            .join("");
         }
 
         formatCategory(category) {
