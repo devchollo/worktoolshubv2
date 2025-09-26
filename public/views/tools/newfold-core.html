@@ -1920,8 +1920,6 @@
               // Prevent triggering when clicking buttons inside the card
               if (e.target.closest(".action-btn")) return;
               const articleId = card.dataset.id;
-
-              console.log("Card clicked!", articleId);
               this.openArticle(articleId);
             });
 
