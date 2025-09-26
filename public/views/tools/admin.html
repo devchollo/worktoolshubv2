@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin Dashboard - WorkToolsHub</title>
-       <link
+    <link
       rel="icon"
       type="image/x-icon"
       href="https://www.worktoolshub.info/assets/icon-192.png"
@@ -720,6 +720,49 @@
           font-size: 0.875rem;
         }
       }
+
+      /* Loading Animation */
+      .loading-spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: #fff;
+        animation: spin 1s ease-in-out infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .btn:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: none !important;
+      }
+
+      .btn:disabled:hover {
+        transform: none !important;
+        box-shadow: none !important;
+      }
+
+      /* Pulse effect for login card during loading */
+      .login-card.loading {
+        animation: pulse 2s ease-in-out infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        50% {
+          box-shadow: 0 20px 60px rgba(99, 102, 241, 0.4);
+        }
+      }
     </style>
   </head>
   <body>
@@ -752,8 +795,13 @@
               placeholder="Enter your password"
             />
           </div>
-          <button type="submit" class="btn btn-primary btn-full">
-            Sign In
+          <button type="submit" class="btn btn-primary btn-full" id="loginBtn">
+            <span id="loginBtnText">Sign In</span>
+            <div
+              class="loading-spinner"
+              id="loginSpinner"
+              style="display: none"
+            ></div>
           </button>
         </form>
       </div>
@@ -1264,40 +1312,39 @@
           this.bindEvents();
         }
 
-
         getAuthToken() {
-  return localStorage.getItem("adminToken");
-}
+          return localStorage.getItem("adminToken");
+        }
 
-getAuthHeaders() {
-  const token = this.getAuthToken();
-  if (!token) {
-    this.showToast("error", "Please log in again.");
-    return null;
-  }
-  
-  return {
-    "Content-Type": "application/json",
-    "Authorization": `Bearer ${token}`
-  };
-}
+        getAuthHeaders() {
+          const token = this.getAuthToken();
+          if (!token) {
+            this.showToast("error", "Please log in again.");
+            return null;
+          }
 
-handleAuthError(message) {
-  this.showToast("error", message);
-  // Clear auth and redirect to login after a delay
-  setTimeout(() => {
-    this.clearAuth();
-    this.showLogin();
-  }, 2000);
-}
+          return {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          };
+        }
 
-// Remove the clearAuth method's JWT secret cleanup since we're not using it anymore:
-clearAuth() {
-  localStorage.removeItem("adminToken");
-  localStorage.removeItem("adminUser");
-  // Remove this line: localStorage.removeItem("adminJWTSecret");
-  this.user = null;
-}
+        handleAuthError(message) {
+          this.showToast("error", message);
+          // Clear auth and redirect to login after a delay
+          setTimeout(() => {
+            this.clearAuth();
+            this.showLogin();
+          }, 2000);
+        }
+
+        // Remove the clearAuth method's JWT secret cleanup since we're not using it anymore:
+        clearAuth() {
+          localStorage.removeItem("adminToken");
+          localStorage.removeItem("adminUser");
+          // Remove this line: localStorage.removeItem("adminJWTSecret");
+          this.user = null;
+        }
 
         // ============ AUTHENTICATION ============
         async checkAuth() {
@@ -1334,6 +1381,17 @@ clearAuth() {
           const email = document.getElementById("loginEmail").value;
           const password = document.getElementById("loginPassword").value;
 
+          // Start loading state
+          const loginBtn = document.getElementById("loginBtn");
+          const loginBtnText = document.getElementById("loginBtnText");
+          const loginSpinner = document.getElementById("loginSpinner");
+          const loginCard = document.querySelector(".login-card");
+
+          loginBtn.disabled = true;
+          loginBtnText.textContent = "Signing in...";
+          loginSpinner.style.display = "inline-block";
+          loginCard.classList.add("loading");
+
           try {
             const response = await fetch(`${API_BASE}/admin/login`, {
               method: "POST",
@@ -1347,16 +1405,32 @@ clearAuth() {
               localStorage.setItem("adminToken", data.token);
               localStorage.setItem("adminUser", JSON.stringify(data.user));
               this.user = data.user;
-              this.showDashboard();
+
+              // Brief success state before transition
+              loginBtnText.textContent = "Success!";
+              setTimeout(() => {
+                this.showDashboard();
+              }, 500);
             } else {
               this.showError(data.error || "Invalid credentials");
             }
           } catch (error) {
             console.error("Login error:", error);
             this.showError("Login failed. Please try again.");
+          } finally {
+            // Reset loading state (only if we're still on login page)
+            setTimeout(() => {
+              if (
+                document.getElementById("loginPage").style.display !== "none"
+              ) {
+                loginBtn.disabled = false;
+                loginBtnText.textContent = "Sign In";
+                loginSpinner.style.display = "none";
+                loginCard.classList.remove("loading");
+              }
+            }, 1000);
           }
         }
-
         async handleLogout() {
           try {
             const token = localStorage.getItem("adminToken");
@@ -1374,8 +1448,6 @@ clearAuth() {
           this.clearAuth();
           this.showLogin();
         }
-
-       
 
         // ============ UI STATE ============
         showLogin() {
@@ -1520,48 +1592,56 @@ clearAuth() {
         }
 
         async loadAdmins() {
-  try {
-    const headers = this.getAuthHeaders();
-    if (!headers) return;
+          try {
+            const headers = this.getAuthHeaders();
+            if (!headers) return;
 
-    const response = await fetch(`${API_BASE}/admin/list`, { headers });
+            const response = await fetch(`${API_BASE}/admin/list`, { headers });
 
-    if (response.ok) {
-      const data = await response.json();
-      this.admins = data.admins;
-      this.renderAdmins();
-      await this.loadAdminStats();
-    } else if (response.status === 401 || response.status === 403) {
-      this.handleAuthError("Session expired. Please log in again.");
-    } else {
-      const errorData = await response.json();
-      this.showToast("error", errorData.error || "Failed to load admins");
-    }
-  } catch (error) {
-    console.error("Failed to load admins:", error);
-    this.showToast("error", "Failed to load admins");
-  }
-}
+            if (response.ok) {
+              const data = await response.json();
+              this.admins = data.admins;
+              this.renderAdmins();
+              await this.loadAdminStats();
+            } else if (response.status === 401 || response.status === 403) {
+              this.handleAuthError("Session expired. Please log in again.");
+            } else {
+              const errorData = await response.json();
+              this.showToast(
+                "error",
+                errorData.error || "Failed to load admins"
+              );
+            }
+          } catch (error) {
+            console.error("Failed to load admins:", error);
+            this.showToast("error", "Failed to load admins");
+          }
+        }
         async loadAdminStats() {
-  try {
-    const headers = this.getAuthHeaders();
-    if (!headers) return;
+          try {
+            const headers = this.getAuthHeaders();
+            if (!headers) return;
 
-    const response = await fetch(`${API_BASE}/admin/stats`, { headers });
+            const response = await fetch(`${API_BASE}/admin/stats`, {
+              headers,
+            });
 
-    if (response.ok) {
-      const stats = await response.json();
-      document.getElementById("totalAdmins").textContent = stats.total;
-      document.getElementById("activeAdmins").textContent = stats.active;
-      document.getElementById("lockedAdmins").textContent = stats.locked;
-      document.getElementById("recentLogins").textContent = stats.recentLogins;
-    } else if (response.status === 401 || response.status === 403) {
-      this.handleAuthError("Session expired. Please log in again.");
-    }
-  } catch (error) {
-    console.error("Failed to load admin stats:", error);
-  }
-}
+            if (response.ok) {
+              const stats = await response.json();
+              document.getElementById("totalAdmins").textContent = stats.total;
+              document.getElementById("activeAdmins").textContent =
+                stats.active;
+              document.getElementById("lockedAdmins").textContent =
+                stats.locked;
+              document.getElementById("recentLogins").textContent =
+                stats.recentLogins;
+            } else if (response.status === 401 || response.status === 403) {
+              this.handleAuthError("Session expired. Please log in again.");
+            }
+          } catch (error) {
+            console.error("Failed to load admin stats:", error);
+          }
+        }
         async loadStats() {
           // Update basic stats
           this.updateStatsView();
@@ -1577,7 +1657,11 @@ clearAuth() {
             .map(
               (article) => `
                 <tr>
-                    <td><strong><a href='https://www.worktoolshub.info/tools/article.html?id=${article._id}' target="_blank" style="color: inherit; text-decoration: none;">${article.title}</a></strong></td>
+                    <td><strong><a href='https://www.worktoolshub.info/tools/article.html?id=${
+                      article._id
+                    }' target="_blank" style="color: inherit; text-decoration: none;">${
+                article.title
+              }</a></strong></td>
                     <td><span class="category-badge">${this.formatCategory(
                       article.category
                     )}</span></td>
@@ -1600,99 +1684,121 @@ clearAuth() {
             .join("");
         }
 
-  async saveArticle() {
-  const id = document.getElementById("articleId").value;
+        async saveArticle() {
+          const id = document.getElementById("articleId").value;
 
-  // Validate required fields
-  const title = document.getElementById("articleTitle").value.trim();
-  const excerpt = document.getElementById("articleExcerpt").value.trim();
-  const content = document.getElementById("articleContent").value.trim();
-  const category = document.getElementById("articleCategory").value;
-  const difficulty = document.getElementById("articleDifficulty").value;
-  const author = document.getElementById("articleAuthor").value.trim();
+          // Validate required fields
+          const title = document.getElementById("articleTitle").value.trim();
+          const excerpt = document
+            .getElementById("articleExcerpt")
+            .value.trim();
+          const content = document
+            .getElementById("articleContent")
+            .value.trim();
+          const category = document.getElementById("articleCategory").value;
+          const difficulty = document.getElementById("articleDifficulty").value;
+          const author = document.getElementById("articleAuthor").value.trim();
 
-  if (!title || !excerpt || !content || !category || !difficulty || !author) {
-    this.showToast("error", "Please fill in all required fields");
-    return;
-  }
+          if (
+            !title ||
+            !excerpt ||
+            !content ||
+            !category ||
+            !difficulty ||
+            !author
+          ) {
+            this.showToast("error", "Please fill in all required fields");
+            return;
+          }
 
-  const data = {
-    title,
-    excerpt,
-    content,
-    category,
-    difficulty,
-    author,
-    tags: this.tags,
-    readTime: document.getElementById("articleReadTime").value.trim() || this.calculateReadTime(content),
-    date: id ? this.currentArticle.date : new Date().toISOString(),
-    views: id ? this.currentArticle.views : 0,
-    upvotes: id ? this.currentArticle.upvotes : 0,
-    helpfulCount: id ? this.currentArticle.helpfulCount : 0,
-  };
+          const data = {
+            title,
+            excerpt,
+            content,
+            category,
+            difficulty,
+            author,
+            tags: this.tags,
+            readTime:
+              document.getElementById("articleReadTime").value.trim() ||
+              this.calculateReadTime(content),
+            date: id ? this.currentArticle.date : new Date().toISOString(),
+            views: id ? this.currentArticle.views : 0,
+            upvotes: id ? this.currentArticle.upvotes : 0,
+            helpfulCount: id ? this.currentArticle.helpfulCount : 0,
+          };
 
-  try {
-    const url = id
-      ? `${API_BASE}/knowledge-base/articles/${id}`
-      : `${API_BASE}/knowledge-base/articles`;
+          try {
+            const url = id
+              ? `${API_BASE}/knowledge-base/articles/${id}`
+              : `${API_BASE}/knowledge-base/articles`;
 
-    const method = id ? "PUT" : "POST";
+            const method = id ? "PUT" : "POST";
 
-    const headers = this.getAuthHeaders();
-    if (!headers) return;
+            const headers = this.getAuthHeaders();
+            if (!headers) return;
 
-    const response = await fetch(url, {
-      method,
-      headers,
-      body: JSON.stringify(data),
-    });
+            const response = await fetch(url, {
+              method,
+              headers,
+              body: JSON.stringify(data),
+            });
 
-    if (response.ok) {
-      this.showToast("success", `Article ${id ? "updated" : "created"} successfully`);
-      this.closeArticleModal();
-      this.loadArticles();
-    } else if (response.status === 401 || response.status === 403) {
-      this.handleAuthError("Session expired. Please log in again.");
-    } else {
-      const errorData = await response.json();
-      throw new Error(errorData.error || "Failed to save article");
-    }
-  } catch (error) {
-    console.error("Save error:", error);
-    this.showToast("error", error.message || "Failed to save article");
-  }
-}
+            if (response.ok) {
+              this.showToast(
+                "success",
+                `Article ${id ? "updated" : "created"} successfully`
+              );
+              this.closeArticleModal();
+              this.loadArticles();
+            } else if (response.status === 401 || response.status === 403) {
+              this.handleAuthError("Session expired. Please log in again.");
+            } else {
+              const errorData = await response.json();
+              throw new Error(errorData.error || "Failed to save article");
+            }
+          } catch (error) {
+            console.error("Save error:", error);
+            this.showToast("error", error.message || "Failed to save article");
+          }
+        }
         async editArticle(id) {
           const article = this.articles.find((a) => a._id === id);
           if (article) this.openArticleModal(article);
         }
 
-      async deleteArticle(id) {
-  if (!confirm("Are you sure you want to delete this article?")) return;
+        async deleteArticle(id) {
+          if (!confirm("Are you sure you want to delete this article?")) return;
 
-  try {
-    const headers = this.getAuthHeaders();
-    if (!headers) return;
+          try {
+            const headers = this.getAuthHeaders();
+            if (!headers) return;
 
-    const response = await fetch(`${API_BASE}/knowledge-base/articles/${id}`, {
-      method: "DELETE",
-      headers,
-    });
+            const response = await fetch(
+              `${API_BASE}/knowledge-base/articles/${id}`,
+              {
+                method: "DELETE",
+                headers,
+              }
+            );
 
-    if (response.ok) {
-      this.showToast("success", "Article deleted successfully");
-      this.loadArticles();
-    } else if (response.status === 401 || response.status === 403) {
-      this.handleAuthError("Session expired. Please log in again.");
-    } else {
-      const errorData = await response.json();
-      throw new Error(errorData.error || "Failed to delete article");
-    }
-  } catch (error) {
-    console.error("Delete error:", error);
-    this.showToast("error", error.message || "Failed to delete article");
-  }
-}
+            if (response.ok) {
+              this.showToast("success", "Article deleted successfully");
+              this.loadArticles();
+            } else if (response.status === 401 || response.status === 403) {
+              this.handleAuthError("Session expired. Please log in again.");
+            } else {
+              const errorData = await response.json();
+              throw new Error(errorData.error || "Failed to delete article");
+            }
+          } catch (error) {
+            console.error("Delete error:", error);
+            this.showToast(
+              "error",
+              error.message || "Failed to delete article"
+            );
+          }
+        }
 
         // ============ ADMIN MANAGEMENT ============
         renderAdmins() {
@@ -1738,116 +1844,128 @@ clearAuth() {
             .join("");
         }
 
-       async saveAdmin() {
-  const id = document.getElementById("adminId").value;
+        async saveAdmin() {
+          const id = document.getElementById("adminId").value;
 
-  // Validate required fields
-  const name = document.getElementById("adminName").value.trim();
-  const email = document.getElementById("adminEmail").value.trim();
-  const role = document.getElementById("adminRole").value;
-  const password = document.getElementById("adminPassword").value;
+          // Validate required fields
+          const name = document.getElementById("adminName").value.trim();
+          const email = document.getElementById("adminEmail").value.trim();
+          const role = document.getElementById("adminRole").value;
+          const password = document.getElementById("adminPassword").value;
 
-  if (!name || !email || !role) {
-    this.showToast("error", "Please fill in all required fields");
-    return;
-  }
+          if (!name || !email || !role) {
+            this.showToast("error", "Please fill in all required fields");
+            return;
+          }
 
-  // For new admins, password is required
-  if (!id && !password) {
-    this.showToast("error", "Password is required for new admin accounts");
-    return;
-  }
+          // For new admins, password is required
+          if (!id && !password) {
+            this.showToast(
+              "error",
+              "Password is required for new admin accounts"
+            );
+            return;
+          }
 
-  const data = {
-    id,
-    name,
-    email,
-    role,
-    department: document.getElementById("adminDepartment").value.trim(),
-    phone: document.getElementById("adminPhone").value.trim(),
-    avatar: document.getElementById("adminAvatar").value.trim(),
-  };
+          const data = {
+            id,
+            name,
+            email,
+            role,
+            department: document.getElementById("adminDepartment").value.trim(),
+            phone: document.getElementById("adminPhone").value.trim(),
+            avatar: document.getElementById("adminAvatar").value.trim(),
+          };
 
-  // Only include password for new admins or if it's being changed
-  if (!id || password) {
-    data.password = password;
-  }
+          // Only include password for new admins or if it's being changed
+          if (!id || password) {
+            data.password = password;
+          }
 
-  // Include status for existing admins
-  if (id) {
-    data.isActive = document.getElementById("adminStatus").value === "true";
-    data.id = id;
-  }
+          // Include status for existing admins
+          if (id) {
+            data.isActive =
+              document.getElementById("adminStatus").value === "true";
+            data.id = id;
+          }
 
-  try {
-    const headers = this.getAuthHeaders();
-    if (!headers) return;
+          try {
+            const headers = this.getAuthHeaders();
+            if (!headers) return;
 
-    let url, method;
-    if (id) {
-      url = `${API_BASE}/admin/edit`;
-      method = "PUT";
-    } else {
-      url = `${API_BASE}/admin/register`;
-      method = "POST";
-    }
+            let url, method;
+            if (id) {
+              url = `${API_BASE}/admin/edit`;
+              method = "PUT";
+            } else {
+              url = `${API_BASE}/admin/register`;
+              method = "POST";
+            }
 
-    const response = await fetch(url, {
-      method,
-      headers,
-      body: JSON.stringify(data),
-    });
+            const response = await fetch(url, {
+              method,
+              headers,
+              body: JSON.stringify(data),
+            });
 
-    if (response.ok) {
-      this.showToast("success", `Admin ${id ? "updated" : "created"} successfully`);
-      this.closeAdminModal();
-      this.loadAdmins();
-    } else if (response.status === 401 || response.status === 403) {
-      this.handleAuthError("Session expired. Please log in again.");
-    } else {
-      const errorData = await response.json();
-      throw new Error(errorData.error || errorData.message || "Failed to save admin");
-    }
-  } catch (error) {
-    console.error("Save error:", error);
-    this.showToast("error", error.message || "Failed to save admin");
-  }
-}
+            if (response.ok) {
+              this.showToast(
+                "success",
+                `Admin ${id ? "updated" : "created"} successfully`
+              );
+              this.closeAdminModal();
+              this.loadAdmins();
+            } else if (response.status === 401 || response.status === 403) {
+              this.handleAuthError("Session expired. Please log in again.");
+            } else {
+              const errorData = await response.json();
+              throw new Error(
+                errorData.error || errorData.message || "Failed to save admin"
+              );
+            }
+          } catch (error) {
+            console.error("Save error:", error);
+            this.showToast("error", error.message || "Failed to save admin");
+          }
+        }
         async editAdmin(id) {
           const admin = this.admins.find((a) => a._id === id);
           if (admin) this.openAdminModal(admin);
         }
 
         async deleteAdmin(id) {
-  const admin = this.admins.find((a) => a._id === id);
-  if (!admin) return;
+          const admin = this.admins.find((a) => a._id === id);
+          if (!admin) return;
 
-  if (!confirm(`Are you sure you want to delete admin "${admin.name}"?`)) return;
+          if (
+            !confirm(`Are you sure you want to delete admin "${admin.name}"?`)
+          )
+            return;
 
-  try {
-    const headers = this.getAuthHeaders();
-    if (!headers) return;
+          try {
+            const headers = this.getAuthHeaders();
+            if (!headers) return;
 
-    const response = await fetch(`${API_BASE}/admin/delete`, {
-      method: "DELETE",
-      headers,
-      body: JSON.stringify({ email: admin.email }),
-    });
+            const response = await fetch(`${API_BASE}/admin/delete`, {
+              method: "DELETE",
+              headers,
+              body: JSON.stringify({ email: admin.email }),
+            });
 
-    if (response.ok) {
-      this.showToast("success", "Admin deleted successfully");
-      this.loadAdmins();
-    } else if (response.status === 401 || response.status === 403) {
-      this.handleAuthError("Session expired. Please log in again.");
-    } else {
-      const errorData = await response.json();
-      throw new Error(errorData.error || "Failed to delete admin");
-    }
-  } catch (error) {
-    console.error("Delete error:", error);
-    this.showToast("error", error.message || "Failed to delete admin");
-  }
-}
+            if (response.ok) {
+              this.showToast("success", "Admin deleted successfully");
+              this.loadAdmins();
+            } else if (response.status === 401 || response.status === 403) {
+              this.handleAuthError("Session expired. Please log in again.");
+            } else {
+              const errorData = await response.json();
+              throw new Error(errorData.error || "Failed to delete admin");
+            }
+          } catch (error) {
+            console.error("Delete error:", error);
+            this.showToast("error", error.message || "Failed to delete admin");
+          }
+        }
         // ============ MODAL MANAGEMENT ============
         openArticleModal(article = null) {
           this.currentArticle = article;
@@ -2031,7 +2149,11 @@ clearAuth() {
               (article) => `
               <li class="top-article-item">
                 <div>
-                  <div class="article-title"><a href='https://www.worktoolshub.info/tools/article.html?id=${article._id}' target='_blank' style='color: inherit; text-decoration: none'>${article.title}</a></div>
+                  <div class="article-title"><a href='https://www.worktoolshub.info/tools/article.html?id=${
+                    article._id
+                  }' target='_blank' style='color: inherit; text-decoration: none'>${
+                article.title
+              }</a></div>
                   <div class="article-meta">${this.formatCategory(
                     article.category
                   )}</div>
@@ -2052,7 +2174,11 @@ clearAuth() {
               (article) => `
               <li class="top-article-item">
                 <div>
-                  <div class="article-title"><a href='https://www.worktoolshub.info/tools/article.html?id=${article._id}' target='_blank' style='color: inherit; text-decoration: none'>${article.title}</a></div>
+                  <div class="article-title"><a href='https://www.worktoolshub.info/tools/article.html?id=${
+                    article._id
+                  }' target='_blank' style='color: inherit; text-decoration: none'>${
+                article.title
+              }</a></div>
                   <div class="article-meta">${this.formatCategory(
                     article.category
                   )}</div>
@@ -2073,7 +2199,11 @@ clearAuth() {
               (article) => `
               <li class="top-article-item">
                 <div>
-                  <div class="article-title"><a href='https://www.worktoolshub.info/tools/article.html?id=${article._id}' target='_blank' style='color: inherit; text-decoration: none'>${article.title}</a></div>
+                  <div class="article-title"><a href='https://www.worktoolshub.info/tools/article.html?id=${
+                    article._id
+                  }' target='_blank' style='color: inherit; text-decoration: none'>${
+                article.title
+              }</a></div>
                   <div class="article-meta">${this.formatCategory(
                     article.category
                   )}</div>
