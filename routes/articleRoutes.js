@@ -278,27 +278,57 @@ Guidelines:
   }
 });
 
-// Middleware to check JWT_SECRET for admin operations
-const requireJWTSecret = (req, res, next) => {
-  const jwtSecret = req.headers['x-api-key'] ||           
-                   req.headers['authorization']?.replace(/^Bearer\s+/, '') || 
-                   req.headers['x-jwt-secret'] ||         
-                   req.headers['jwt_secret'] || 
-                   req.headers['JWT_SECRET'] || 
-                   req.headers['jwt-secret'];
-  
-  if (!jwtSecret || jwtSecret !== process.env.JWT_SECRET) {
-    return res.status(401).json({ 
-      error: "Unauthorized: Invalid or missing JWT_SECRET",
-      hint: "Include X-JWT-Secret header with valid secret"
+
+const jwt = require('jsonwebtoken');
+const Admin = require('../models/Admin');
+
+const authenticateAdmin = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.startsWith('Bearer ') 
+      ? authHeader.substring(7) 
+      : null;
+
+    if (!token) {
+      return res.status(401).json({ 
+        error: "Authentication required",
+        message: "Please provide a valid JWT token"
+      });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || "your-secret-key");
+    
+    const admin = await Admin.findOne({ 
+      email: decoded.email,
+      isActive: true 
     });
+    
+    if (!admin) {
+      return res.status(401).json({ error: "Invalid token or user not found" });
+    }
+
+    // Check if session is still valid
+    if (decoded.sessionId) {
+      const hasValidSession = admin.sessionIds.some(
+        session => session.sessionId === decoded.sessionId
+      );
+      
+      if (!hasValidSession) {
+        return res.status(401).json({ error: "Session expired" });
+      }
+    }
+
+    req.admin = admin;
+    req.decoded = decoded;
+    next();
+  } catch (error) {
+    console.error("Authentication error:", error);
+    return res.status(401).json({ error: "Invalid or expired token" });
   }
-  
-  next();
 };
 
 // POST new article (PROTECTED)
-router.post('/articles', requireJWTSecret, async (req, res) => {
+router.post('/articles', authenticateAdmin , async (req, res) => {
   try {
     const { title, excerpt, content, category, difficulty, tags, author, readTime } = req.body;
 
@@ -327,7 +357,7 @@ router.post('/articles', requireJWTSecret, async (req, res) => {
 });
 
 // PUT /articles/:id - Update an existing article (PROTECTED)
-router.put('/articles/:id', requireJWTSecret, async (req, res) => {
+router.put('/articles/:id', authenticateAdmin , async (req, res) => {
   try {
     const { id } = req.params;
     const { title, excerpt, content, category, difficulty, tags, author, readTime } = req.body;
@@ -394,7 +424,7 @@ router.put('/articles/:id', requireJWTSecret, async (req, res) => {
 });
 
 // PATCH /articles/:id - Partially update an article (PROTECTED)
-router.patch('/articles/:id', requireJWTSecret, async (req, res) => {
+router.patch('/articles/:id', authenticateAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     const updates = req.body;
@@ -461,7 +491,7 @@ router.patch('/articles/:id', requireJWTSecret, async (req, res) => {
 });
 
 // DELETE /articles/:id - Delete a specific article (PROTECTED)
-router.delete('/articles/:id', requireJWTSecret, async (req, res) => {
+router.delete('/articles/:id', authenticateAdmin, async (req, res) => {
   try {
     const { id } = req.params;
 
