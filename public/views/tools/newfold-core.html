@@ -1398,59 +1398,6 @@
           }
         }
 
-        // bindEvents() {
-        //   // Search input
-        //   document.getElementById("searchInput").addEventListener(
-        //     "input",
-        //     this.debounce((e) => this.handleSearch(e.target.value), 300)
-        //   );
-
-        //    // Admin login button
-        // const loginBtn = document.getElementById('loginAsAdminBtn');
-        // if (loginBtn) {
-        //     loginBtn.addEventListener('click', () => {
-        //         document.getElementById('adminLoginModal').classList.add('active');
-        //     });
-        // }
-
-        //   // Filter selects
-        //   document
-        //     .getElementById("categoryFilter")
-        //     .addEventListener("change", (e) =>
-        //       this.handleFilterChange("category", e.target.value)
-        //     );
-        //   document
-        //     .getElementById("difficultyFilter")
-        //     .addEventListener("change", (e) =>
-        //       this.handleFilterChange("difficulty", e.target.value)
-        //     );
-        //   document
-        //     .getElementById("dateFilter")
-        //     .addEventListener("change", (e) =>
-        //       this.handleFilterChange("date", e.target.value)
-        //     );
-
-        //   // Sort select
-        //   document
-        //     .getElementById("sortSelect")
-        //     .addEventListener("change", (e) => this.handleSort(e.target.value));
-
-        //   // Sidebar categories
-        //   document.querySelectorAll(".category-link").forEach((link) => {
-        //     link.addEventListener("click", (e) => {
-        //       e.preventDefault();
-        //       this.handleCategoryClick(e.target.closest(".category-link"));
-        //     });
-        //   });
-
-        //   // Search tags
-        //   document.querySelectorAll(".search-tag").forEach((tag) => {
-        //     tag.addEventListener("click", (e) => {
-        //       this.handleTagClick(e.target.textContent);
-        //     });
-        //   });
-        // }
-
         bindEvents() {
           // Helper function for safe event binding
           const bindEvent = (id, event, handler) => {
@@ -1626,7 +1573,10 @@
               this.articles = await response.json();
             }
 
-            this.filteredArticles = [...this.articles];
+            this.filteredArticles = [...this.articles].sort((a, b) => {
+              // sort by most recent
+              return (a, b) => new Date(b.date) - new Date(a.date);
+            });
           } catch (error) {
             console.error("Failed to load articles:", error);
             this.articles = this.getDemoArticles();
