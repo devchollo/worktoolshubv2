@@ -29,13 +29,16 @@ app.use(
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: [
-    'Content-Type',
-    'Authorization',
-    'Cache-Control',  
-    'Pragma',         
-    'Expires',        
-    'X-Requested-With'
-  ],
+      "Content-Type",
+      "Authorization",
+      "Cache-Control",
+      "Pragma",
+      "Expires",
+      "X-Requested-With",
+      "JWT_SECRET",
+      "jwt_secret",
+      "jwt-secret",
+    ],
     credentials: true,
   })
 );
@@ -177,7 +180,7 @@ const admins = new Map();
 app.post("/api/admin/register", async (req, res) => {
   try {
     // Check for JWT_SECRET header
-    const jwtSecret = req.headers['jwt_secret'] || req.headers['JWT_SECRET'];
+    const jwtSecret = req.headers['jwt_secret'] || req.headers['JWT_SECRET'] || req.headers['jwt-secret'];
     
     if (!jwtSecret) {
       return res.status(401).json({ error: "JWT_SECRET header is required" });
