@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WorkToolsHub - Sign In</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --gradient: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--gradient);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.7;
+        }
+
+        .auth-container {
+            background: var(--surface);
+            padding: 3rem;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 400px;
+            position: relative;
+            z-index: 2;
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .auth-header h1 {
+            font-size: 2rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .auth-header p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .tool-info {
+            background: var(--bg);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--primary);
+        }
+
+        .tool-info h3 {
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .tool-info p {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+            font-size: 0.9rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: var(--bg);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        .btn {
+            padding: 0.875rem 1.25rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: var(--gradient);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .auth-container.loading {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            }
+            50% {
+                box-shadow: 0 20px 60px rgba(99, 102, 241, 0.4);
+            }
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: var(--danger);
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+            animation: shake 0.3s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+
+        .back-link a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: color 0.2s ease;
+        }
+
+        .back-link a:hover {
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-header">
+            <h1>WorkToolsHub</h1>
+            <p>Sign in to access internal tools</p>
+        </div>
+
+        <div class="tool-info" id="toolInfo" style="display: none;">
+            <h3 id="toolName">Tool Name</h3>
+            <p id="toolDescription">Tool description</p>
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-input" id="email" required placeholder="Enter your email">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-input" id="password" required placeholder="Enter your password">
+            </div>
+            <button type="submit" class="btn btn-primary" id="loginBtn">
+                <span id="loginBtnText">Sign In</span>
+                <div class="loading-spinner" id="loginSpinner" style="display: none;"></div>
+            </button>
+        </form>
+
+        <div class="back-link">
+            <a href="/" id="backLink">← Back to WorkToolsHub</a>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = "https://worktoolshubv2.onrender.com/api";
+        
+        class AuthPage {
+            constructor() {
+                this.redirectUrl = null;
+                this.toolInfo = null;
+                this.init();
+            }
+
+            init() {
+                this.parseUrlParams();
+                this.bindEvents();
+                this.checkExistingAuth();
+            }
+
+            parseUrlParams() {
+                const params = new URLSearchParams(window.location.search);
+                this.redirectUrl = params.get('redirect');
+                
+                // Extract tool info from URL if provided
+                const toolName = params.get('tool');
+                const toolDescription = params.get('description');
+                
+                if (toolName) {
+                    this.showToolInfo(toolName, toolDescription);
+                }
+
+                // Update back link if there's a specific redirect
+                if (this.redirectUrl) {
+                    const backLink = document.getElementById('backLink');
+                    try {
+                        const url = new URL(this.redirectUrl);
+                        backLink.href = url.origin;
+                    } catch (e) {
+                        backLink.href = '/';
+                    }
+                }
+            }
+
+            showToolInfo(toolName, toolDescription) {
+                const toolInfo = document.getElementById('toolInfo');
+                const toolNameEl = document.getElementById('toolName');
+                const toolDescEl = document.getElementById('toolDescription');
+                
+                toolNameEl.textContent = toolName;
+                toolDescEl.textContent = toolDescription || 'Internal tool access required';
+                toolInfo.style.display = 'block';
+            }
+
+            bindEvents() {
+                document.getElementById('loginForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handleLogin();
+                });
+            }
+
+            async checkExistingAuth() {
+                const token = localStorage.getItem('adminToken');
+                if (!token) return;
+
+                try {
+                    const response = await fetch(`${API_BASE}/admin/verify`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ token })
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        // If user is already authenticated, redirect them
+                        if (this.redirectUrl) {
+                            window.location.href = this.redirectUrl;
+                        } else {
+                            window.location.href = '/';
+                        }
+                    }
+                } catch (error) {
+                    console.log('No existing valid session');
+                }
+            }
+
+            async handleLogin() {
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                
+                // Start loading state
+                const loginBtn = document.getElementById('loginBtn');
+                const loginBtnText = document.getElementById('loginBtnText');
+                const loginSpinner = document.getElementById('loginSpinner');
+                const authContainer = document.querySelector('.auth-container');
+                
+                loginBtn.disabled = true;
+                loginBtnText.textContent = 'Signing in...';
+                loginSpinner.style.display = 'inline-block';
+                authContainer.classList.add('loading');
+
+                try {
+                    const response = await fetch(`${API_BASE}/admin/login`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, password })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        localStorage.setItem('adminToken', data.token);
+                        localStorage.setItem('adminUser', JSON.stringify(data.user));
+                        
+                        // Brief success state
+                        loginBtnText.textContent = 'Success!';
+                        
+                        setTimeout(() => {
+                            if (this.redirectUrl) {
+                                window.location.href = this.redirectUrl;
+                            } else {
+                                window.location.href = '/';
+                            }
+                        }, 500);
+                    } else {
+                        this.showError(data.error || 'Invalid credentials');
+                    }
+                } catch (error) {
+                    console.error('Login error:', error);
+                    this.showError('Login failed. Please try again.');
+                } finally {
+                    // Reset loading state
+                    setTimeout(() => {
+                        loginBtn.disabled = false;
+                        loginBtnText.textContent = 'Sign In';
+                        loginSpinner.style.display = 'none';
+                        authContainer.classList.remove('loading');
+                    }, 1000);
+                }
+            }
+
+            showError(message) {
+                const errorDiv = document.getElementById('errorMessage');
+                errorDiv.textContent = message;
+                errorDiv.classList.add('show');
+                setTimeout(() => errorDiv.classList.remove('show'), 3000);
+            }
+        }
+
+        // Initialize the auth page
+        new AuthPage();
+    </script>
+</body>
+</html>
