@@ -176,6 +176,18 @@ const admins = new Map();
 
 app.post("/api/admin/register", async (req, res) => {
   try {
+    // Check for JWT_SECRET header
+    const jwtSecret = req.headers['jwt_secret'] || req.headers['JWT_SECRET'];
+    
+    if (!jwtSecret) {
+      return res.status(401).json({ error: "JWT_SECRET header is required" });
+    }
+    
+    // Verify the JWT_SECRET matches your environment variable
+    if (jwtSecret !== process.env.JWT_SECRET) {
+      return res.status(403).json({ error: "Invalid JWT_SECRET" });
+    }
+
     const { email, password, name, avatar } = req.body;
 
     if (admins.has(email)) {
@@ -201,6 +213,66 @@ app.post("/api/admin/register", async (req, res) => {
   } catch (error) {
     console.error("Admin registration error:", error);
     res.status(500).json({ error: "Registration failed" });
+  }
+});
+
+app.put("/api/admin/edit", async (req, res) => {
+  try {
+    // Check for JWT_SECRET header
+    const jwtSecret = req.headers['jwt_secret'] || req.headers['JWT_SECRET'];
+    
+    if (!jwtSecret) {
+      return res.status(401).json({ error: "JWT_SECRET header is required" });
+    }
+    
+    // Verify the JWT_SECRET matches your environment variable
+    if (jwtSecret !== process.env.JWT_SECRET) {
+      return res.status(403).json({ error: "Invalid JWT_SECRET" });
+    }
+
+    const { email, password, name, avatar, role } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: "Email is required" });
+    }
+
+    if (!admins.has(email)) {
+      return res.status(404).json({ error: "Admin not found" });
+    }
+
+    const existingAdmin = admins.get(email);
+    const updatedAdmin = { ...existingAdmin };
+
+    // Update fields if provided
+    if (name) updatedAdmin.name = name;
+    if (avatar) updatedAdmin.avatar = avatar;
+    if (role) updatedAdmin.role = role;
+    
+    // Hash new password if provided
+    if (password) {
+      updatedAdmin.password = await bcrypt.hash(password, 10);
+    }
+
+    // Update avatar URL if name changed but avatar not provided
+    if (name && !avatar) {
+      updatedAdmin.avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+        name
+      )}&background=6366f1&color=fff`;
+    }
+
+    updatedAdmin.updatedAt = new Date();
+
+    admins.set(email, updatedAdmin);
+
+    // Return admin data without password
+    const { password: _, ...adminResponse } = updatedAdmin;
+    res.json({ 
+      message: "Admin updated successfully", 
+      admin: adminResponse 
+    });
+  } catch (error) {
+    console.error("Admin update error:", error);
+    res.status(500).json({ error: "Update failed" });
   }
 });
 
