@@ -7,7 +7,7 @@ const articleSchema = new mongoose.Schema({
   category: [{
     type: String,
     required: true,
-    enum: ['technical', 'tutorials', 'troubleshooting', 'best-practices', 'tools & resources', 'guide']
+    enum: ['technical guides', 'tutorials', 'troubleshooting', 'best-practices', 'tools', 'guide']
   }],
   difficulty: {
     type: String,
