@@ -303,7 +303,7 @@ h3 {
 
 /* Categories Grid */
 .categories-section {
-    padding: 5rem 0;
+    padding: 1rem 0 5rem 0;
     background: var(--surface-color);
 }
 
