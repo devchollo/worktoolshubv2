@@ -191,7 +191,8 @@ const jwt = require("jsonwebtoken");
 const validateJWTSecret = (req) => {
   const jwtSecret = req.headers['x-api-key'] ||           
                    req.headers['authorization']?.replace(/^Bearer\s+/, '') || 
-                   req.headers['x-jwt-secret'] ||         
+                   req.headers['x-jwt-secret'] ||
+                   req.headers['X-JWT-Secret'] ||           
                    req.headers['jwt_secret'] || 
                    req.headers['JWT_SECRET'] || 
                    req.headers['jwt-secret'] ||

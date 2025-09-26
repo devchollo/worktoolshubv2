@@ -1945,31 +1945,36 @@
           if (article) {
             document.getElementById("articleModalTitle").textContent =
               "Edit Article";
-            document.getElementById("articleId").value = article._id;
-            document.getElementById("articleTitle").value = article.title || "";
-            document.getElementById("articleExcerpt").value =
-              article.excerpt || "";
-            document.getElementById("articleContent").value =
-              article.content || "";
-            document.getElementById("articleCategory").value =
-              article.category || "";
-            document.getElementById("articleDifficulty").value =
-              article.difficulty || "";
-            document.getElementById("articleAuthor").value =
-              article.author || "";
-            document.getElementById("articleReadTime").value =
-              article.readTime || "";
+
+            // Add null checks for all elements
+            const idEl = document.getElementById("articleId");
+            const titleEl = document.getElementById("articleTitle");
+            const excerptEl = document.getElementById("articleExcerpt");
+            const contentEl = document.getElementById("articleContent");
+            const categoryEl = document.getElementById("articleCategory");
+            const difficultyEl = document.getElementById("articleDifficulty");
+            const authorEl = document.getElementById("articleAuthor");
+            const readTimeEl = document.getElementById("articleReadTime");
+
+            if (idEl) idEl.value = article._id || "";
+            if (titleEl) titleEl.value = article.title || "";
+            if (excerptEl) excerptEl.value = article.excerpt || "";
+            if (contentEl) contentEl.value = article.content || "";
+            if (categoryEl) categoryEl.value = article.category || "";
+            if (difficultyEl) difficultyEl.value = article.difficulty || "";
+            if (authorEl) authorEl.value = article.author || "";
+            if (readTimeEl) readTimeEl.value = article.readTime || "";
           } else {
             document.getElementById("articleModalTitle").textContent =
               "New Article";
-            form.reset();
-            document.getElementById("articleId").value = "";
+            if (form) form.reset();
+            const idEl = document.getElementById("articleId");
+            if (idEl) idEl.value = "";
           }
 
           this.renderTags();
           modal.classList.add("active");
         }
-
         closeArticleModal() {
           document.getElementById("articleModal").classList.remove("active");
           this.tags = [];
