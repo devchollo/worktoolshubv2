@@ -1264,18 +1264,40 @@
           this.bindEvents();
         }
 
-        getJWTSecret() {
-          let jwtSecret = localStorage.getItem("adminJWTSecret");
 
-          if (!jwtSecret) {
-            jwtSecret = prompt("Enter JWT_SECRET for admin operations:");
-            if (jwtSecret) {
-              localStorage.setItem("adminJWTSecret", jwtSecret);
-            }
-          }
+        getAuthToken() {
+  return localStorage.getItem("adminToken");
+}
 
-          return jwtSecret;
-        }
+getAuthHeaders() {
+  const token = this.getAuthToken();
+  if (!token) {
+    this.showToast("error", "Please log in again.");
+    return null;
+  }
+  
+  return {
+    "Content-Type": "application/json",
+    "Authorization": `Bearer ${token}`
+  };
+}
+
+handleAuthError(message) {
+  this.showToast("error", message);
+  // Clear auth and redirect to login after a delay
+  setTimeout(() => {
+    this.clearAuth();
+    this.showLogin();
+  }, 2000);
+}
+
+// Remove the clearAuth method's JWT secret cleanup since we're not using it anymore:
+clearAuth() {
+  localStorage.removeItem("adminToken");
+  localStorage.removeItem("adminUser");
+  // Remove this line: localStorage.removeItem("adminJWTSecret");
+  this.user = null;
+}
 
         // ============ AUTHENTICATION ============
         async checkAuth() {
@@ -1353,12 +1375,7 @@
           this.showLogin();
         }
 
-        clearAuth() {
-          localStorage.removeItem("adminToken");
-          localStorage.removeItem("adminUser");
-          localStorage.removeItem("adminJWTSecret");
-          this.user = null;
-        }
+       
 
         // ============ UI STATE ============
         showLogin() {
@@ -1503,60 +1520,48 @@
         }
 
         async loadAdmins() {
-          try {
-            const jwtSecret = this.getJWTSecret();
-            if (!jwtSecret) return;
+  try {
+    const headers = this.getAuthHeaders();
+    if (!headers) return;
 
-            const response = await fetch(`${API_BASE}/admin/list`, {
-              headers: {
-                "X-JWT-Secret": jwtSecret,
-              },
-            });
+    const response = await fetch(`${API_BASE}/admin/list`, { headers });
 
-            if (response.ok) {
-              const data = await response.json();
-              this.admins = data.admins;
-              this.renderAdmins();
-              await this.loadAdminStats();
-            } else if (response.status === 401 || response.status === 403) {
-              localStorage.removeItem("adminJWTSecret");
-              this.showToast(
-                "error",
-                "Invalid JWT_SECRET. Please refresh and try again."
-              );
-            }
-          } catch (error) {
-            console.error("Failed to load admins:", error);
-            this.showToast("error", "Failed to load admins");
-          }
-        }
-
+    if (response.ok) {
+      const data = await response.json();
+      this.admins = data.admins;
+      this.renderAdmins();
+      await this.loadAdminStats();
+    } else if (response.status === 401 || response.status === 403) {
+      this.handleAuthError("Session expired. Please log in again.");
+    } else {
+      const errorData = await response.json();
+      this.showToast("error", errorData.error || "Failed to load admins");
+    }
+  } catch (error) {
+    console.error("Failed to load admins:", error);
+    this.showToast("error", "Failed to load admins");
+  }
+}
         async loadAdminStats() {
-          try {
-            const jwtSecret = localStorage.getItem("adminJWTSecret");
-            if (!jwtSecret) return;
+  try {
+    const headers = this.getAuthHeaders();
+    if (!headers) return;
 
-            const response = await fetch(`${API_BASE}/admin/stats`, {
-              headers: {
-                "X-JWT-Secret": jwtSecret,
-              },
-            });
+    const response = await fetch(`${API_BASE}/admin/stats`, { headers });
 
-            if (response.ok) {
-              const stats = await response.json();
-              document.getElementById("totalAdmins").textContent = stats.total;
-              document.getElementById("activeAdmins").textContent =
-                stats.active;
-              document.getElementById("lockedAdmins").textContent =
-                stats.locked;
-              document.getElementById("recentLogins").textContent =
-                stats.recentLogins;
-            }
-          } catch (error) {
-            console.error("Failed to load admin stats:", error);
-          }
-        }
-
+    if (response.ok) {
+      const stats = await response.json();
+      document.getElementById("totalAdmins").textContent = stats.total;
+      document.getElementById("activeAdmins").textContent = stats.active;
+      document.getElementById("lockedAdmins").textContent = stats.locked;
+      document.getElementById("recentLogins").textContent = stats.recentLogins;
+    } else if (response.status === 401 || response.status === 403) {
+      this.handleAuthError("Session expired. Please log in again.");
+    }
+  } catch (error) {
+    console.error("Failed to load admin stats:", error);
+  }
+}
         async loadStats() {
           // Update basic stats
           this.updateStatsView();
@@ -1595,152 +1600,99 @@
             .join("");
         }
 
-        async saveArticle() {
-          const id = document.getElementById("articleId").value;
+  async saveArticle() {
+  const id = document.getElementById("articleId").value;
 
-          // Validate required fields
-          const title = document.getElementById("articleTitle").value.trim();
-          const excerpt = document
-            .getElementById("articleExcerpt")
-            .value.trim();
-          const content = document
-            .getElementById("articleContent")
-            .value.trim();
-          const category = document.getElementById("articleCategory").value;
-          const difficulty = document.getElementById("articleDifficulty").value;
-          const author = document.getElementById("articleAuthor").value.trim();
+  // Validate required fields
+  const title = document.getElementById("articleTitle").value.trim();
+  const excerpt = document.getElementById("articleExcerpt").value.trim();
+  const content = document.getElementById("articleContent").value.trim();
+  const category = document.getElementById("articleCategory").value;
+  const difficulty = document.getElementById("articleDifficulty").value;
+  const author = document.getElementById("articleAuthor").value.trim();
 
-          if (
-            !title ||
-            !excerpt ||
-            !content ||
-            !category ||
-            !difficulty ||
-            !author
-          ) {
-            this.showToast("error", "Please fill in all required fields");
-            return;
-          }
+  if (!title || !excerpt || !content || !category || !difficulty || !author) {
+    this.showToast("error", "Please fill in all required fields");
+    return;
+  }
 
-          const data = {
-            title,
-            excerpt,
-            content,
-            category,
-            difficulty,
-            author,
-            tags: this.tags,
-            readTime:
-              document.getElementById("articleReadTime").value.trim() ||
-              this.calculateReadTime(content),
-            date: id ? this.currentArticle.date : new Date().toISOString(),
-            views: id ? this.currentArticle.views : 0,
-            upvotes: id ? this.currentArticle.upvotes : 0,
-            helpfulCount: id ? this.currentArticle.helpfulCount : 0,
-          };
+  const data = {
+    title,
+    excerpt,
+    content,
+    category,
+    difficulty,
+    author,
+    tags: this.tags,
+    readTime: document.getElementById("articleReadTime").value.trim() || this.calculateReadTime(content),
+    date: id ? this.currentArticle.date : new Date().toISOString(),
+    views: id ? this.currentArticle.views : 0,
+    upvotes: id ? this.currentArticle.upvotes : 0,
+    helpfulCount: id ? this.currentArticle.helpfulCount : 0,
+  };
 
-          try {
-            const url = id
-              ? `${API_BASE}/knowledge-base/articles/${id}`
-              : `${API_BASE}/knowledge-base/articles`;
+  try {
+    const url = id
+      ? `${API_BASE}/knowledge-base/articles/${id}`
+      : `${API_BASE}/knowledge-base/articles`;
 
-            const method = id ? "PUT" : "POST";
+    const method = id ? "PUT" : "POST";
 
-            const jwtSecret = this.getJWTSecret();
-            if (!jwtSecret) {
-              this.showToast(
-                "error",
-                "JWT_SECRET is required for admin operations"
-              );
-              return;
-            }
+    const headers = this.getAuthHeaders();
+    if (!headers) return;
 
-            const response = await fetch(url, {
-              method,
-              headers: {
-                "Content-Type": "application/json",
-                "X-JWT-Secret": jwtSecret,
-              },
-              body: JSON.stringify(data),
-            });
+    const response = await fetch(url, {
+      method,
+      headers,
+      body: JSON.stringify(data),
+    });
 
-            if (response.ok) {
-              this.showToast(
-                "success",
-                `Article ${id ? "updated" : "created"} successfully`
-              );
-              this.closeArticleModal();
-              this.loadArticles();
-            } else {
-              const errorData = await response.json();
-              if (response.status === 401 || response.status === 403) {
-                localStorage.removeItem("adminJWTSecret");
-                this.showToast(
-                  "error",
-                  "Invalid JWT_SECRET. Please try again."
-                );
-              } else {
-                throw new Error(errorData.error || "Failed to save article");
-              }
-            }
-          } catch (error) {
-            console.error("Save error:", error);
-            this.showToast("error", error.message || "Failed to save article");
-          }
-        }
-
+    if (response.ok) {
+      this.showToast("success", `Article ${id ? "updated" : "created"} successfully`);
+      this.closeArticleModal();
+      this.loadArticles();
+    } else if (response.status === 401 || response.status === 403) {
+      this.handleAuthError("Session expired. Please log in again.");
+    } else {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to save article");
+    }
+  } catch (error) {
+    console.error("Save error:", error);
+    this.showToast("error", error.message || "Failed to save article");
+  }
+}
         async editArticle(id) {
           const article = this.articles.find((a) => a._id === id);
           if (article) this.openArticleModal(article);
         }
 
-        async deleteArticle(id) {
-          if (!confirm("Are you sure you want to delete this article?")) return;
+      async deleteArticle(id) {
+  if (!confirm("Are you sure you want to delete this article?")) return;
 
-          try {
-            const jwtSecret = this.getJWTSecret();
-            if (!jwtSecret) {
-              this.showToast(
-                "error",
-                "JWT_SECRET is required for admin operations"
-              );
-              return;
-            }
+  try {
+    const headers = this.getAuthHeaders();
+    if (!headers) return;
 
-            const response = await fetch(
-              `${API_BASE}/knowledge-base/articles/${id}`,
-              {
-                method: "DELETE",
-                headers: {
-                  "Content-Type": "application/json",
-                  "X-JWT-Secret": jwtSecret,
-                },
-              }
-            );
+    const response = await fetch(`${API_BASE}/knowledge-base/articles/${id}`, {
+      method: "DELETE",
+      headers,
+    });
 
-            if (response.ok) {
-              this.showToast("success", "Article deleted successfully");
-              this.loadArticles();
-            } else {
-              const errorData = await response.json();
-              if (response.status === 401 || response.status === 403) {
-                localStorage.removeItem("adminJWTSecret");
-                this.showToast(
-                  "error",
-                  "Invalid JWT_SECRET. Please try again."
-                );
-              } else {
-                throw new Error(errorData.error || "Failed to delete article");
-              }
-            }
-          } catch (error) {
-            console.error("Delete error:", error);
-            this.showToast(
-              "error",
-              error.message || "Failed to delete article"
-            );
-          }
-        }
+    if (response.ok) {
+      this.showToast("success", "Article deleted successfully");
+      this.loadArticles();
+    } else if (response.status === 401 || response.status === 403) {
+      this.handleAuthError("Session expired. Please log in again.");
+    } else {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to delete article");
+    }
+  } catch (error) {
+    console.error("Delete error:", error);
+    this.showToast("error", error.message || "Failed to delete article");
+  }
+}
 
         // ============ ADMIN MANAGEMENT ============
         renderAdmins() {
@@ -1786,160 +1738,116 @@
             .join("");
         }
 
-        async saveAdmin() {
-          const id = document.getElementById("adminId").value;
+       async saveAdmin() {
+  const id = document.getElementById("adminId").value;
 
-          // Validate required fields
-          const name = document.getElementById("adminName").value.trim();
-          const email = document.getElementById("adminEmail").value.trim();
-          const role = document.getElementById("adminRole").value;
-          const password = document.getElementById("adminPassword").value;
+  // Validate required fields
+  const name = document.getElementById("adminName").value.trim();
+  const email = document.getElementById("adminEmail").value.trim();
+  const role = document.getElementById("adminRole").value;
+  const password = document.getElementById("adminPassword").value;
 
-          if (!name || !email || !role) {
-            this.showToast("error", "Please fill in all required fields");
-            return;
-          }
+  if (!name || !email || !role) {
+    this.showToast("error", "Please fill in all required fields");
+    return;
+  }
 
-          // For new admins, password is required
-          if (!id && !password) {
-            this.showToast(
-              "error",
-              "Password is required for new admin accounts"
-            );
-            return;
-          }
+  // For new admins, password is required
+  if (!id && !password) {
+    this.showToast("error", "Password is required for new admin accounts");
+    return;
+  }
 
-          const data = {
-            id,
-            name,
-            email,
-            role,
-            department: document.getElementById("adminDepartment").value.trim(),
-            phone: document.getElementById("adminPhone").value.trim(),
-            avatar: document.getElementById("adminAvatar").value.trim(),
-          };
+  const data = {
+    id,
+    name,
+    email,
+    role,
+    department: document.getElementById("adminDepartment").value.trim(),
+    phone: document.getElementById("adminPhone").value.trim(),
+    avatar: document.getElementById("adminAvatar").value.trim(),
+  };
 
-          // Only include password for new admins or if it's being changed
-          if (!id || password) {
-            data.password = password;
-          }
+  // Only include password for new admins or if it's being changed
+  if (!id || password) {
+    data.password = password;
+  }
 
-          // Include status for existing admins
-          if (id) {
-            data.isActive =
-              document.getElementById("adminStatus").value === "true";
-            data.id = id; 
-          }
+  // Include status for existing admins
+  if (id) {
+    data.isActive = document.getElementById("adminStatus").value === "true";
+    data.id = id;
+  }
 
-          try {
-            const jwtSecret = this.getJWTSecret();
-            if (!jwtSecret) {
-              this.showToast(
-                "error",
-                "JWT_SECRET is required for admin operations"
-              );
-              return;
-            }
+  try {
+    const headers = this.getAuthHeaders();
+    if (!headers) return;
 
-            let url, method;
-            if (id) {
-              url = `${API_BASE}/admin/edit`;
-              method = "PUT";
-            } else {
-              url = `${API_BASE}/admin/register`;
-              method = "POST";
-            }
+    let url, method;
+    if (id) {
+      url = `${API_BASE}/admin/edit`;
+      method = "PUT";
+    } else {
+      url = `${API_BASE}/admin/register`;
+      method = "POST";
+    }
 
-            const response = await fetch(url, {
-              method,
-              headers: {
-                "Content-Type": "application/json",
-                "X-JWT-Secret": jwtSecret,
-              },
-              body: JSON.stringify(data),
-            });
+    const response = await fetch(url, {
+      method,
+      headers,
+      body: JSON.stringify(data),
+    });
 
-            if (response.ok) {
-              this.showToast(
-                "success",
-                `Admin ${id ? "updated" : "created"} successfully`
-              );
-              this.closeAdminModal();
-              this.loadAdmins();
-            } else {
-              const errorData = await response.json();
-              if (response.status === 401 || response.status === 403) {
-                localStorage.removeItem("adminJWTSecret");
-                this.showToast(
-                  "error",
-                  "Invalid JWT_SECRET. Please try again."
-                );
-              } else {
-                throw new Error(
-                  errorData.error || errorData.message || "Failed to save admin"
-                );
-              }
-            }
-          } catch (error) {
-            console.error("Save error:", error);
-            this.showToast("error", error.message || "Failed to save admin");
-          }
-        }
-
+    if (response.ok) {
+      this.showToast("success", `Admin ${id ? "updated" : "created"} successfully`);
+      this.closeAdminModal();
+      this.loadAdmins();
+    } else if (response.status === 401 || response.status === 403) {
+      this.handleAuthError("Session expired. Please log in again.");
+    } else {
+      const errorData = await response.json();
+      throw new Error(errorData.error || errorData.message || "Failed to save admin");
+    }
+  } catch (error) {
+    console.error("Save error:", error);
+    this.showToast("error", error.message || "Failed to save admin");
+  }
+}
         async editAdmin(id) {
           const admin = this.admins.find((a) => a._id === id);
           if (admin) this.openAdminModal(admin);
         }
 
         async deleteAdmin(id) {
-          const admin = this.admins.find((a) => a._id === id);
-          if (!admin) return;
+  const admin = this.admins.find((a) => a._id === id);
+  if (!admin) return;
 
-          if (
-            !confirm(`Are you sure you want to delete admin "${admin.name}"?`)
-          )
-            return;
+  if (!confirm(`Are you sure you want to delete admin "${admin.name}"?`)) return;
 
-          try {
-            const jwtSecret = this.getJWTSecret();
-            if (!jwtSecret) {
-              this.showToast(
-                "error",
-                "JWT_SECRET is required for admin operations"
-              );
-              return;
-            }
+  try {
+    const headers = this.getAuthHeaders();
+    if (!headers) return;
 
-            const response = await fetch(`${API_BASE}/admin/delete`, {
-              method: "DELETE",
-              headers: {
-                "Content-Type": "application/json",
-                "X-JWT-Secret": jwtSecret,
-              },
-              body: JSON.stringify({ email: admin.email }),
-            });
+    const response = await fetch(`${API_BASE}/admin/delete`, {
+      method: "DELETE",
+      headers,
+      body: JSON.stringify({ email: admin.email }),
+    });
 
-            if (response.ok) {
-              this.showToast("success", "Admin deleted successfully");
-              this.loadAdmins();
-            } else {
-              const errorData = await response.json();
-              if (response.status === 401 || response.status === 403) {
-                localStorage.removeItem("adminJWTSecret");
-                this.showToast(
-                  "error",
-                  "Invalid JWT_SECRET. Please try again."
-                );
-              } else {
-                throw new Error(errorData.error || "Failed to delete admin");
-              }
-            }
-          } catch (error) {
-            console.error("Delete error:", error);
-            this.showToast("error", error.message || "Failed to delete admin");
-          }
-        }
-
+    if (response.ok) {
+      this.showToast("success", "Admin deleted successfully");
+      this.loadAdmins();
+    } else if (response.status === 401 || response.status === 403) {
+      this.handleAuthError("Session expired. Please log in again.");
+    } else {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to delete admin");
+    }
+  } catch (error) {
+    console.error("Delete error:", error);
+    this.showToast("error", error.message || "Failed to delete admin");
+  }
+}
         // ============ MODAL MANAGEMENT ============
         openArticleModal(article = null) {
           this.currentArticle = article;

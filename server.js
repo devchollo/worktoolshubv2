@@ -3,6 +3,9 @@ const express = require("express");
 const path = require("path");
 const cors = require("cors");
 const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const crypto = require('crypto');
 require("dotenv").config();
 
 // Import routes
@@ -25,7 +28,7 @@ app.use(
     origin: [
       "http://localhost:3000",
       "http://localhost:5000",
-      "http://127.0.0.1:5500", // For local development
+      "http://127.0.0.1:5500",
       "https://worktoolshub.info",
       "https://www.worktoolshub.info",
       "https://wthv2.vercel.app",
@@ -38,10 +41,6 @@ app.use(
       "Pragma",
       "Expires",
       "X-Requested-With",
-      "JWT_SECRET",
-      "jwt_secret",
-      "X-JWT-Secret",
-      'x-jwt-secret'
     ],
     credentials: true,
   })
@@ -73,6 +72,7 @@ if (process.env.NODE_ENV === "development") {
   });
 }
 
+// Database connection
 const connectDB = async () => {
   try {
     const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URI;
@@ -83,16 +83,15 @@ const connectDB = async () => {
     }
 
     console.log("Connecting to MongoDB...");
-    console.log("MongoDB URI value:", mongoUri);
 
     await mongoose.connect(mongoUri, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      serverSelectionTimeoutMS: 30000, // 30s timeout for initial server selection
-      socketTimeoutMS: 45000, // 45s for socket inactivity
-      maxPoolSize: 10, // Maintain up to 10 connections
-      minPoolSize: 1, // Min 1 connection (avoid forcing 5)
-      maxIdleTimeMS: 30000, // Reclaim idle connections
+      serverSelectionTimeoutMS: 30000,
+      socketTimeoutMS: 45000,
+      maxPoolSize: 10,
+      minPoolSize: 1,
+      maxIdleTimeMS: 30000,
     });
 
     console.log("✅ MongoDB connected successfully");
@@ -132,10 +131,85 @@ const connectDB = async () => {
   }
 };
 
-// Connect to database
 connectDB();
 
-// Test MongoDB connection with extra details
+// Authentication middleware
+const authenticateAdmin = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.startsWith('Bearer ') 
+      ? authHeader.substring(7) 
+      : null;
+
+    if (!token) {
+      return res.status(401).json({ 
+        error: "Authentication required",
+        message: "Please provide a valid JWT token"
+      });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || "your-secret-key");
+    
+    const admin = await Admin.findOne({ 
+      email: decoded.email,
+      isActive: true 
+    });
+    
+    if (!admin) {
+      return res.status(401).json({ error: "Invalid token or user not found" });
+    }
+
+    // Check if session is still valid
+    if (decoded.sessionId) {
+      const hasValidSession = admin.sessionIds.some(
+        session => session.sessionId === decoded.sessionId
+      );
+      
+      if (!hasValidSession) {
+        return res.status(401).json({ error: "Session expired" });
+      }
+    }
+
+    req.admin = admin;
+    req.decoded = decoded;
+    next();
+  } catch (error) {
+    console.error("Authentication error:", error);
+    return res.status(401).json({ error: "Invalid or expired token" });
+  }
+};
+
+// Special middleware for initial admin registration (requires JWT_SECRET)
+const validateInitialAdminSecret = (req, res, next) => {
+  const jwtSecret = req.headers['x-jwt-secret'] ||
+                   req.headers['authorization']?.replace(/^Bearer\s+/, '') || 
+                   req.body.jwt_secret ||                 
+                   req.query.jwt_secret;
+  
+  if (jwtSecret !== process.env.JWT_SECRET) {
+    return res.status(401).json({ 
+      error: "JWT_SECRET is required for initial admin registration",
+      hint: "This is only needed for the first admin account"
+    });
+  }
+  next();
+};
+
+// Utility functions
+const getClientInfo = (req) => ({
+  userAgent: req.get('User-Agent') || 'Unknown',
+  ipAddress: req.ip || req.connection.remoteAddress || 'Unknown'
+});
+
+// API Routes (non-admin)
+app.use("/api/email", emailRoutes);
+app.use("/api", uploadRoutes);
+app.use("/api", qrRoutes);
+app.use("/api", sitemapRoutes);
+app.use("/api/notes", notesRoutes);
+app.use("/api/knowledge-base", articleRoutes);
+
+// Test MongoDB connection
 app.get("/api/test-db", async (req, res) => {
   try {
     const dbState = mongoose.connection.readyState;
@@ -152,7 +226,6 @@ app.get("/api/test-db", async (req, res) => {
     const db = mongoose.connection.db;
     const collections = await db.listCollections().toArray();
 
-    // Optional: count docs in each collection
     const collectionInfo = {};
     for (const coll of collections) {
       const name = coll.name;
@@ -175,64 +248,11 @@ app.get("/api/test-db", async (req, res) => {
   }
 });
 
-// API Routes
-app.use("/api/email", emailRoutes);
-app.use("/api", uploadRoutes);
-app.use("/api", qrRoutes);
-app.use("/api", sitemapRoutes);
-app.use("/api/notes", notesRoutes);
-app.use("/api/knowledge-base", articleRoutes);
+// ADMIN AUTHENTICATION ROUTES
 
-// Admin authentication routes
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-
-// Helper function to validate JWT secret
-const validateJWTSecret = (req) => {
-  const jwtSecret = req.headers['x-api-key'] ||           
-                   req.headers['authorization']?.replace(/^Bearer\s+/, '') || 
-                   req.headers['x-jwt-secret'] ||
-                   req.headers['X-JWT-Secret'] ||           
-                   req.headers['jwt_secret'] || 
-                   req.headers['JWT_SECRET'] || 
-                   req.headers['jwt-secret'] ||
-                   req.body.jwt_secret ||                 
-                   req.query.jwt_secret;                  
-  
-  return jwtSecret === process.env.JWT_SECRET ? jwtSecret : null;
-};
-
-// Middleware to extract client info
-const getClientInfo = (req) => {
-  return {
-    userAgent: req.get('User-Agent') || 'Unknown',
-    ipAddress: req.ip || req.connection.remoteAddress || 'Unknown'
-  };
-};
-
-app.post("/api/admin/register", async (req, res) => {
+// Initial admin registration (requires JWT_SECRET)
+app.post("/api/admin/register", validateInitialAdminSecret, async (req, res) => {
   try {
-    // Debug: log all headers
-    console.log('All headers received:', JSON.stringify(req.headers, null, 2));
-    
-    const jwtSecret = validateJWTSecret(req);
-    
-    console.log('JWT_SECRET found:', jwtSecret ? '***FOUND***' : 'NOT FOUND');
-    console.log('Environment JWT_SECRET exists:', process.env.JWT_SECRET ? 'YES' : 'NO');
-    
-    if (!jwtSecret) {
-      return res.status(401).json({ 
-        error: "JWT_SECRET is required",
-        receivedHeaders: Object.keys(req.headers),
-        solutions: [
-          "Try using 'X-API-Key' header",
-          "Try using 'Authorization: Bearer your-secret' header", 
-          "Try passing jwt_secret in request body",
-          "Try passing jwt_secret as query parameter: ?jwt_secret=your-secret"
-        ]
-      });
-    }
-
     const { email, password, name, avatar, role, department, phone, permissions } = req.body;
 
     if (!email || !password || !name) {
@@ -262,7 +282,6 @@ app.post("/api/admin/register", async (req, res) => {
 
     await newAdmin.save();
 
-    // Return admin data (password excluded by toJSON transform)
     res.status(201).json({ 
       message: "Admin registered successfully",
       admin: newAdmin.toJSON()
@@ -283,92 +302,7 @@ app.post("/api/admin/register", async (req, res) => {
   }
 });
 
-app.put("/api/admin/edit", async (req, res) => {
-  try {
-    const jwtSecret = validateJWTSecret(req);
-    
-    if (!jwtSecret) {
-      return res.status(401).json({ error: "JWT_SECRET is required" });
-    }
-
-    const { id, email, password, name, avatar, role, isActive, department, phone, permissions } = req.body;
-
-    if (!id) {
-      return res.status(400).json({ error: "Encountered an issue with grabbing the user's _id" });
-    }
-
-    const admin = await Admin.findByEmail(email);
-    if (!id) {
-      return res.status(404).json({ error: "Admin not found" });
-    }
-
-    // Update fields if provided
-    if (name) admin.name = name;
-    if (avatar) admin.avatar = avatar;
-    if (role) admin.role = role;
-    if (typeof isActive === 'boolean') admin.isActive = isActive;
-    if (department !== undefined) admin.department = department;
-    if (phone !== undefined) admin.phone = phone;
-    if (permissions) admin.permissions = permissions;
-    
-    // Hash new password if provided
-    if (password) {
-      admin.password = await bcrypt.hash(password, 12);
-    }
-
-    await admin.save();
-
-    res.json({ 
-      message: "Admin updated successfully", 
-      admin: admin.toJSON()
-    });
-  } catch (error) {
-    console.error("Admin update error:", error);
-    
-    if (error.name === 'ValidationError') {
-      const errors = Object.values(error.errors).map(e => e.message);
-      return res.status(400).json({ error: "Validation failed", details: errors });
-    }
-    
-    res.status(500).json({ error: "Update failed" });
-  }
-});
-
-app.delete("/api/admin/delete", async (req, res) => {
-  try {
-    const jwtSecret = validateJWTSecret(req);
-    
-    if (!jwtSecret) {
-      return res.status(401).json({ error: "JWT_SECRET is required" });
-    }
-
-    const { email } = req.body;
-
-    if (!email) {
-      return res.status(400).json({ error: "Email is required" });
-    }
-
-    const admin = await Admin.findByEmail(email);
-    if (!admin) {
-      return res.status(404).json({ error: "Admin not found" });
-    }
-
-    // Get admin info before deletion (for response)
-    const adminResponse = admin.toJSON();
-
-    // Delete the admin
-    await Admin.deleteOne({ email: email.toLowerCase() });
-
-    res.json({ 
-      message: "Admin deleted successfully", 
-      deletedAdmin: adminResponse 
-    });
-  } catch (error) {
-    console.error("Admin deletion error:", error);
-    res.status(500).json({ error: "Deletion failed" });
-  }
-});
-
+// Admin login
 app.post("/api/admin/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -398,7 +332,6 @@ app.post("/api/admin/login", async (req, res) => {
     const isValidPassword = await bcrypt.compare(password, admin.password);
 
     if (!isValidPassword) {
-      // Increment login attempts
       await admin.incLoginAttempts();
       return res.status(401).json({ error: "Invalid credentials" });
     }
@@ -407,7 +340,6 @@ app.post("/api/admin/login", async (req, res) => {
     await admin.resetLoginAttempts();
 
     // Generate session ID and add to admin's sessions
-    const crypto = require('crypto');
     const sessionId = crypto.randomUUID();
     await admin.addSession(sessionId, clientInfo.userAgent, clientInfo.ipAddress);
 
@@ -441,6 +373,7 @@ app.post("/api/admin/login", async (req, res) => {
   }
 });
 
+// Admin logout
 app.post("/api/admin/logout", async (req, res) => {
   try {
     const { token } = req.body;
@@ -463,6 +396,7 @@ app.post("/api/admin/logout", async (req, res) => {
   }
 });
 
+// Verify admin token
 app.post("/api/admin/verify", async (req, res) => {
   try {
     const { token } = req.body;
@@ -485,7 +419,7 @@ app.post("/api/admin/verify", async (req, res) => {
       return res.status(401).json({ error: "Invalid token" });
     }
 
-    // Optionally verify session is still active
+    // Verify session is still active
     if (decoded.sessionId) {
       const hasValidSession = admin.sessionIds.some(
         session => session.sessionId === decoded.sessionId
@@ -514,15 +448,93 @@ app.post("/api/admin/verify", async (req, res) => {
   }
 });
 
-// New endpoint to list all admins (protected)
-app.get("/api/admin/list", async (req, res) => {
+// PROTECTED ADMIN ROUTES (require JWT token authentication)
+
+// Edit admin
+app.put("/api/admin/edit", authenticateAdmin, async (req, res) => {
   try {
-    const jwtSecret = validateJWTSecret(req);
-    
-    if (!jwtSecret) {
-      return res.status(401).json({ error: "JWT_SECRET is required" });
+    const { id, email, password, name, avatar, role, isActive, department, phone, permissions } = req.body;
+
+    if (!id) {
+      return res.status(400).json({ error: "Admin ID is required" });
     }
 
+    const admin = await Admin.findById(id);
+    if (!admin) {
+      return res.status(404).json({ error: "Admin not found" });
+    }
+
+    // Update fields if provided
+    if (name) admin.name = name;
+    if (email) admin.email = email.toLowerCase();
+    if (avatar) admin.avatar = avatar;
+    if (role) admin.role = role;
+    if (typeof isActive === 'boolean') admin.isActive = isActive;
+    if (department !== undefined) admin.department = department;
+    if (phone !== undefined) admin.phone = phone;
+    if (permissions) admin.permissions = permissions;
+    
+    // Hash new password if provided
+    if (password) {
+      admin.password = await bcrypt.hash(password, 12);
+    }
+
+    await admin.save();
+
+    res.json({ 
+      message: "Admin updated successfully", 
+      admin: admin.toJSON()
+    });
+  } catch (error) {
+    console.error("Admin update error:", error);
+    
+    if (error.name === 'ValidationError') {
+      const errors = Object.values(error.errors).map(e => e.message);
+      return res.status(400).json({ error: "Validation failed", details: errors });
+    }
+    
+    res.status(500).json({ error: "Update failed" });
+  }
+});
+
+// Delete admin
+app.delete("/api/admin/delete", authenticateAdmin, async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: "Email is required" });
+    }
+
+    const admin = await Admin.findByEmail(email);
+    if (!admin) {
+      return res.status(404).json({ error: "Admin not found" });
+    }
+
+    // Prevent self-deletion
+    if (admin.email === req.decoded.email) {
+      return res.status(400).json({ error: "Cannot delete your own account" });
+    }
+
+    // Get admin info before deletion
+    const adminResponse = admin.toJSON();
+
+    // Delete the admin
+    await Admin.deleteOne({ email: email.toLowerCase() });
+
+    res.json({ 
+      message: "Admin deleted successfully", 
+      deletedAdmin: adminResponse 
+    });
+  } catch (error) {
+    console.error("Admin deletion error:", error);
+    res.status(500).json({ error: "Deletion failed" });
+  }
+});
+
+// List all admins
+app.get("/api/admin/list", authenticateAdmin, async (req, res) => {
+  try {
     const { page = 1, limit = 10, role, isActive, search } = req.query;
     
     // Build filter
@@ -557,15 +569,9 @@ app.get("/api/admin/list", async (req, res) => {
   }
 });
 
-// New endpoint to get admin statistics
-app.get("/api/admin/stats", async (req, res) => {
+// Get admin statistics
+app.get("/api/admin/stats", authenticateAdmin, async (req, res) => {
   try {
-    const jwtSecret = validateJWTSecret(req);
-    
-    if (!jwtSecret) {
-      return res.status(401).json({ error: "JWT_SECRET is required" });
-    }
-
     const stats = await Admin.getStats();
     const roleStats = await Admin.countByRole();
     
@@ -579,17 +585,18 @@ app.get("/api/admin/stats", async (req, res) => {
   }
 });
 
-// Sitemap.xml endpoint
+// OTHER ROUTES
+
+// Sitemap and robots
 app.get("/sitemap.xml", (req, res) => {
   res.redirect(301, "/api/sitemap.xml");
 });
 
-// Robots.txt endpoint
 app.get("/robots.txt", (req, res) => {
   res.redirect(301, "/api/robots.txt");
 });
 
-// Authentication endpoint
+// Email verification endpoint
 app.post("/api/auth/verify-email", (req, res) => {
   try {
     const { email } = req.body;
@@ -622,7 +629,7 @@ app.post("/api/auth/verify-email", (req, res) => {
   }
 });
 
-// Enhanced health check endpoint
+// Health check endpoint
 app.get("/api/health", async (req, res) => {
   const dbStatus = mongoose.connection.readyState === 1 ? "Connected" : "Disconnected";
   
@@ -650,7 +657,7 @@ app.get("/api/health", async (req, res) => {
   });
 });
 
-// Enhanced API documentation endpoint
+// API documentation endpoint
 app.get("/api/docs", (req, res) => {
   res.json({
     title: "WorkToolsHub API",
@@ -660,20 +667,18 @@ app.get("/api/docs", (req, res) => {
         "POST /api/auth/verify-email": "Verify user email authorization",
       },
       admin: {
-        "POST /api/admin/register": "Register new admin (requires JWT_SECRET)",
+        "POST /api/admin/register": "Register new admin (requires JWT_SECRET header)",
         "POST /api/admin/login": "Admin login",
         "POST /api/admin/logout": "Admin logout",
         "POST /api/admin/verify": "Verify admin token",
-        "PUT /api/admin/edit": "Edit admin (requires JWT_SECRET)",
-        "DELETE /api/admin/delete": "Delete admin (requires JWT_SECRET)",
-        "GET /api/admin/list": "List all admins with pagination (requires JWT_SECRET)",
-        "GET /api/admin/stats": "Get admin statistics (requires JWT_SECRET)"
+        "PUT /api/admin/edit": "Edit admin (requires JWT token)",
+        "DELETE /api/admin/delete": "Delete admin (requires JWT token)",
+        "GET /api/admin/list": "List all admins (requires JWT token)",
+        "GET /api/admin/stats": "Get admin statistics (requires JWT token)"
       },
       email: {
-        "POST /api/email/generate-escalation-email":
-          "Generate escalation emails",
-        "POST /api/email/generate-lbl-email":
-          "Generate business listing update emails",
+        "POST /api/email/generate-escalation-email": "Generate escalation emails",
+        "POST /api/email/generate-lbl-email": "Generate business listing update emails",
         "GET /api/email/health": "Email service health check",
       },
       knowledgeBase: {
@@ -681,8 +686,7 @@ app.get("/api/docs", (req, res) => {
         "GET /api/knowledge-base/articles/:id": "Get single article",
         "POST /api/knowledge-base/articles": "Create new article",
         "POST /api/knowledge-base/articles/:id/upvote": "Upvote an article",
-        "POST /api/knowledge-base/articles/:id/helpful":
-          "Mark article as helpful",
+        "POST /api/knowledge-base/articles/:id/helpful": "Mark article as helpful",
         "POST /api/knowledge-base/edit-suggestions": "Submit edit suggestion",
         "POST /api/knowledge-base/ai-query": "Query AI assistant",
       },
@@ -691,15 +695,11 @@ app.get("/api/docs", (req, res) => {
         "GET /api/docs": "API documentation",
         "GET /api/test-db": "Database connection test"
       },
-      pages: {
-        "GET /knowledge-base": "Knowledge Base interface",
-        "GET /article": "Individual article page",
-      },
     },
   });
 });
 
-// Homepage for API
+// Homepage
 app.get("/", (req, res) => {
   res.json({
     message: "WorkToolsHub API Server",
@@ -711,7 +711,7 @@ app.get("/", (req, res) => {
   });
 });
 
-// Handle 404 for API routes
+// 404 handler for API routes
 app.use("/api/*", (req, res) => {
   res.status(404).json({
     error: "API endpoint not found",
@@ -741,22 +741,14 @@ setInterval(async () => {
   } catch (error) {
     console.error("❌ Scheduled cleanup failed:", error);
   }
-}, 24 * 60 * 60 * 1000); // 24 hours
+}, 24 * 60 * 60 * 1000);
 
 // Start server
 const server = app.listen(PORT, async () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
   console.log(`📁 Environment: ${process.env.NODE_ENV || "development"}`);
-  console.log(
-    `🔐 Auth emails: ${
-      process.env.AUTHORIZED_EMAILS ? "Configured" : "Not configured"
-    }`
-  );
-  console.log(
-    `🤖 OpenAI API: ${
-      process.env.OPENAI_API_KEY ? "Configured" : "Not configured"
-    }`
-  );
+  console.log(`🔐 Auth emails: ${process.env.AUTHORIZED_EMAILS ? "Configured" : "Not configured"}`);
+  console.log(`🤖 OpenAI API: ${process.env.OPENAI_API_KEY ? "Configured" : "Not configured"}`);
   console.log(`📖 API docs: http://localhost:${PORT}/api/docs`);
   console.log(`📚 Knowledge Base: http://localhost:${PORT}/knowledge-base`);
 
@@ -764,21 +756,15 @@ const server = app.listen(PORT, async () => {
   console.log("MongoDB URI configured:", mongoUri ? "Yes" : "No");
 
   if (!process.env.AUTHORIZED_EMAILS) {
-    console.warn(
-      "⚠️  WARNING: AUTHORIZED_EMAILS not set in environment variables"
-    );
+    console.warn("⚠️  WARNING: AUTHORIZED_EMAILS not set in environment variables");
   }
 
   if (!process.env.OPENAI_API_KEY) {
-    console.warn(
-      "⚠️  WARNING: OPENAI_API_KEY not set - AI assistant will not work"
-    );
+    console.warn("⚠️  WARNING: OPENAI_API_KEY not set - AI assistant will not work");
   }
 
   if (!mongoUri) {
-    console.warn(
-      "⚠️  WARNING: MongoDB URI not configured - database features disabled"
-    );
+    console.warn("⚠️  WARNING: MongoDB URI not configured - database features disabled");
   }
 
   // Log admin system status
@@ -788,7 +774,7 @@ const server = app.listen(PORT, async () => {
       console.log(`👥 Admin system: ${adminCount} admin(s) registered`);
       
       if (adminCount === 0) {
-        console.log("💡 To register your first admin, use: POST /api/admin/register with JWT_SECRET header");
+        console.log("💡 To register your first admin, use: POST /api/admin/register with X-JWT-Secret header");
       }
     } catch (error) {
       console.warn("⚠️  Could not check admin count:", error.message);
