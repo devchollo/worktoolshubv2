@@ -100,5 +100,11 @@ Backend logging will track each request where necessary to maintain cumulative c
 ## ISSUES: 
  > EMBED CODE - VIDEO PLAYER NOT WORKING 
 ---
+## Future Addition - ADMIN
+ > Edit Suggestion Inbox
+ > Stats page - graphs 
+ > Add users [admins]
+## Migrate ENV users to DB so that admins can add / delete users on the dashboard. 
+
 
 *This README serves as a living document for tracking planned feature integrations, UX improvements, and statistics tracking for WorkToolsHub.*
