@@ -13,6 +13,9 @@ const sitemapRoutes = require("./routes/sitemapRoutes");
 const notesRoutes = require("./routes/notesRoutes");
 const articleRoutes = require("./routes/articleRoutes");
 
+// Import Admin model
+const Admin = require("./models/Admin");
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -93,6 +96,14 @@ const connectDB = async () => {
     });
 
     console.log("✅ MongoDB connected successfully");
+
+    // Run cleanup tasks on startup
+    try {
+      await Admin.cleanupExpiredSessions();
+      console.log("✅ Cleaned up expired admin sessions");
+    } catch (cleanupError) {
+      console.warn("⚠️ Session cleanup failed:", cleanupError.message);
+    }
 
     // Connection event listeners
     mongoose.connection.on("error", (err) => {
@@ -176,22 +187,34 @@ app.use("/api/knowledge-base", articleRoutes);
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-const admins = new Map();
+// Helper function to validate JWT secret
+const validateJWTSecret = (req) => {
+  const jwtSecret = req.headers['x-api-key'] ||           
+                   req.headers['authorization']?.replace(/^Bearer\s+/, '') || 
+                   req.headers['x-jwt-secret'] ||         
+                   req.headers['jwt_secret'] || 
+                   req.headers['JWT_SECRET'] || 
+                   req.headers['jwt-secret'] ||
+                   req.body.jwt_secret ||                 
+                   req.query.jwt_secret;                  
+  
+  return jwtSecret === process.env.JWT_SECRET ? jwtSecret : null;
+};
+
+// Middleware to extract client info
+const getClientInfo = (req) => {
+  return {
+    userAgent: req.get('User-Agent') || 'Unknown',
+    ipAddress: req.ip || req.connection.remoteAddress || 'Unknown'
+  };
+};
 
 app.post("/api/admin/register", async (req, res) => {
   try {
     // Debug: log all headers
     console.log('All headers received:', JSON.stringify(req.headers, null, 2));
     
-    // Check for JWT_SECRET in multiple locations and formats
-    const jwtSecret = req.headers['x-api-key'] ||           // Standard API key header
-                     req.headers['authorization']?.replace(/^Bearer\s+/, '') || // Authorization Bearer
-                     req.headers['x-jwt-secret'] ||         // Custom header with X prefix
-                     req.headers['jwt_secret'] || 
-                     req.headers['JWT_SECRET'] || 
-                     req.headers['jwt-secret'] ||
-                     req.body.jwt_secret ||                 // Fallback to body
-                     req.query.jwt_secret;                  // Fallback to query param
+    const jwtSecret = validateJWTSecret(req);
     
     console.log('JWT_SECRET found:', jwtSecret ? '***FOUND***' : 'NOT FOUND');
     console.log('Environment JWT_SECRET exists:', process.env.JWT_SECRET ? 'YES' : 'NO');
@@ -208,115 +231,114 @@ app.post("/api/admin/register", async (req, res) => {
         ]
       });
     }
-    
-    // Verify the JWT_SECRET matches your environment variable
-    if (jwtSecret !== process.env.JWT_SECRET) {
-      return res.status(403).json({ 
-        error: "Invalid JWT_SECRET",
-        hint: "Make sure your JWT_SECRET matches the server environment variable"
+
+    const { email, password, name, avatar, role, department, phone, permissions } = req.body;
+
+    if (!email || !password || !name) {
+      return res.status(400).json({ 
+        error: "Email, password, and name are required" 
       });
     }
 
-    const { email, password, name, avatar } = req.body;
-
-    if (admins.has(email)) {
+    // Check if admin already exists
+    const existingAdmin = await Admin.findByEmail(email);
+    if (existingAdmin) {
       return res.status(400).json({ error: "Admin already exists" });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 12);
 
-    admins.set(email, {
-      email,
+    const newAdmin = new Admin({
+      email: email.toLowerCase(),
       password: hashedPassword,
       name,
-      avatar:
-        avatar ||
-        `https://ui-avatars.com/api/?name=${encodeURIComponent(
-          name
-        )}&background=6366f1&color=fff`,
-      role: "Administrator",
-      createdAt: new Date(),
+      avatar,
+      role: role || "Administrator",
+      department,
+      phone,
+      permissions
     });
 
-    res.json({ message: "Admin registered successfully" });
+    await newAdmin.save();
+
+    // Return admin data (password excluded by toJSON transform)
+    res.status(201).json({ 
+      message: "Admin registered successfully",
+      admin: newAdmin.toJSON()
+    });
   } catch (error) {
     console.error("Admin registration error:", error);
+    
+    if (error.code === 11000) {
+      return res.status(400).json({ error: "Admin with this email already exists" });
+    }
+    
+    if (error.name === 'ValidationError') {
+      const errors = Object.values(error.errors).map(e => e.message);
+      return res.status(400).json({ error: "Validation failed", details: errors });
+    }
+    
     res.status(500).json({ error: "Registration failed" });
   }
 });
 
 app.put("/api/admin/edit", async (req, res) => {
   try {
-    // Check for JWT_SECRET header
-    const jwtSecret = req.headers['jwt_secret'] || req.headers['JWT_SECRET'];
+    const jwtSecret = validateJWTSecret(req);
     
     if (!jwtSecret) {
-      return res.status(401).json({ error: "JWT_SECRET header is required" });
-    }
-    
-    // Verify the JWT_SECRET matches your environment variable
-    if (jwtSecret !== process.env.JWT_SECRET) {
-      return res.status(403).json({ error: "Invalid JWT_SECRET" });
+      return res.status(401).json({ error: "JWT_SECRET is required" });
     }
 
-    const { email, password, name, avatar, role } = req.body;
+    const { email, password, name, avatar, role, isActive, department, phone, permissions } = req.body;
 
     if (!email) {
       return res.status(400).json({ error: "Email is required" });
     }
 
-    if (!admins.has(email)) {
+    const admin = await Admin.findByEmail(email);
+    if (!admin) {
       return res.status(404).json({ error: "Admin not found" });
     }
 
-    const existingAdmin = admins.get(email);
-    const updatedAdmin = { ...existingAdmin };
-
     // Update fields if provided
-    if (name) updatedAdmin.name = name;
-    if (avatar) updatedAdmin.avatar = avatar;
-    if (role) updatedAdmin.role = role;
+    if (name) admin.name = name;
+    if (avatar) admin.avatar = avatar;
+    if (role) admin.role = role;
+    if (typeof isActive === 'boolean') admin.isActive = isActive;
+    if (department !== undefined) admin.department = department;
+    if (phone !== undefined) admin.phone = phone;
+    if (permissions) admin.permissions = permissions;
     
     // Hash new password if provided
     if (password) {
-      updatedAdmin.password = await bcrypt.hash(password, 10);
+      admin.password = await bcrypt.hash(password, 12);
     }
 
-    // Update avatar URL if name changed but avatar not provided
-    if (name && !avatar) {
-      updatedAdmin.avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(
-        name
-      )}&background=6366f1&color=fff`;
-    }
+    await admin.save();
 
-    updatedAdmin.updatedAt = new Date();
-
-    admins.set(email, updatedAdmin);
-
-    // Return admin data without password
-    const { password: _, ...adminResponse } = updatedAdmin;
     res.json({ 
       message: "Admin updated successfully", 
-      admin: adminResponse 
+      admin: admin.toJSON()
     });
   } catch (error) {
     console.error("Admin update error:", error);
+    
+    if (error.name === 'ValidationError') {
+      const errors = Object.values(error.errors).map(e => e.message);
+      return res.status(400).json({ error: "Validation failed", details: errors });
+    }
+    
     res.status(500).json({ error: "Update failed" });
   }
 });
 
 app.delete("/api/admin/delete", async (req, res) => {
   try {
-    // Check for JWT_SECRET header
-    const jwtSecret = req.headers['jwt_secret'] || req.headers['JWT_SECRET'];
+    const jwtSecret = validateJWTSecret(req);
     
     if (!jwtSecret) {
-      return res.status(401).json({ error: "JWT_SECRET header is required" });
-    }
-    
-    // Verify the JWT_SECRET matches your environment variable
-    if (jwtSecret !== process.env.JWT_SECRET) {
-      return res.status(403).json({ error: "Invalid JWT_SECRET" });
+      return res.status(401).json({ error: "JWT_SECRET is required" });
     }
 
     const { email } = req.body;
@@ -325,16 +347,16 @@ app.delete("/api/admin/delete", async (req, res) => {
       return res.status(400).json({ error: "Email is required" });
     }
 
-    if (!admins.has(email)) {
+    const admin = await Admin.findByEmail(email);
+    if (!admin) {
       return res.status(404).json({ error: "Admin not found" });
     }
 
     // Get admin info before deletion (for response)
-    const deletedAdmin = admins.get(email);
-    const { password: _, ...adminResponse } = deletedAdmin;
+    const adminResponse = admin.toJSON();
 
     // Delete the admin
-    admins.delete(email);
+    await Admin.deleteOne({ email: email.toLowerCase() });
 
     res.json({ 
       message: "Admin deleted successfully", 
@@ -349,20 +371,52 @@ app.delete("/api/admin/delete", async (req, res) => {
 app.post("/api/admin/login", async (req, res) => {
   try {
     const { email, password } = req.body;
-    const admin = admins.get(email);
+    const clientInfo = getClientInfo(req);
+
+    if (!email || !password) {
+      return res.status(400).json({ error: "Email and password are required" });
+    }
+
+    const admin = await Admin.findOne({ 
+      email: email.toLowerCase(),
+      isActive: true 
+    });
 
     if (!admin) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
+    // Check if account is locked
+    if (admin.isLocked) {
+      return res.status(423).json({ 
+        error: "Account temporarily locked due to too many failed login attempts",
+        lockUntil: admin.lockUntil
+      });
+    }
+
     const isValidPassword = await bcrypt.compare(password, admin.password);
 
     if (!isValidPassword) {
+      // Increment login attempts
+      await admin.incLoginAttempts();
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
+    // Reset login attempts on successful login
+    await admin.resetLoginAttempts();
+
+    // Generate session ID and add to admin's sessions
+    const crypto = require('crypto');
+    const sessionId = crypto.randomUUID();
+    await admin.addSession(sessionId, clientInfo.userAgent, clientInfo.ipAddress);
+
     const token = jwt.sign(
-      { email: admin.email, role: admin.role },
+      { 
+        id: admin._id,
+        email: admin.email, 
+        role: admin.role,
+        sessionId: sessionId
+      },
       process.env.JWT_SECRET || "your-secret-key",
       { expiresIn: "24h" }
     );
@@ -370,10 +424,14 @@ app.post("/api/admin/login", async (req, res) => {
     res.json({
       token,
       user: {
+        id: admin._id,
         email: admin.email,
         name: admin.name,
         role: admin.role,
-        avatar: admin.avatar,
+        avatar: admin.avatarUrl,
+        permissions: admin.permissions,
+        lastLogin: admin.lastLogin,
+        department: admin.department
       },
     });
   } catch (error) {
@@ -382,27 +440,141 @@ app.post("/api/admin/login", async (req, res) => {
   }
 });
 
-app.post("/api/admin/verify", (req, res) => {
+app.post("/api/admin/logout", async (req, res) => {
   try {
     const { token } = req.body;
+    
+    if (!token) {
+      return res.status(400).json({ error: "Token is required" });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || "your-secret-key");
+    const admin = await Admin.findByEmail(decoded.email);
+    
+    if (admin && decoded.sessionId) {
+      await admin.removeSession(decoded.sessionId);
+    }
+
+    res.json({ message: "Logged out successfully" });
+  } catch (error) {
+    console.error("Logout error:", error);
+    res.status(500).json({ error: "Logout failed" });
+  }
+});
+
+app.post("/api/admin/verify", async (req, res) => {
+  try {
+    const { token } = req.body;
+    
+    if (!token) {
+      return res.status(400).json({ error: "Token is required" });
+    }
+
     const decoded = jwt.verify(
       token,
       process.env.JWT_SECRET || "your-secret-key"
     );
-    const admin = admins.get(decoded.email);
+    
+    const admin = await Admin.findOne({ 
+      email: decoded.email,
+      isActive: true 
+    });
+    
     if (!admin) {
       return res.status(401).json({ error: "Invalid token" });
     }
+
+    // Optionally verify session is still active
+    if (decoded.sessionId) {
+      const hasValidSession = admin.sessionIds.some(
+        session => session.sessionId === decoded.sessionId
+      );
+      
+      if (!hasValidSession) {
+        return res.status(401).json({ error: "Session expired" });
+      }
+    }
+
     res.json({
       user: {
+        id: admin._id,
         email: admin.email,
         name: admin.name,
         role: admin.role,
-        avatar: `https://ui-avatars.com/api/?name=${admin.name}&background=6366f1&color=fff`,
+        avatar: admin.avatarUrl,
+        permissions: admin.permissions,
+        lastLogin: admin.lastLogin,
+        department: admin.department
       },
     });
   } catch (error) {
+    console.error("Token verification error:", error);
     res.status(401).json({ error: "Invalid token" });
+  }
+});
+
+// New endpoint to list all admins (protected)
+app.get("/api/admin/list", async (req, res) => {
+  try {
+    const jwtSecret = validateJWTSecret(req);
+    
+    if (!jwtSecret) {
+      return res.status(401).json({ error: "JWT_SECRET is required" });
+    }
+
+    const { page = 1, limit = 10, role, isActive, search } = req.query;
+    
+    // Build filter
+    const filter = {};
+    if (role) filter.role = role;
+    if (isActive !== undefined) filter.isActive = isActive === 'true';
+    if (search) {
+      filter.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+        { department: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    const admins = await Admin.find(filter)
+      .sort({ createdAt: -1 })
+      .limit(limit * 1)
+      .skip((page - 1) * limit)
+      .exec();
+    
+    const total = await Admin.countDocuments(filter);
+    
+    res.json({
+      admins,
+      total,
+      page: parseInt(page),
+      pages: Math.ceil(total / limit)
+    });
+  } catch (error) {
+    console.error("Admin list error:", error);
+    res.status(500).json({ error: "Failed to fetch admins" });
+  }
+});
+
+// New endpoint to get admin statistics
+app.get("/api/admin/stats", async (req, res) => {
+  try {
+    const jwtSecret = validateJWTSecret(req);
+    
+    if (!jwtSecret) {
+      return res.status(401).json({ error: "JWT_SECRET is required" });
+    }
+
+    const stats = await Admin.getStats();
+    const roleStats = await Admin.countByRole();
+    
+    res.json({
+      ...stats,
+      roleBreakdown: roleStats
+    });
+  } catch (error) {
+    console.error("Admin stats error:", error);
+    res.status(500).json({ error: "Failed to fetch stats" });
   }
 });
 
@@ -450,9 +622,17 @@ app.post("/api/auth/verify-email", (req, res) => {
 });
 
 // Enhanced health check endpoint
-app.get("/api/health", (req, res) => {
-  const dbStatus =
-    mongoose.connection.readyState === 1 ? "Connected" : "Disconnected";
+app.get("/api/health", async (req, res) => {
+  const dbStatus = mongoose.connection.readyState === 1 ? "Connected" : "Disconnected";
+  
+  let adminCount = 0;
+  if (mongoose.connection.readyState === 1) {
+    try {
+      adminCount = await Admin.countDocuments();
+    } catch (error) {
+      console.error("Error counting admins:", error);
+    }
+  }
 
   res.json({
     status: "OK",
@@ -464,6 +644,7 @@ app.get("/api/health", (req, res) => {
       database: dbStatus,
       knowledgeBase: "Available",
       ai: process.env.OPENAI_API_KEY ? "Configured" : "Not configured",
+      adminSystem: `${adminCount} admin(s) registered`
     },
   });
 });
@@ -476,6 +657,16 @@ app.get("/api/docs", (req, res) => {
     endpoints: {
       auth: {
         "POST /api/auth/verify-email": "Verify user email authorization",
+      },
+      admin: {
+        "POST /api/admin/register": "Register new admin (requires JWT_SECRET)",
+        "POST /api/admin/login": "Admin login",
+        "POST /api/admin/logout": "Admin logout",
+        "POST /api/admin/verify": "Verify admin token",
+        "PUT /api/admin/edit": "Edit admin (requires JWT_SECRET)",
+        "DELETE /api/admin/delete": "Delete admin (requires JWT_SECRET)",
+        "GET /api/admin/list": "List all admins with pagination (requires JWT_SECRET)",
+        "GET /api/admin/stats": "Get admin statistics (requires JWT_SECRET)"
       },
       email: {
         "POST /api/email/generate-escalation-email":
@@ -497,6 +688,7 @@ app.get("/api/docs", (req, res) => {
       system: {
         "GET /api/health": "System health check",
         "GET /api/docs": "API documentation",
+        "GET /api/test-db": "Database connection test"
       },
       pages: {
         "GET /knowledge-base": "Knowledge Base interface",
@@ -540,8 +732,18 @@ app.use((error, req, res, next) => {
   });
 });
 
+// Cleanup task - runs every 24 hours
+setInterval(async () => {
+  try {
+    await Admin.cleanupExpiredSessions();
+    console.log("✅ Scheduled cleanup of expired admin sessions completed");
+  } catch (error) {
+    console.error("❌ Scheduled cleanup failed:", error);
+  }
+}, 24 * 60 * 60 * 1000); // 24 hours
+
 // Start server
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, async () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
   console.log(`📁 Environment: ${process.env.NODE_ENV || "development"}`);
   console.log(
@@ -576,6 +778,20 @@ const server = app.listen(PORT, () => {
     console.warn(
       "⚠️  WARNING: MongoDB URI not configured - database features disabled"
     );
+  }
+
+  // Log admin system status
+  if (mongoose.connection.readyState === 1) {
+    try {
+      const adminCount = await Admin.countDocuments();
+      console.log(`👥 Admin system: ${adminCount} admin(s) registered`);
+      
+      if (adminCount === 0) {
+        console.log("💡 To register your first admin, use: POST /api/admin/register with JWT_SECRET header");
+      }
+    } catch (error) {
+      console.warn("⚠️  Could not check admin count:", error.message);
+    }
   }
 });
 
