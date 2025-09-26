@@ -6,7 +6,11 @@
     <title>Article - WorkToolsHub Knowledge Base</title>
 
     <link rel="preconnect" href="https://worktoolshubv2.onrender.com" />
-    <link rel="icon" type="image/x-icon" href="https://www.worktoolshub.info/assets/icon-192.png">
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="https://www.worktoolshub.info/assets/icon-192.png"
+    />
 
     <!-- Styling / CSS -->
     <link rel="stylesheet" href="../styles/main.css" />
@@ -476,11 +480,11 @@
         color: #374151;
       }
 
-      #articleBody h1{
+      #articleBody h1 {
         margin-bottom: 2rem;
       }
       #articleBody li {
-        padding: .5rem 0;
+        padding: 0.5rem 0;
       }
     </style>
   </head>
@@ -513,6 +517,8 @@
               <span id="articleReadTime"></span>
               <span>•</span>
               <span><span id="articleViews"></span> views</span>
+              <span>•</span>
+              <span>Updated At: <span id="articleUpdatedDate"></span></span>
             </div>
           </div>
 
@@ -662,6 +668,15 @@
           setText("articleExcerpt", this.article.excerpt);
           setText("articleAuthor", this.article.author);
           setText("articleDate", this.formatDate(this.article.date));
+          if (
+            this.article.updatedAt &&
+            this.article.updatedAt !== this.article.date
+          ) {
+            setText(
+              "articleUpdatedDate",
+              `Updated: ${this.formatDate(this.article.updatedAt)}`
+            );
+          }
           setText("articleReadTime", this.article.readTime, "5 min read");
           setText("articleViews", this.article.views?.toLocaleString() || "0");
 

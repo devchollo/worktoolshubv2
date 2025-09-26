@@ -28,7 +28,14 @@ app.use(
       "https://wthv2.vercel.app",
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'Cache-Control',  
+    'Pragma',         
+    'Expires',        
+    'X-Requested-With'
+  ],
     credentials: true,
   })
 );
