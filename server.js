@@ -291,10 +291,10 @@ app.put("/api/admin/edit", async (req, res) => {
       return res.status(401).json({ error: "JWT_SECRET is required" });
     }
 
-    const { email, password, name, avatar, role, isActive, department, phone, permissions } = req.body;
+    const { _id, email, password, name, avatar, role, isActive, department, phone, permissions } = req.body;
 
-    if (!email) {
-      return res.status(400).json({ error: "Email is required" });
+    if (!_id) {
+      return res.status(400).json({ error: "Encountered an issue with grabbing the user's _id" });
     }
 
     const admin = await Admin.findByEmail(email);
