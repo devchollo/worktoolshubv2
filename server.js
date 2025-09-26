@@ -167,18 +167,23 @@ const admins = new Map();
 
 app.post('/api/admin/register', async (req, res) => {
   try {
-    const { email, password, name } = req.body;
+    const { email, password, name, avatar } = req.body;
+
     if (admins.has(email)) {
       return res.status(400).json({ error: 'Admin already exists' });
     }
+
     const hashedPassword = await bcrypt.hash(password, 10);
+
     admins.set(email, {
       email,
       password: hashedPassword,
       name,
+      avatar: avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=6366f1&color=fff`,
       role: 'Administrator',
       createdAt: new Date()
     });
+
     res.json({ message: 'Admin registered successfully' });
   } catch (error) {
     console.error('Admin registration error:', error);
@@ -190,25 +195,30 @@ app.post('/api/admin/login', async (req, res) => {
   try {
     const { email, password } = req.body;
     const admin = admins.get(email);
+
     if (!admin) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
+
     const isValidPassword = await bcrypt.compare(password, admin.password);
+
     if (!isValidPassword) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
+
     const token = jwt.sign(
       { email: admin.email, role: admin.role },
       process.env.JWT_SECRET || 'your-secret-key',
       { expiresIn: '24h' }
     );
+
     res.json({
       token,
       user: {
         email: admin.email,
         name: admin.name,
         role: admin.role,
-        avatar: `https://ui-avatars.com/api/?name=${admin.name}&background=6366f1&color=fff`
+        avatar: admin.avatar
       }
     });
   } catch (error) {
