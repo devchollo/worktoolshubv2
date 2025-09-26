@@ -291,9 +291,9 @@ app.put("/api/admin/edit", async (req, res) => {
       return res.status(401).json({ error: "JWT_SECRET is required" });
     }
 
-    const { _id, email, password, name, avatar, role, isActive, department, phone, permissions } = req.body;
+    const { id, email, password, name, avatar, role, isActive, department, phone, permissions } = req.body;
 
-    if (!_id) {
+    if (!id) {
       return res.status(400).json({ error: "Encountered an issue with grabbing the user's _id" });
     }
 
