@@ -1832,7 +1832,7 @@
               grid.innerHTML = this.filteredArticles
                 .map(
                   (article) => `
-        <article class="article-card fade-in" data-id="${article.id}">
+        <article class="article-card fade-in" data-id="${article._id || article.id}"">
             <div class="article-header">
                 <span class="article-category">${this.formatCategory(
                   article.category
