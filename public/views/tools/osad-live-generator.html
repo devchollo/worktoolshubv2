@@ -443,6 +443,7 @@
     </button>
 
     <div class="container">
+        <div id="user-info"></div>
       <div class="header">
         <h1>OSAD & Site Live Note Generator</h1>
         <p>
@@ -640,10 +641,10 @@
     <script src="/auth-utils.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", async () => {
-        const toolName = "business-listing-update"; // Change this per tool
+        const toolName = "osad-and-site-launch";
         const result = await authUtils.initToolAuth(
           toolName,
-          "Update business listings",
+          "OSAD & Site Note and Email Generator",
           {
             showUserInfo: true,
             userInfoContainerId: "user-info",
