@@ -1764,11 +1764,7 @@
 
             const response = await fetch(url, {
               method,
-              headers: {
-    ...headers,
-    'Cache-Control': 'no-cache',
-    'Pragma': 'no-cache'
-  },
+              headers,
               body: JSON.stringify(data),
             });
 
@@ -1778,7 +1774,10 @@
                 `Article ${id ? "updated" : "created"} successfully`
               );
               this.closeArticleModal();
-              this.loadArticles();
+              setTimeout(() => {
+    this.loadArticles();
+  }, 100);
+
             } else if (response.status === 401 || response.status === 403) {
               this.handleAuthError("Session expired. Please log in again.");
             } else {
@@ -1806,17 +1805,15 @@
               `${API_BASE}/knowledge-base/articles/${id}`,
               {
                 method: "DELETE",
-                headers: {
-      ...headers,
-      'Cache-Control': 'no-cache',
-      'Pragma': 'no-cache'
-    },
+                headers,
               }
             );
 
             if (response.ok) {
               this.showToast("success", "Article deleted successfully");
-              this.loadArticles();
+              setTimeout(() => {
+    this.loadArticles();
+  }, 100);
             } else if (response.status === 401 || response.status === 403) {
               this.handleAuthError("Session expired. Please log in again.");
             } else {
@@ -1933,11 +1930,7 @@
 
             const response = await fetch(url, {
               method,
-              headers: {
-      ...headers,
-      'Cache-Control': 'no-cache',
-      'Pragma': 'no-cache'
-    },
+              headers,
               body: JSON.stringify(data),
             });
 
@@ -1964,7 +1957,9 @@
               );
               this.closeAdminModal();
               if (this.currentView === "admins") {
-                this.loadAdmins();
+                setTimeout(() => {
+    this.loadArticles();
+  }, 100);
               }
             } else if (response.status === 401 || response.status === 403) {
               this.handleAuthError("Session expired. Please log in again.");
@@ -1999,17 +1994,15 @@
 
             const response = await fetch(`${API_BASE}/admin/delete`, {
               method: "DELETE",
-              headers: {
-      ...headers,
-      'Cache-Control': 'no-cache',
-      'Pragma': 'no-cache'
-    },
+              headers,
               body: JSON.stringify({ email: admin.email }),
             });
 
             if (response.ok) {
               this.showToast("success", "Admin deleted successfully");
-              this.loadAdmins();
+              setTimeout(() => {
+    this.loadArticles();
+  }, 100);
             } else if (response.status === 401 || response.status === 403) {
               this.handleAuthError("Session expired. Please log in again.");
             } else {
