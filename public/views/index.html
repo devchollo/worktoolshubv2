@@ -556,7 +556,7 @@ document.addEventListener('DOMContentLoaded', function() {
       window.handleToolClick = function(event, linkElement) {
   event.preventDefault();
   
-  const path = linkElement.getAttribute('data-href');
+  const path = linkElement.dataset.href || linkElement.getAttribute('data-href');
   const toolName = linkElement.textContent.trim().split(' ')[0]; 
   
   if (typeof authUtils !== 'undefined') {
