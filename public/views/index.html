@@ -614,7 +614,7 @@
   const toolName = linkElement.querySelector('.newfold-title')?.textContent || 'Newfold Core';
   
   // Always redirect to auth with the specific path as redirect parameter
-  const redirectUrl = encodeURIComponent(window.location.origin + path);
+  const redirectUrl = "tools%2Fnewfold-core";
   window.location.href = `/auth.html?redirect=${redirectUrl}&tool=${encodeURIComponent(toolName)}`;
   
   return false;
