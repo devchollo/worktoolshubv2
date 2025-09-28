@@ -57,16 +57,16 @@ class AuthUtils {
   }
 
   // Redirect to auth page with return URL
-  redirectToAuth(toolName = null, toolDescription = null) {
-    const currentUrl = window.location.href;
-    let authUrl = `/auth.html?redirect=${currentUrl}`;
-    
-    if (toolName) {
-      authUrl += `&tool=${encodeURIComponent(toolName)}&description=${encodeURIComponent(toolDescription || '')}`;
-    }
-    
-    window.location.href = authUrl;
+  redirectToAuth(toolName = null, toolDescription = null, toolPath = null) {
+  const currentUrl = toolPath || window.location.href; 
+  let authUrl = `/auth.html?redirect=${encodeURIComponent(currentUrl)}`;
+  
+  if (toolName) {
+    authUrl += `&tool=${encodeURIComponent(toolName)}&description=${encodeURIComponent(toolDescription || '')}`;
   }
+  
+  window.location.href = authUrl;
+}
 
   // Get authenticated headers for API requests
   getAuthHeaders() {
