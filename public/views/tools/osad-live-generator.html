@@ -765,7 +765,7 @@
             }
           }
 
-          async function copyToClipboard() {
+          window.copyToClipboard = async function() {
             const copyBtn = document.querySelector(".copy-btn");
             const copyText = copyBtn.querySelector(".copy-text");
             const copyIcon = copyBtn.querySelector(".copy-icon");
