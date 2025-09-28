@@ -9,12 +9,12 @@ export const toolCategories = {
     color: "#10b981",
     tools: [
       {
-        name: "OSAD & Site Live Generator",
+        name: "OSAD-&-Site-Live-Generator",
         path: "/tools/osad-live-generator",
         internal: true,
       },
       {
-        name: "Offline Mods Notes & Email Generator",
+        name: "Offline-Mods-Notes-&-Email-Generator",
         path: "/tools/offline-mods-note-email-generator",
         internal: true,
       },
@@ -38,27 +38,27 @@ export const toolCategories = {
     color: "#3b82f6",
     tools: [
       {
-        name: "Escalation Email Generator",
+        name: "Escalation-Email-Generator",
         path: "/tools/escalation-email-generator",
         internal: true,
       },
       {
-        name: "Business Listing Update",
+        name: "Business-Listing-Update",
         path: "/tools/business-listing-update",
         internal: true,
       },
       {
-        name: "OBCX Email Creator",
+        name: "OBCX-Email-Creator",
         path: "/tools/obcx-email-generator",
         internal: true,
       },
       {
-        name: "Offline Mods Notes & Email Generator",
+        name: "Offline-Mods-Notes-&-Email-Generator",
         path: "/tools/offline-mods-note-email-generator",
         internal: true,
       },
       {
-        name: "Site Launch Announcement",
+        name: "Site-Launch-Announcement",
         path: "/tools/osad-live-generator",
         internal: true,
       },
@@ -100,12 +100,12 @@ export const toolCategories = {
     color: "#ef4444",
     tools: [
       {
-        name: "Business Listing Update",
+        name: "Business-Listing Update",
         path: "/tools/business-listing-update",
         internal: true,
       },
       {
-        name: "Newfold Core",
+        name: "Newfold-Core",
         path: "tools/newfold-core",
         internal: true,
       },
