@@ -454,12 +454,12 @@
 
       <div class="tool-card">
         <div class="option-selector">
-          <div class="option-card" onclick="selectOption('osad')">
+          <div class="option-card" onclick="selectOption('osad', event)">
             <span class="icon">🔧</span>
             <h3>TECHNICAL SUPPORT</h3>
             <p>OSAD Note Generation</p>
           </div>
-          <div class="option-card" onclick="selectOption('launch')">
+          <div class="option-card" onclick="selectOption('launch', event)">
             <span class="icon">🚀</span>
             <h3>SITE LAUNCH</h3>
             <p>Launch Documentation</p>
@@ -646,7 +646,7 @@
           "Update business listings",
           {
             showUserInfo: true,
-            userInfoContainerId: "user-info", // Add this div to your HTML
+            userInfoContainerId: "user-info",
           }
         );
 
@@ -654,7 +654,7 @@
           let selectedOption = null;
           let generatedContent = "";
 
-          function selectOption(option) {
+          function selectOption(option, event) {
             selectedOption = option;
 
             // Update UI
@@ -821,7 +821,7 @@
           }
 
           // Form validation
-          document.addEventListener("DOMContentLoaded", function () {
+          
             const forms = document.querySelectorAll(".form-section");
             forms.forEach((form) => {
               const inputs = form.querySelectorAll(
@@ -837,7 +837,7 @@
                 });
               });
             });
-          });
+         
         }
       });
     </script>
