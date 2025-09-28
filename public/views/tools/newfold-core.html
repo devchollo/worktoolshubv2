@@ -1215,330 +1215,25 @@
     <script src="../scripts/layout.js"></script>
     <script type="module" src="../scripts/main.js" defer></script>
     <script src="/auth-utils.js"></script>
+
     <script>
-document.addEventListener("DOMContentLoaded", async () => {
-  const toolName = "newfold-core"; // Change this per tool
-  const result = await authUtils.initToolAuth(toolName, "Knowledge Base - Internal Repository", {
-    showUserInfo: true,
-    userInfoContainerId: "user-info",
-  });
-
-  if (result.success) {
-    class KnowledgeBase {
-      constructor() {
-        this.articles = [];
-        this.filteredArticles = [];
-        this.currentSearch = "";
-        this.currentFilters = {
-          category: "",
-          difficulty: "",
-          date: "",
-          tags: [],
-        };
-        this.stats = {
-          totalArticles: 0,
-          categories: [],
-          popularTags: [],
-        };
-        this.adminUser = result.user || null;
-        this.init();
-      }
-
-      async init() {
-        this.bindEvents();
-        await Promise.all([this.loadArticles(), this.loadStats()]);
-        this.renderArticles();
-        this.renderStats();
-      }
-
-      async loadStats() {
-        try {
-          const response = await fetch("/api/knowledge-base/stats");
-          this.stats = await response.json();
-        } catch (err) {
-          console.error("Failed to load stats:", err);
-          this.calculateStatsFromArticles();
-        }
-      }
-
-      calculateStatsFromArticles() {
-        this.stats.totalArticles = this.articles.length;
-        const categoryCount = {};
-        const tagCount = {};
-
-        this.articles.forEach((article) => {
-          if (article.category) {
-            categoryCount[article.category] = (categoryCount[article.category] || 0) + 1;
-          }
-          if (article.tags) {
-            article.tags.forEach((tag) => {
-              tagCount[tag] = (tagCount[tag] || 0) + 1;
-            });
-          }
-        });
-
-        this.stats.categories = Object.entries(categoryCount).map(([name, count]) => ({
-          name,
-          count,
-        }));
-
-        this.stats.popularTags = Object.entries(tagCount)
-          .map(([name, count]) => ({ name, count }))
-          .sort((a, b) => b.count - a.count)
-          .slice(0, 10);
-      }
-
-      renderStats() {
-        const statsContainer = document.getElementById("statsOverview");
-        if (!statsContainer) return;
-
-        statsContainer.innerHTML = `
-          <div class="stat-card">
-            <span class="stat-value">${this.stats.totalArticles}</span>
-            <span class="stat-label">Total Articles</span>
-          </div>
-          <div class="stat-card">
-            <span class="stat-value">${this.stats.categories.length}</span>
-            <span class="stat-label">Categories</span>
-          </div>
-          <div class="stat-card">
-            <span class="stat-value">${this.stats.popularTags.length}</span>
-            <span class="stat-label">Popular Tags</span>
-          </div>
-        `;
-      }
-
-      bindEvents() {
-        document.getElementById("searchInput")?.addEventListener(
-          "input",
-          this.debounce((e) => this.handleSearch(e.target.value), 300)
-        );
-
-        document.querySelectorAll(".filter-dropdown select")?.forEach((select) => {
-          select.addEventListener("change", (e) => this.handleFilterChange(e.target.name, e.target.value));
-        });
-
-        document.getElementById("sortBy")?.addEventListener("change", (e) => this.handleSort(e.target.value));
-      }
-
-      async loadArticles() {
-        this.showLoading(true);
-        try {
-          const response = await fetch("/api/knowledge-base/articles");
-          if (!response.ok) throw new Error("Failed to fetch articles");
-
-          this.articles = await response.json();
-          this.filteredArticles = [...this.articles];
-        } catch (err) {
-          console.error("Error loading articles:", err);
-          this.articles = this.getDemoArticles();
-          this.filteredArticles = [...this.articles];
-        } finally {
-          this.showLoading(false);
-        }
-      }
-
-      getDemoArticles() {
-        return [
-          {
-            _id: "demo1",
-            title: "Getting Started with WorkToolsHub",
-            excerpt: "Learn the basics of navigating and using WorkToolsHub effectively.",
-            category: "Basics",
-            difficulty: "Beginner",
-            createdAt: new Date(),
-            tags: ["getting started", "basics"],
-            helpful: 10,
-            notHelpful: 2,
-          },
-        ];
-      }
-
-      handleSearch(query) {
-        this.currentSearch = query.toLowerCase();
-        this.applyFilters();
-      }
-
-      handleFilterChange(filterName, value) {
-        this.currentFilters[filterName] = value;
-        this.applyFilters();
-      }
-
-      handleSort(sortValue) {
-        if (sortValue === "newest") {
-          this.filteredArticles.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        } else if (sortValue === "helpful") {
-          this.filteredArticles.sort((a, b) => (b.helpful || 0) - (a.helpful || 0));
-        }
-        this.renderArticles();
-      }
-
-      handleCategoryClick(category) {
-        this.currentFilters.category = category;
-        this.applyFilters();
-      }
-
-      handleTagClick(tag) {
-        if (!this.currentFilters.tags.includes(tag)) {
-          this.currentFilters.tags.push(tag);
-          this.applyFilters();
-        }
-      }
-
-      applyFilters() {
-        this.filteredArticles = this.articles.filter((article) => {
-          const matchesSearch =
-            !this.currentSearch ||
-            article.title.toLowerCase().includes(this.currentSearch) ||
-            article.excerpt.toLowerCase().includes(this.currentSearch);
-
-          const matchesCategory = !this.currentFilters.category || article.category === this.currentFilters.category;
-          const matchesDifficulty = !this.currentFilters.difficulty || article.difficulty === this.currentFilters.difficulty;
-          const matchesTags =
-            this.currentFilters.tags.length === 0 || this.currentFilters.tags.every((tag) => article.tags.includes(tag));
-
-          return matchesSearch && matchesCategory && matchesDifficulty && matchesTags;
-        });
-
-        this.renderArticles();
-      }
-
-      renderArticles() {
-        const container = document.getElementById("articlesList");
-        if (!container) return;
-
-        if (this.filteredArticles.length === 0) {
-          container.innerHTML = `
-            <div class="no-results">
-              <p>No articles found matching your criteria.</p>
-              <button id="noResultsAiBtn">Ask AI Assistant</button>
-            </div>
-          `;
-          return;
-        }
-
-        container.innerHTML = this.filteredArticles
-          .map(
-            (article) => `
-            <article class="article-card fade-in" data-id="${article._id || article.id}">
-              <h3 onclick="window.kbSystem.openArticle('${article._id || article.id}')">${article.title}</h3>
-              <p>${article.excerpt}</p>
-              <div class="article-meta">
-                <span>${this.formatCategory(article.category)}</span>
-                <span>${this.formatDate(article.createdAt)}</span>
-              </div>
-              <div class="article-tags">
-                ${(article.tags || [])
-                  .map((tag) => `<span class="tag" onclick="window.kbSystem.handleTagClick('${tag}')">${tag}</span>`)
-                  .join("")}
-              </div>
-            </article>
-          `
-          )
-          .join("");
-      }
-
-      openArticle(articleId) {
-        const article = this.articles.find((a) => a._id == articleId || a.id == articleId);
-        if (!article) return;
-
-        const modal = document.getElementById("articleModal");
-        modal.querySelector(".modal-title").textContent = article.title;
-        modal.querySelector(".modal-body").textContent = article.excerpt;
-        modal.classList.add("show");
-      }
-
-      formatCategory(category) {
-        return category || "Uncategorized";
-      }
-
-      formatDate(date) {
-        return new Date(date).toLocaleDateString();
-      }
-
-      showLoading(show) {
-        document.getElementById("loading")?.classList.toggle("active", show);
-      }
-
-      debounce(fn, delay) {
-        let timeout;
-        return function (...args) {
-          clearTimeout(timeout);
-          timeout = setTimeout(() => fn.apply(this, args), delay);
-        };
-      }
-    }
-
-    // Initialize KB
-    window.kbSystem = new KnowledgeBase();
-
-    // AI NO RESULT
-    document.getElementById("noResultsAiBtn")?.addEventListener("click", () => {
-      window.kbSystem.showAIAssistant();
-      const query = "I didn’t find any articles, please help me with this search.";
-      document.getElementById("aiInput").value = query;
-      window.kbSystem.handleAIQuery(query);
-    });
-
-    // AI toggle
-    document.getElementById("aiToggle")?.addEventListener("click", () => {
-      const panel = document.getElementById("aiPanel");
-      if (panel.classList.contains("active")) {
-        window.kbSystem.hideAIAssistant();
-      } else {
-        window.kbSystem.showAIAssistant();
-      }
-    });
-
-    // AI submit
-    document.getElementById("aiSubmit")?.addEventListener("click", () => {
-      const query = document.getElementById("aiInput").value.trim();
-      if (query) window.kbSystem.handleAIQuery(query);
-    });
-
-    // AI input enter
-    document.getElementById("aiInput")?.addEventListener("keypress", (e) => {
-      if (e.key === "Enter" && e.ctrlKey) {
-        const query = e.target.value.trim();
-        if (query) window.kbSystem.handleAIQuery(query);
-      }
-    });
-
-    // Edit modal handlers
-    document.getElementById("modalClose")?.addEventListener("click", () => {
-      window.kbSystem.hideEditModal();
-    });
-    document.getElementById("cancelEdit")?.addEventListener("click", () => {
-      window.kbSystem.hideEditModal();
-    });
-    document.getElementById("editForm")?.addEventListener("submit", (e) => {
-      e.preventDefault();
-      window.kbSystem.submitEditSuggestion();
-    });
-  }
-});
-</script>
-
-    
-    <!-- <script>
       document.addEventListener("DOMContentLoaded", async () => {
-        const toolName = "knowledge-base"; 
+        const toolName = "knowledge-base";
         const result = await authUtils.initToolAuth(
           toolName,
           "Knowledge Base - Internal Repository",
           {
             showUserInfo: true,
-            userInfoContainerId: "user-info", 
+            userInfoContainerId: "user-info",
             redirectIfUnauthorized: false,
             onAuthSuccess: (data) => {
-                  initializeKnowledgeBase();
-        },
-        onAuthFailed: (data) => {
-          console.log('Not authenticated, proceeding as public user');
-        }
+              initializeKnowledgeBase();
+            },
+            onAuthFailed: (data) => {
+              console.log("Not authenticated, proceeding as public user");
+            },
           }
         );
-
 
         if (result.success) {
           class KnowledgeBase {
@@ -1570,17 +1265,31 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
 
             checkAdminAuth() {
-              const user = localStorage.getItem("adminUser");
-              if (user) {
-                this.adminUser = JSON.parse(user);
-                document.getElementById("adminAccess").style.display = "block";
-                document.getElementById("adminLogin").style.display = "none";
-              } else {
-                document.getElementById("adminAccess").style.display = "none";
-                document.getElementById("adminLogin").style.display = "block";
-              }
-            }
-
+  // Check both localStorage and the user from auth result
+  const storageUser = localStorage.getItem("adminUser");
+  const authUser = this.adminUser;
+  
+  let isAdmin = false;
+  
+  if (storageUser) {
+    const user = JSON.parse(storageUser);
+    isAdmin = user.isAdmin || user.role === 'admin';
+    console.log("Storage user admin status:", isAdmin);
+  } else if (authUser) {
+    isAdmin = authUser.isAdmin || authUser.role === 'admin';
+    console.log("Auth user admin status:", isAdmin, authUser);
+  }
+  
+  if (isAdmin) {
+    document.getElementById("adminAccess").style.display = "block";
+    document.getElementById("adminLogin").style.display = "none";
+    console.log("Admin access granted");
+  } else {
+    document.getElementById("adminAccess").style.display = "none";
+    document.getElementById("adminLogin").style.display = "block";
+    console.log("No admin access");
+  }
+}
             async loadStats() {
               try {
                 const cacheBuster = `?_=${Date.now()}`;
@@ -1886,36 +1595,43 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
 
             async loadArticles() {
-              this.showLoading();
+  try {
+    this.showLoading();
+    
+    const cacheBuster = `?_=${Date.now()}`;
+    const response = await fetch(
+      `https://worktoolshubv2.onrender.com/api/knowledge-base/articles${cacheBuster}`,
+      {
+        headers: {
+          "Cache-Control": "no-cache",
+          Pragma: "no-cache",
+        },
+      }
+    );
 
-              try {
-                const cacheBuster = `?_=${Date.now()}`;
-                const response = await fetch(
-                  `https://worktoolshubv2.onrender.com/api/knowledge-base/articles${cacheBuster}`,
-                  {
-                    headers: {
-                      "Cache-Control": "no-cache",
-                      Pragma: "no-cache",
-                    },
-                  }
-                );
+    if (!response.ok) {
+      console.log("API not available, using demo articles");
+      this.articles = this.getDemoArticles();
+    } else {
+      this.articles = await response.json();
+      console.log("Loaded", this.articles.length, "articles from API");
+    }
 
-                if (!response.ok) {
-                  this.articles = this.getDemoArticles();
-                } else {
-                  this.articles = await response.json();
-                }
-
-                this.filteredArticles = [...this.articles].sort(
-                  (a, b) => b.views - a.views
-                );
-              } catch (error) {
-                console.error("Failed to load articles:", error);
-                this.articles = this.getDemoArticles();
-                this.filteredArticles = [...this.articles];
-              }
-            }
-
+    this.filteredArticles = [...this.articles];
+    console.log("Articles loaded successfully:", this.filteredArticles.length);
+    
+  } catch (error) {
+    console.error("Failed to load articles:", error);
+    this.articles = this.getDemoArticles();
+    this.filteredArticles = [...this.articles];
+    console.log("Using demo articles:", this.articles.length);
+  } finally {
+    // Hide loading after articles are set
+    setTimeout(() => {
+      this.renderArticles();
+    }, 100);
+  }
+}
             getDemoArticles() {
               return [
                 {
@@ -2145,7 +1861,9 @@ document.addEventListener("DOMContentLoaded", async () => {
               grid.innerHTML = this.filteredArticles
                 .map(
                   (article) => `
-        <article class="article-card fade-in" data-id="${article._id || article.id}"">
+        <article class="article-card fade-in" data-id="${
+          article._id || article.id
+        }"">
             <div class="article-header">
                 <span class="article-category">${this.formatCategory(
                   article.category
@@ -2162,7 +1880,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             <div class="article-meta">
                 <div>
                     <strong>${article.author}</strong> • ${this.formatDate(
-                    article.date
+                    article.createdAt || article.date
                   )} 
                 </div>
                 <div>
@@ -2432,23 +2150,19 @@ document.addEventListener("DOMContentLoaded", async () => {
                   "none";
               }
             }
-            showLoading() {
-              const grid = document.getElementById("articlesGrid");
-              grid.innerHTML = Array(6)
-                .fill(0)
-                .map(
-                  () => `
-                  <div class="skeleton-card loading-skeleton">
-                      <div class="skeleton-line short"></div>
-                      <div class="skeleton-line"></div>
-                      <div class="skeleton-line medium"></div>
-                      <div class="skeleton-line short"></div>
-                  </div>
-              `
-                )
-                .join("");
-            }
-
+           showLoading() {
+  const grid = document.getElementById("articlesGrid");
+  if (grid) {
+    grid.innerHTML = Array(6).fill(0).map(() => `
+      <div class="skeleton-card">
+        <div class="skeleton-line short"></div>
+        <div class="skeleton-line"></div>
+        <div class="skeleton-line medium"></div>
+        <div class="skeleton-line short"></div>
+      </div>
+    `).join("");
+  }
+}
             updateResultsCount() {
               const count = this.filteredArticles.length;
               const resultsCount = document.getElementById("resultsCount");
@@ -2622,6 +2336,6 @@ document.addEventListener("DOMContentLoaded", async () => {
           document.documentElement.style.scrollBehavior = "smooth";
         }
       });
-    </script> -->
+    </script>
   </body>
 </html>
