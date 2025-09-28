@@ -23,7 +23,7 @@ export class CategoryRenderer {
         if (isAuthenticated) {
           window.location.href = path;
         } else {
-          authUtils.redirectToAuth(toolName, `Access ${toolName}`);
+          authUtils.redirectToAuth(path, `Access ${toolName}`);
         }
       });
     } else {
@@ -485,7 +485,7 @@ window.handleToolClick = function(event, linkElement) {
   event.preventDefault();
   
   const path = linkElement.getAttribute('href');
-  const toolName = linkElement.textContent.trim().split(' ')[0]; // Get just the tool name, not badges
+  const toolName = linkElement.textContent.trim().split(' ')[0]; 
   
   if (typeof authUtils !== 'undefined') {
     authUtils.isAuthenticated().then(isAuthenticated => {
