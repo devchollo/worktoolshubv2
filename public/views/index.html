@@ -605,6 +605,7 @@
     <div id="footer"></div>
     <script src="../scripts/layout.js"></script>
     <script type="module" src="../scripts/main.js" defer></script>
+    <script src="/auth-utils.js"></script>
     <script>
       window.handleToolClick = function(event, linkElement) {
   event.preventDefault();
@@ -614,7 +615,7 @@
   const toolName = linkElement.querySelector('.newfold-title')?.textContent || 'Newfold Core';
   
   // Always redirect to auth with the specific path as redirect parameter
-  const redirectUrl = "tools%2Fnewfold-core";
+  const redirectUrl = encodeURIComponent(window.location.origin + path);
   window.location.href = `/auth.html?redirect=${redirectUrl}&tool=${encodeURIComponent(toolName)}`;
   
   return false;
