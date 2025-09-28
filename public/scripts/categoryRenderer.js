@@ -12,6 +12,28 @@ export class CategoryRenderer {
     this.selectedIndex = -1;
     this.init();
   }
+  checkAuthAndNavigate(path, toolName, isInternal) {
+    if (!isInternal) {
+      window.location.href = path;
+      return;
+    }
+
+    if (typeof authUtils !== "undefined") {
+      authUtils.isAuthenticated().then((isAuthenticated) => {
+        if (isAuthenticated) {
+          window.location.href = path;
+        } else {
+          authUtils.redirectToAuth(toolName, `Access ${toolName}`);
+        }
+      });
+    } else {
+      // Fallback - redirect to auth page
+      const currentUrl = encodeURIComponent(path);
+      window.location.href = `/auth.html?redirect=${currentUrl}&tool=${encodeURIComponent(
+        toolName
+      )}`;
+    }
+  }
 
   init() {
     if (!this.container) return;
@@ -68,28 +90,30 @@ export class CategoryRenderer {
       </div>
       <h3 class="category-title">${category.name}</h3>
       <p class="category-description">${category.description}</p>
-      <ul class="tool-list">
-          ${category.tools
-            .map(
-              (tool) =>
-                `<li class="tool-item"><a href="${
-                  tool.path
-                }" target="_self" style="text-decoration: none; color: inherit;" ${
-                  tool.internal ? 'data-internal="true"' : ""
-                }>${tool.name} ${
-                  tool.internal
-                    ? '<span style="background: #fbbf24; color: #92400e; font-size: 10px; padding: 2px 6px; border-radius: 12px; font-weight: 500;">Internal</span>'
-                    : ""
-                }
-                ${
-              tool.pending
-                ? '<span style="background: #10b981; color: #05422fff; font-size: 10px; padding: 2px 6px; border-radius: 12px; font-weight: 500;">Coming Soon</span>'
-                : ""
-            }
-                </a></li>`
-            )
-            .join("")}
-      </ul>
+     <ul class="tool-list">
+  ${category.tools
+    .map(
+      (tool) =>
+        `<li class="tool-item"><a href="${
+          tool.path
+        }" target="_self" style="text-decoration: none; color: inherit;" ${
+          tool.internal ? 'data-internal="true"' : ""
+        } ${
+          tool.internal ? 'onclick="return handleToolClick(event, this)"' : ""
+        }>${tool.name} ${
+          tool.internal
+            ? '<span style="background: #fbbf24; color: #92400e; font-size: 10px; padding: 2px 6px; border-radius: 12px; font-weight: 500;">Internal</span>'
+            : ""
+        }
+        ${
+          tool.pending
+            ? '<span style="background: #10b981; color: #05422fff; font-size: 10px; padding: 2px 6px; border-radius: 12px; font-weight: 500;">Coming Soon</span>'
+            : ""
+        }
+        </a></li>`
+    )
+    .join("")}
+</ul>
     `;
 
     return card;
@@ -103,7 +127,7 @@ export class CategoryRenderer {
 
     // Position dropdown relative to search input
     this.positionDropdown();
-console.log("Results array:", results);
+    console.log("Results array:", results);
     const html = results
       .map(
         (tool, index) => `
@@ -150,10 +174,10 @@ console.log("Results array:", results);
                 ? '<span style="background: #fbbf24; color: #92400e; font-size: 10px; padding: 2px 6px; border-radius: 12px; font-weight: 500;">Internal</span>'
                 : ""
             } ${
-              tool.pending
-                ? '<span style="background: #10b981; color: #05422fff; font-size: 10px; padding: 2px 6px; border-radius: 12px; font-weight: 500;">Coming Soon</span>'
-                : ""
-            } 
+          tool.pending
+            ? '<span style="background: #10b981; color: #05422fff; font-size: 10px; padding: 2px 6px; border-radius: 12px; font-weight: 500;">Coming Soon</span>'
+            : ""
+        } 
           </div>
           <div style="font-size: 12px; color: #6b7280;">
             in ${tool.categoryName}
@@ -177,22 +201,14 @@ console.log("Results array:", results);
 
           const path = e.currentTarget.dataset.path;
           const isInternal = e.currentTarget.hasAttribute("data-internal");
+          const toolName = e.currentTarget
+            .querySelector("div:last-child > div:first-child")
+            .textContent.trim();
 
           console.log("Path:", path);
           console.log("Is internal:", isInternal);
-          console.log("window.auth exists:", !!window.auth);
 
-          if (isInternal && window.auth) {
-            console.log("Calling checkInternalAccess...");
-            const hasAccess = window.auth.checkInternalAccess(path);
-            console.log("checkInternalAccess returned:", hasAccess);
-
-            if (!hasAccess) {
-              return;
-            }
-          }
-          console.log("Navigating to:", path);
-          window.location.href = path;
+          this.checkAuthAndNavigate(path, toolName, isInternal);
         });
       });
   }
@@ -339,16 +355,11 @@ console.log("Results array:", results);
   handleEnterKey(searchTerm) {
     if (this.selectedIndex >= 0 && this.searchResults[this.selectedIndex]) {
       const selectedTool = this.searchResults[this.selectedIndex];
-
-      // Check if the selected tool is internal
-      if (selectedTool.internal && window.auth) {
-        if (!window.auth.checkInternalAccess(selectedTool.path)) {
-          return; // Don't navigate, modal will show
-        }
-      }
-
-      // Navigate to selected result only if not internal or if authenticated
-      window.location.href = selectedTool.path;
+      this.checkAuthAndNavigate(
+        selectedTool.path,
+        selectedTool.name,
+        selectedTool.internal
+      );
     } else if (searchTerm.trim()) {
       // Find best match and navigate
       this.handleSearchSubmit(searchTerm);
@@ -467,4 +478,27 @@ console.log("Results array:", results);
     }
     return matrix[str2.length][str1.length];
   }
+
+}
+// Add this at the end of your categoryRenderer.js file, outside the class
+window.handleToolClick = function(event, linkElement) {
+  event.preventDefault();
+  
+  const path = linkElement.getAttribute('href');
+  const toolName = linkElement.textContent.trim().split(' ')[0]; // Get just the tool name, not badges
+  
+  if (typeof authUtils !== 'undefined') {
+    authUtils.isAuthenticated().then(isAuthenticated => {
+      if (isAuthenticated) {
+        window.location.href = path;
+      } else {
+        authUtils.redirectToAuth(toolName, `Access ${toolName}`);
+      }
+    });
+  } else {
+    const currentUrl = encodeURIComponent(path);
+    window.location.href = `/auth.html?redirect=${currentUrl}&tool=${encodeURIComponent(toolName)}`;
+  }
+  
+  return false;
 }
