@@ -241,6 +241,7 @@
 
     <main>
       <section class="tool-container">
+        <div id="user-info"></div>
         <div class="tool-header">
           <h1>Offline Modifications Generator</h1>
           <p class="subtitle">
@@ -331,10 +332,17 @@
 
     <script src="../scripts/layout.js"></script>
     <script type="module" src="../scripts/main.js" defer></script>
-    <script src="../../scripts/page-auth.js"></script>
-
-    <script>
-      class OfflineModificationsGenerator {
+    <script src="/auth-utils.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  const toolName = 'offline-mods-note-email-generator'; // Change this per tool
+  const result = await authUtils.initToolAuth(toolName, 'Offline Mods Note & Email Generator', {
+    showUserInfo: true,
+    userInfoContainerId: 'user-info' 
+  });
+  
+  if (result.success) {
+    class OfflineModificationsGenerator {
         constructor() {
           this.form = document.getElementById("modificationsForm");
           this.generateBtn = document.getElementById("generateBtn");
@@ -717,11 +725,11 @@
           }
         }
       }
+      modGenerator = new OfflineModificationsGenerator();
 
-      let modGenerator;
-      document.addEventListener("DOMContentLoaded", () => {
-        modGenerator = new OfflineModificationsGenerator();
-      });
-    </script>
+  }
+});
+</script>
+
   </body>
 </html>
