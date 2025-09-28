@@ -58,7 +58,7 @@ class AuthUtils {
 
   // Redirect to auth page with return URL
   redirectToAuth(toolName = null, toolDescription = null) {
-    const currentUrl = encodeURIComponent(window.location.href);
+    const currentUrl = window.location.href;
     let authUrl = `/auth.html?redirect=${currentUrl}`;
     
     if (toolName) {

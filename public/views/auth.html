@@ -285,29 +285,30 @@
             }
 
             parseUrlParams() {
-                const params = new URLSearchParams(window.location.search);
-                this.redirectUrl = params.get('redirect');
-                
-                // Extract tool info from URL if provided
-                const toolName = params.get('tool');
-                const toolDescription = params.get('description');
-                
-                if (toolName) {
-                    this.showToolInfo(toolName, toolDescription);
-                }
+    const params = new URLSearchParams(window.location.search);
+    // Fix: Properly decode the redirect URL
+    this.redirectUrl = decodeURIComponent(params.get('redirect') || '');
+    
+    // Extract tool info from URL if provided
+    const toolName = params.get('tool');
+    const toolDescription = params.get('description');
+    
+    if (toolName) {
+        this.showToolInfo(toolName, toolDescription);
+    }
 
-                // Update back link if there's a specific redirect
-                if (this.redirectUrl) {
-                    const backLink = document.getElementById('backLink');
-                    try {
-                        const url = new URL(this.redirectUrl);
-                        backLink.href = url.origin;
-                    } catch (e) {
-                        backLink.href = '/';
-                    }
-                }
-            }
-
+    // Update back link if there's a specific redirect
+    if (this.redirectUrl) {
+        const backLink = document.getElementById('backLink');
+        try {
+            const url = new URL(this.redirectUrl);
+            backLink.href = url.origin;
+        } catch (e) {
+            // If it's a relative URL, keep it as is
+            backLink.href = '/';
+        }
+    }
+}
             showToolInfo(toolName, toolDescription) {
                 const toolInfo = document.getElementById('toolInfo');
                 const toolNameEl = document.getElementById('toolName');
