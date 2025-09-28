@@ -367,7 +367,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         init() {
           this.bindEvents();
-          this.setupFormValidation();
         }
 
         bindEvents() {
@@ -381,10 +380,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           this.addPageBtn.addEventListener("click", () => this.addPage());
         }
 
-        setupFormValidation() {
-          // Dynamic validation will be handled when pages are added
-        }
-
+      
         addPage() {
           this.pageCounter++;
           const pageId = `page_${this.pageCounter}`;
@@ -435,7 +431,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
           const urlInput = pageItem.querySelector(".page-url-input");
           urlInput.focus();
-          urlInput.addEventListener("blur", this.formatURL);
         }
 
         removePage(pageId) {
@@ -535,12 +530,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           countElement.textContent = `${count} Change${count !== 1 ? "s" : ""}`;
         }
 
-        formatURL(e) {
-          let value = e.target.value.trim();
-          if (value && !value.startsWith("http")) {
-            e.target.value = value;
-          }
-        }
+       
 
         async handleSubmit(e) {
           e.preventDefault();
