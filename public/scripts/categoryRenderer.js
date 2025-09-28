@@ -492,7 +492,7 @@ window.handleToolClick = function(event, linkElement) {
       if (isAuthenticated) {
         window.location.href = path;
       } else {
-        authUtils.redirectToAuth(toolName, `Access ${toolName}`);
+        authUtils.redirectToAuth(toolName, `Access ${toolName}`, path);
       }
     });
   } else {
