@@ -141,7 +141,7 @@
         <div class="container-wide">
           <div class="custom-center">
             <!-- Newfold Core Announcement Card - True Landscape -->
-<div class="newfold-announcement-card" onclick="return handleToolClick(event, this)">
+<div class="newfold-announcement-card" data-href="/tools/newfold-core" onclick="return handleToolClick(event, this)">
     <div class="newfold-bg-effects">
         <div class="newfold-gradient-orb newfold-orb-1"></div>
         <div class="newfold-gradient-orb newfold-orb-2"></div>
@@ -556,7 +556,7 @@ document.addEventListener('DOMContentLoaded', function() {
       window.handleToolClick = function(event, linkElement) {
   event.preventDefault();
   
-  const path = linkElement.getAttribute('href');
+  const path = linkElement.getAttribute('data-href');
   const toolName = linkElement.textContent.trim().split(' ')[0]; 
   
   if (typeof authUtils !== 'undefined') {
