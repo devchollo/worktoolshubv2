@@ -569,9 +569,16 @@
 
     <script src="../scripts/layout.js"></script>
     <script type="module" src="../scripts/main.js" defer></script>
-    <script src="../../scripts/page-auth.js"></script>
-
-    <script>
+    <script src="/auth-utils.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  const toolName = 'business-listing-update'; // Change this per tool
+  const result = await authUtils.initToolAuth(toolName, 'Update business listings', {
+    showUserInfo: true,
+    userInfoContainerId: 'user-info' // Add this div to your HTML
+  });
+  
+  if (result.success) {
       class EmbedCodeGenerator {
         constructor() {
           this.uploadContainer = document.getElementById("uploadContainer");
@@ -978,11 +985,9 @@
           }
         }
       }
-
-      let embedGenerator;
-      document.addEventListener("DOMContentLoaded", () => {
-        embedGenerator = new EmbedCodeGenerator();
-      });
-    </script>
+embedGenerator = new EmbedCodeGenerator();
+  }
+});
+</script>
   </body>
 </html>

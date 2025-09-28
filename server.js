@@ -5,7 +5,7 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const crypto = require('crypto');
+const crypto = require("crypto");
 require("dotenv").config();
 
 // Import routes
@@ -137,24 +137,28 @@ connectDB();
 const authenticateAdmin = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
-    const token = authHeader && authHeader.startsWith('Bearer ') 
-      ? authHeader.substring(7) 
-      : null;
+    const token =
+      authHeader && authHeader.startsWith("Bearer ")
+        ? authHeader.substring(7)
+        : null;
 
     if (!token) {
-      return res.status(401).json({ 
+      return res.status(401).json({
         error: "Authentication required",
-        message: "Please provide a valid JWT token"
+        message: "Please provide a valid JWT token",
       });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "your-secret-key");
-    
-    const admin = await Admin.findOne({ 
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET || "your-secret-key"
+    );
+
+    const admin = await Admin.findOne({
       email: decoded.email,
-      isActive: true 
+      isActive: true,
     });
-    
+
     if (!admin) {
       return res.status(401).json({ error: "Invalid token or user not found" });
     }
@@ -162,9 +166,9 @@ const authenticateAdmin = async (req, res, next) => {
     // Check if session is still valid
     if (decoded.sessionId) {
       const hasValidSession = admin.sessionIds.some(
-        session => session.sessionId === decoded.sessionId
+        (session) => session.sessionId === decoded.sessionId
       );
-      
+
       if (!hasValidSession) {
         return res.status(401).json({ error: "Session expired" });
       }
@@ -181,15 +185,16 @@ const authenticateAdmin = async (req, res, next) => {
 
 // Special middleware for initial admin registration (requires JWT_SECRET)
 const validateInitialAdminSecret = (req, res, next) => {
-  const jwtSecret = req.headers['x-jwt-secret'] ||
-                   req.headers['authorization']?.replace(/^Bearer\s+/, '') || 
-                   req.body.jwt_secret ||                 
-                   req.query.jwt_secret;
-  
+  const jwtSecret =
+    req.headers["x-jwt-secret"] ||
+    req.headers["authorization"]?.replace(/^Bearer\s+/, "") ||
+    req.body.jwt_secret ||
+    req.query.jwt_secret;
+
   if (jwtSecret !== process.env.JWT_SECRET) {
-    return res.status(401).json({ 
+    return res.status(401).json({
       error: "JWT_SECRET is required for initial admin registration",
-      hint: "This is only needed for the first admin account"
+      hint: "This is only needed for the first admin account",
     });
   }
   next();
@@ -197,8 +202,8 @@ const validateInitialAdminSecret = (req, res, next) => {
 
 // Utility functions
 const getClientInfo = (req) => ({
-  userAgent: req.get('User-Agent') || 'Unknown',
-  ipAddress: req.ip || req.connection.remoteAddress || 'Unknown'
+  userAgent: req.get("User-Agent") || "Unknown",
+  ipAddress: req.ip || req.connection.remoteAddress || "Unknown",
 });
 
 // API Routes (non-admin)
@@ -252,11 +257,20 @@ app.get("/api/test-db", async (req, res) => {
 
 app.post("/api/admin/register", authenticateAdmin, async (req, res) => {
   try {
-    const { email, password, name, avatar, role, department, phone, permissions } = req.body;
+    const {
+      email,
+      password,
+      name,
+      avatar,
+      role,
+      department,
+      phone,
+      permissions,
+    } = req.body;
 
     if (!email || !password || !name) {
-      return res.status(400).json({ 
-        error: "Email, password, and name are required" 
+      return res.status(400).json({
+        error: "Email, password, and name are required",
       });
     }
 
@@ -276,27 +290,31 @@ app.post("/api/admin/register", authenticateAdmin, async (req, res) => {
       role: role || "Administrator",
       department,
       phone,
-      permissions
+      permissions,
     });
 
     await newAdmin.save();
 
-    res.status(201).json({ 
+    res.status(201).json({
       message: "Admin registered successfully",
-      admin: newAdmin.toJSON()
+      admin: newAdmin.toJSON(),
     });
   } catch (error) {
     console.error("Admin registration error:", error);
-    
+
     if (error.code === 11000) {
-      return res.status(400).json({ error: "Admin with this email already exists" });
+      return res
+        .status(400)
+        .json({ error: "Admin with this email already exists" });
     }
-    
-    if (error.name === 'ValidationError') {
-      const errors = Object.values(error.errors).map(e => e.message);
-      return res.status(400).json({ error: "Validation failed", details: errors });
+
+    if (error.name === "ValidationError") {
+      const errors = Object.values(error.errors).map((e) => e.message);
+      return res
+        .status(400)
+        .json({ error: "Validation failed", details: errors });
     }
-    
+
     res.status(500).json({ error: "Registration failed" });
   }
 });
@@ -311,9 +329,9 @@ app.post("/api/admin/login", async (req, res) => {
       return res.status(400).json({ error: "Email and password are required" });
     }
 
-    const admin = await Admin.findOne({ 
+    const admin = await Admin.findOne({
       email: email.toLowerCase(),
-      isActive: true 
+      isActive: true,
     });
 
     if (!admin) {
@@ -322,9 +340,10 @@ app.post("/api/admin/login", async (req, res) => {
 
     // Check if account is locked
     if (admin.isLocked) {
-      return res.status(423).json({ 
-        error: "Account temporarily locked due to too many failed login attempts",
-        lockUntil: admin.lockUntil
+      return res.status(423).json({
+        error:
+          "Account temporarily locked due to too many failed login attempts",
+        lockUntil: admin.lockUntil,
       });
     }
 
@@ -340,14 +359,18 @@ app.post("/api/admin/login", async (req, res) => {
 
     // Generate session ID and add to admin's sessions
     const sessionId = crypto.randomUUID();
-    await admin.addSession(sessionId, clientInfo.userAgent, clientInfo.ipAddress);
+    await admin.addSession(
+      sessionId,
+      clientInfo.userAgent,
+      clientInfo.ipAddress
+    );
 
     const token = jwt.sign(
-      { 
+      {
         id: admin._id,
-        email: admin.email, 
+        email: admin.email,
         role: admin.role,
-        sessionId: sessionId
+        sessionId: sessionId,
       },
       process.env.JWT_SECRET || "your-secret-key",
       { expiresIn: "24h" }
@@ -363,7 +386,7 @@ app.post("/api/admin/login", async (req, res) => {
         avatar: admin.avatarUrl,
         permissions: admin.permissions,
         lastLogin: admin.lastLogin,
-        department: admin.department
+        department: admin.department,
       },
     });
   } catch (error) {
@@ -376,14 +399,17 @@ app.post("/api/admin/login", async (req, res) => {
 app.post("/api/admin/logout", async (req, res) => {
   try {
     const { token } = req.body;
-    
+
     if (!token) {
       return res.status(400).json({ error: "Token is required" });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "your-secret-key");
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET || "your-secret-key"
+    );
     const admin = await Admin.findByEmail(decoded.email);
-    
+
     if (admin && decoded.sessionId) {
       await admin.removeSession(decoded.sessionId);
     }
@@ -399,7 +425,7 @@ app.post("/api/admin/logout", async (req, res) => {
 app.post("/api/admin/verify", async (req, res) => {
   try {
     const { token } = req.body;
-    
+
     if (!token) {
       return res.status(400).json({ error: "Token is required" });
     }
@@ -408,12 +434,12 @@ app.post("/api/admin/verify", async (req, res) => {
       token,
       process.env.JWT_SECRET || "your-secret-key"
     );
-    
-    const admin = await Admin.findOne({ 
+
+    const admin = await Admin.findOne({
       email: decoded.email,
-      isActive: true 
+      isActive: true,
     });
-    
+
     if (!admin) {
       return res.status(401).json({ error: "Invalid token" });
     }
@@ -421,9 +447,9 @@ app.post("/api/admin/verify", async (req, res) => {
     // Verify session is still active
     if (decoded.sessionId) {
       const hasValidSession = admin.sessionIds.some(
-        session => session.sessionId === decoded.sessionId
+        (session) => session.sessionId === decoded.sessionId
       );
-      
+
       if (!hasValidSession) {
         return res.status(401).json({ error: "Session expired" });
       }
@@ -438,7 +464,7 @@ app.post("/api/admin/verify", async (req, res) => {
         avatar: admin.avatarUrl,
         permissions: admin.permissions,
         lastLogin: admin.lastLogin,
-        department: admin.department
+        department: admin.department,
       },
     });
   } catch (error) {
@@ -452,7 +478,18 @@ app.post("/api/admin/verify", async (req, res) => {
 // Edit admin
 app.put("/api/admin/edit", authenticateAdmin, async (req, res) => {
   try {
-    const { id, email, password, name, avatar, role, isActive, department, phone, permissions } = req.body;
+    const {
+      id,
+      email,
+      password,
+      name,
+      avatar,
+      role,
+      isActive,
+      department,
+      phone,
+      permissions,
+    } = req.body;
 
     if (!id) {
       return res.status(400).json({ error: "Admin ID is required" });
@@ -468,11 +505,11 @@ app.put("/api/admin/edit", authenticateAdmin, async (req, res) => {
     if (email) admin.email = email.toLowerCase();
     if (avatar) admin.avatar = avatar;
     if (role) admin.role = role;
-    if (typeof isActive === 'boolean') admin.isActive = isActive;
+    if (typeof isActive === "boolean") admin.isActive = isActive;
     if (department !== undefined) admin.department = department;
     if (phone !== undefined) admin.phone = phone;
     if (permissions) admin.permissions = permissions;
-    
+
     // Hash new password if provided
     if (password) {
       admin.password = await bcrypt.hash(password, 12);
@@ -480,18 +517,20 @@ app.put("/api/admin/edit", authenticateAdmin, async (req, res) => {
 
     await admin.save();
 
-    res.json({ 
-      message: "Admin updated successfully", 
-      admin: admin.toJSON()
+    res.json({
+      message: "Admin updated successfully",
+      admin: admin.toJSON(),
     });
   } catch (error) {
     console.error("Admin update error:", error);
-    
-    if (error.name === 'ValidationError') {
-      const errors = Object.values(error.errors).map(e => e.message);
-      return res.status(400).json({ error: "Validation failed", details: errors });
+
+    if (error.name === "ValidationError") {
+      const errors = Object.values(error.errors).map((e) => e.message);
+      return res
+        .status(400)
+        .json({ error: "Validation failed", details: errors });
     }
-    
+
     res.status(500).json({ error: "Update failed" });
   }
 });
@@ -521,9 +560,9 @@ app.delete("/api/admin/delete", authenticateAdmin, async (req, res) => {
     // Delete the admin
     await Admin.deleteOne({ email: email.toLowerCase() });
 
-    res.json({ 
-      message: "Admin deleted successfully", 
-      deletedAdmin: adminResponse 
+    res.json({
+      message: "Admin deleted successfully",
+      deletedAdmin: adminResponse,
     });
   } catch (error) {
     console.error("Admin deletion error:", error);
@@ -535,16 +574,16 @@ app.delete("/api/admin/delete", authenticateAdmin, async (req, res) => {
 app.get("/api/admin/list", authenticateAdmin, async (req, res) => {
   try {
     const { page = 1, limit = 10, role, isActive, search } = req.query;
-    
+
     // Build filter
     const filter = {};
     if (role) filter.role = role;
-    if (isActive !== undefined) filter.isActive = isActive === 'true';
+    if (isActive !== undefined) filter.isActive = isActive === "true";
     if (search) {
       filter.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } },
-        { department: { $regex: search, $options: 'i' } }
+        { name: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } },
+        { department: { $regex: search, $options: "i" } },
       ];
     }
 
@@ -553,14 +592,14 @@ app.get("/api/admin/list", authenticateAdmin, async (req, res) => {
       .limit(limit * 1)
       .skip((page - 1) * limit)
       .exec();
-    
+
     const total = await Admin.countDocuments(filter);
-    
+
     res.json({
       admins,
       total,
       page: parseInt(page),
-      pages: Math.ceil(total / limit)
+      pages: Math.ceil(total / limit),
     });
   } catch (error) {
     console.error("Admin list error:", error);
@@ -573,10 +612,10 @@ app.get("/api/admin/stats", authenticateAdmin, async (req, res) => {
   try {
     const stats = await Admin.getStats();
     const roleStats = await Admin.countByRole();
-    
+
     res.json({
       ...stats,
-      roleBreakdown: roleStats
+      roleBreakdown: roleStats,
     });
   } catch (error) {
     console.error("Admin stats error:", error);
@@ -584,39 +623,71 @@ app.get("/api/admin/stats", authenticateAdmin, async (req, res) => {
   }
 });
 
-
 // Check if user can access a specific tool
 app.post("/api/auth/check-tool-access", authenticateAdmin, async (req, res) => {
   try {
     const { tool } = req.body;
     const userRole = req.admin.role;
-    
+
     // Define which tools require authentication
     const protectedTools = [
-      'email-generator',
-      'escalation-email',
-      'business-listing',
-      'admin-panel'
+      "escalation-email",
+      "offline-mods-note-email-generator",
+      "business-listing-update",
+      "qr-generator",
+      "osad-and-site-launch",
+      "obcx-email-creator",
+      "embed-code-generator",
+      "admin-panel",
     ];
-    
+
     // Define role-based tool access
     const toolAccess = {
-      'admin-panel': ['Super Admin', 'Administrator', 'Moderator'], // Users blocked
-      'email-generator': ['Super Admin', 'Administrator', 'Moderator', 'User'],
-      'escalation-email': ['Super Admin', 'Administrator', 'Moderator', 'User'],
-      'business-listing': ['Super Admin', 'Administrator', 'Moderator', 'User']
+      "admin-panel": ["Super Admin", "Administrator", "Moderator"],
+      "escalation-email": ["Super Admin", "Administrator", "Moderator", "User"],
+      "business-listing-update": [
+        "Super Admin",
+        "Administrator",
+        "Moderator",
+        "User",
+      ],
+      "offline-mods-note-email-generator": [
+        "Super Admin",
+        "Administrator",
+        "Moderator",
+        "User",
+      ],
+      "qr-generator": ["Super Admin", "Administrator", "Moderator", "User"],
+      "osad-and-site-launch": [
+        "Super Admin",
+        "Administrator",
+        "Moderator",
+        "User",
+      ],
+      "obcx-email-creator": [
+        "Super Admin",
+        "Administrator",
+        "Moderator",
+        "User",
+      ],
+      "embed-code-generator": [
+        "Super Admin",
+        "Administrator",
+        "Moderator",
+        "User",
+      ],
     };
-    
-    const hasAccess = !protectedTools.includes(tool) || 
-                     (toolAccess[tool] && toolAccess[tool].includes(userRole));
-    
+
+    const hasAccess =
+      !protectedTools.includes(tool) ||
+      (toolAccess[tool] && toolAccess[tool].includes(userRole));
+
     res.json({
       hasAccess,
       userRole,
       userName: req.admin.name,
-      redirectUrl: hasAccess ? null : '/auth.html'
+      redirectUrl: hasAccess ? null : "/auth.html",
     });
-    
   } catch (error) {
     console.error("Tool access check error:", error);
     res.status(500).json({ error: "Access check failed" });
@@ -626,45 +697,53 @@ app.post("/api/auth/check-tool-access", authenticateAdmin, async (req, res) => {
 // Public route to check if a tool requires authentication (no token needed)
 app.get("/api/auth/tool-info/:toolName", (req, res) => {
   const { toolName } = req.params;
-  
+
   const toolInfo = {
-    'email-generator': {
-      name: 'Email Generator',
-      description: 'Generate professional emails',
-      requiresAuth: true
+    "escalation-email": {
+      name: "Escalation Email Tool",
+      description: "Create escalation emails",
+      requiresAuth: true,
     },
-    'escalation-email': {
-      name: 'Escalation Email Tool',
-      description: 'Create escalation emails',
-      requiresAuth: true
+    "offline-mods-note-email-generator": {
+      name: "Offline Mods & Note Generator",
+      description: "Create escalation emails",
+      requiresAuth: true,
     },
-    'business-listing': {
-      name: 'Business Listing Tool', 
-      description: 'Update business listings',
-      requiresAuth: true
+    "business-listing-update": {
+      name: "Business Listing Tool",
+      description: "Update business listings",
+      requiresAuth: true,
     },
-    'qr-generator': {
-      name: 'QR Code Generator',
-      description: 'Generate QR codes',
-      requiresAuth: false
+    "qr-generator": {
+      name: "QR Code Generator",
+      description: "Generate QR codes",
+      requiresAuth: false,
     },
-    'sitemap-generator': {
-      name: 'Sitemap Generator',
-      description: 'Generate XML sitemaps',
-      requiresAuth: false
-    }
+    "osad-and-site-launch": {
+      name: "OSAD & Site Launch Email and Note Generator",
+      description: "Generate T3 Notes and Email at once",
+      requiresAuth: true,
+    },
+    "obcx-email-creator": {
+      name: "OBCX Email Generator",
+      description: "Generate OBCX Callback Emails",
+      requiresAuth: true,
+    },
+    "embed-code-generator": {
+      name: "Embed Code Generator",
+      description: "Create escalation emails",
+      requiresAuth: true,
+    },
   };
-  
+
   const info = toolInfo[toolName] || {
-    name: 'Tool',
-    description: 'WorkToolsHub Tool',
-    requiresAuth: true
+    name: "Tool",
+    description: "WorkToolsHub Tool",
+    requiresAuth: true,
   };
-  
+
   res.json(info);
 });
-
-
 
 // OTHER ROUTES
 
@@ -677,43 +756,12 @@ app.get("/robots.txt", (req, res) => {
   res.redirect(301, "/api/robots.txt");
 });
 
-// Email verification endpoint
-app.post("/api/auth/verify-email", (req, res) => {
-  try {
-    const { email } = req.body;
-
-    if (!email) {
-      return res.status(400).json({
-        authorized: false,
-        message: "Email is required",
-      });
-    }
-
-    const authorizedEmails = process.env.AUTHORIZED_EMAILS?.split(",") || [];
-    const normalizedEmail = email.toLowerCase().trim();
-    const isAuthorized = authorizedEmails.includes(normalizedEmail);
-
-    console.log(
-      `Auth attempt: ${email} - ${isAuthorized ? "GRANTED" : "DENIED"}`
-    );
-
-    res.json({
-      authorized: isAuthorized,
-      message: isAuthorized ? "Access granted" : "Access denied",
-    });
-  } catch (error) {
-    console.error("Email verification error:", error);
-    res.status(500).json({
-      authorized: false,
-      message: "Internal server error",
-    });
-  }
-});
 
 // Health check endpoint
 app.get("/api/health", async (req, res) => {
-  const dbStatus = mongoose.connection.readyState === 1 ? "Connected" : "Disconnected";
-  
+  const dbStatus =
+    mongoose.connection.readyState === 1 ? "Connected" : "Disconnected";
+
   let adminCount = 0;
   if (mongoose.connection.readyState === 1) {
     try {
@@ -733,7 +781,7 @@ app.get("/api/health", async (req, res) => {
       database: dbStatus,
       knowledgeBase: "Available",
       ai: process.env.OPENAI_API_KEY ? "Configured" : "Not configured",
-      adminSystem: `${adminCount} admin(s) registered`
+      adminSystem: `${adminCount} admin(s) registered`,
     },
   });
 });
@@ -748,18 +796,21 @@ app.get("/api/docs", (req, res) => {
         "POST /api/auth/verify-email": "Verify user email authorization",
       },
       admin: {
-        "POST /api/admin/register": "Register new admin (requires JWT_SECRET header)",
+        "POST /api/admin/register":
+          "Register new admin (requires JWT_SECRET header)",
         "POST /api/admin/login": "Admin login",
         "POST /api/admin/logout": "Admin logout",
         "POST /api/admin/verify": "Verify admin token",
         "PUT /api/admin/edit": "Edit admin (requires JWT token)",
         "DELETE /api/admin/delete": "Delete admin (requires JWT token)",
         "GET /api/admin/list": "List all admins (requires JWT token)",
-        "GET /api/admin/stats": "Get admin statistics (requires JWT token)"
+        "GET /api/admin/stats": "Get admin statistics (requires JWT token)",
       },
       email: {
-        "POST /api/email/generate-escalation-email": "Generate escalation emails",
-        "POST /api/email/generate-lbl-email": "Generate business listing update emails",
+        "POST /api/email/generate-escalation-email":
+          "Generate escalation emails",
+        "POST /api/email/generate-lbl-email":
+          "Generate business listing update emails",
         "GET /api/email/health": "Email service health check",
       },
       knowledgeBase: {
@@ -767,14 +818,15 @@ app.get("/api/docs", (req, res) => {
         "GET /api/knowledge-base/articles/:id": "Get single article",
         "POST /api/knowledge-base/articles": "Create new article",
         "POST /api/knowledge-base/articles/:id/upvote": "Upvote an article",
-        "POST /api/knowledge-base/articles/:id/helpful": "Mark article as helpful",
+        "POST /api/knowledge-base/articles/:id/helpful":
+          "Mark article as helpful",
         "POST /api/knowledge-base/edit-suggestions": "Submit edit suggestion",
         "POST /api/knowledge-base/ai-query": "Query AI assistant",
       },
       system: {
         "GET /api/health": "System health check",
         "GET /api/docs": "API documentation",
-        "GET /api/test-db": "Database connection test"
+        "GET /api/test-db": "Database connection test",
       },
     },
   });
@@ -828,8 +880,16 @@ setInterval(async () => {
 const server = app.listen(PORT, async () => {
   console.log(`🚀 Server running at http://localhost:${PORT}`);
   console.log(`📁 Environment: ${process.env.NODE_ENV || "development"}`);
-  console.log(`🔐 Auth emails: ${process.env.AUTHORIZED_EMAILS ? "Configured" : "Not configured"}`);
-  console.log(`🤖 OpenAI API: ${process.env.OPENAI_API_KEY ? "Configured" : "Not configured"}`);
+  console.log(
+    `🔐 Auth emails: ${
+      process.env.AUTHORIZED_EMAILS ? "Configured" : "Not configured"
+    }`
+  );
+  console.log(
+    `🤖 OpenAI API: ${
+      process.env.OPENAI_API_KEY ? "Configured" : "Not configured"
+    }`
+  );
   console.log(`📖 API docs: http://localhost:${PORT}/api/docs`);
   console.log(`📚 Knowledge Base: http://localhost:${PORT}/knowledge-base`);
 
@@ -837,15 +897,21 @@ const server = app.listen(PORT, async () => {
   console.log("MongoDB URI configured:", mongoUri ? "Yes" : "No");
 
   if (!process.env.AUTHORIZED_EMAILS) {
-    console.warn("⚠️  WARNING: AUTHORIZED_EMAILS not set in environment variables");
+    console.warn(
+      "⚠️  WARNING: AUTHORIZED_EMAILS not set in environment variables"
+    );
   }
 
   if (!process.env.OPENAI_API_KEY) {
-    console.warn("⚠️  WARNING: OPENAI_API_KEY not set - AI assistant will not work");
+    console.warn(
+      "⚠️  WARNING: OPENAI_API_KEY not set - AI assistant will not work"
+    );
   }
 
   if (!mongoUri) {
-    console.warn("⚠️  WARNING: MongoDB URI not configured - database features disabled");
+    console.warn(
+      "⚠️  WARNING: MongoDB URI not configured - database features disabled"
+    );
   }
 
   // Log admin system status
@@ -853,9 +919,11 @@ const server = app.listen(PORT, async () => {
     try {
       const adminCount = await Admin.countDocuments();
       console.log(`👥 Admin system: ${adminCount} admin(s) registered`);
-      
+
       if (adminCount === 0) {
-        console.log("💡 To register your first admin, use: POST /api/admin/register with X-JWT-Secret header");
+        console.log(
+          "💡 To register your first admin, use: POST /api/admin/register with X-JWT-Secret header"
+        );
       }
     } catch (error) {
       console.warn("⚠️  Could not check admin count:", error.message);
