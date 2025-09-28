@@ -1218,39 +1218,7 @@
 
     <script>
 document.addEventListener("DOMContentLoaded", async () => {
-  const toolName = "knowledge-base";
-  const result = await authUtils.initToolAuth(
-    toolName,
-    "Knowledge Base - Internal Repository",
-    {
-      showUserInfo: true,
-      userInfoContainerId: "user-info",
-      redirectIfUnauthorized: false,
-      onAuthSuccess: (data) => {
-        console.log("Auth success, initializing KB with user:", data.user);
-        const kb = new KnowledgeBase();
-        kb.adminUser = data.user; // Set admin user from auth
-        kb.init();
-      },
-      onAuthFailed: (data) => {
-        console.log("Not authenticated, proceeding as public user");
-        const kb = new KnowledgeBase();
-        kb.init();
-      },
-    }
-  );
-
-  // If auth utils didn't trigger callbacks, initialize anyway
-  // Only initialize if no callbacks were triggered and we have a result
-if (!window.kbSystem) {
-  const kb = new KnowledgeBase();
-  if (result.success && result.user) {
-    kb.adminUser = result.user;
-  }
-  kb.init();
-}
-
-  class KnowledgeBase {
+    class KnowledgeBase {
     constructor() {
       this.articles = [];
       this.filteredArticles = [];
@@ -2187,6 +2155,37 @@ if (!window.kbSystem) {
     }
   }
 
+  const toolName = "knowledge-base";
+  const result = await authUtils.initToolAuth(
+    toolName,
+    "Knowledge Base - Internal Repository",
+    {
+      showUserInfo: true,
+      userInfoContainerId: "user-info",
+      redirectIfUnauthorized: false,
+      onAuthSuccess: (data) => {
+        console.log("Auth success, initializing KB with user:", data.user);
+        const kb = new KnowledgeBase();
+        kb.adminUser = data.user; 
+        kb.init();
+      },
+      onAuthFailed: (data) => {
+        console.log("Not authenticated, proceeding as public user");
+        const kb = new KnowledgeBase();
+        kb.init();
+      },
+    }
+  );
+
+  // If auth utils didn't trigger callbacks, initialize anyway
+  // Only initialize if no callbacks were triggered and we have a result
+if (!window.kbSystem) {
+  const kb = new KnowledgeBase();
+  if (result.success && result.user) {
+    kb.adminUser = result.user;
+  }
+  kb.init();
+}
   document.documentElement.style.scrollBehavior = "smooth";
 });
 </script>
