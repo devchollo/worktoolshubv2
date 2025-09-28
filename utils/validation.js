@@ -158,9 +158,9 @@ static validateOfflineModifications(data) {
       throw new ValidationError(`Page ${index + 1}: URL is required`, 'pages');
     }
 
-    if (!this.isValidURL(page.url)) {
-      throw new ValidationError(`Page ${index + 1}: Invalid URL format`, 'pages');
-    }
+    // if (!this.isValidURL(page.url)) {
+    //   throw new ValidationError(`Page ${index + 1}: Invalid URL format`, 'pages');
+    // }
 
     if (!page.changes || !Array.isArray(page.changes) || page.changes.length === 0) {
       throw new ValidationError(`Page ${index + 1}: At least one change is required`, 'pages');
