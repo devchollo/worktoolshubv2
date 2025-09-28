@@ -1358,43 +1358,44 @@
 
         // ============ AUTHENTICATION ============
         async checkAuth() {
-  const token = localStorage.getItem("adminToken");
+          const token = localStorage.getItem("adminToken");
 
-  if (!token) {
-    this.showLogin();
-    return;
-  }
+          if (!token) {
+            this.showLogin();
+            return;
+          }
 
-  try {
-    const response = await fetch(`${API_BASE}/admin/verify`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token }),
-    });
+          try {
+            const response = await fetch(`${API_BASE}/admin/verify`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ token }),
+            });
 
-    if (response.ok) {
-      const data = await response.json();
-      this.user = data.user;
-      
-      // Block regular Users from accessing admin panel
-      if (this.user.role === 'User') {
-        this.showError("Access denied: Admin privileges required");
-        this.clearAuth();
-        this.showLogin();
-        return;
-      }
-      
-      this.showDashboard();
-    } else {
-      this.clearAuth();
-      this.showLogin();
-    }
-  } catch (error) {
-    console.error("Auth verification error:", error);
-    this.clearAuth();
-    this.showLogin();
-  }
-}
+            if (response.ok) {
+              const data = await response.json();
+              this.user = data.user;
+
+              // Block regular Users from accessing admin panel
+              console.log("User data:", this.user, "Role:", this.user.role, "Type:", typeof this.user.role);
+              if (this.user.role === "User") {
+                this.showError("Access denied: Admin privileges required");
+                this.clearAuth();
+                this.showLogin();
+                return;
+              }
+
+              this.showDashboard();
+            } else {
+              this.clearAuth();
+              this.showLogin();
+            }
+          } catch (error) {
+            console.error("Auth verification error:", error);
+            this.clearAuth();
+            this.showLogin();
+          }
+        }
         async handleLogin() {
           const email = document.getElementById("loginEmail").value;
           const password = document.getElementById("loginPassword").value;
@@ -1615,7 +1616,11 @@
             const headers = this.getAuthHeaders();
             if (!headers) return;
 
-            const response = await fetch(`${API_BASE}/admin/list`, { headers });
+            const response = await fetch(`${API_BASE}/admin/list`, { headers: {
+    ...headers,
+    'Cache-Control': 'no-cache',
+    'Pragma': 'no-cache'
+  } });
 
             if (response.ok) {
               const data = await response.json();
@@ -1759,7 +1764,11 @@
 
             const response = await fetch(url, {
               method,
-              headers,
+              headers: {
+    ...headers,
+    'Cache-Control': 'no-cache',
+    'Pragma': 'no-cache'
+  },
               body: JSON.stringify(data),
             });
 
@@ -1797,7 +1806,11 @@
               `${API_BASE}/knowledge-base/articles/${id}`,
               {
                 method: "DELETE",
-                headers,
+                headers: {
+      ...headers,
+      'Cache-Control': 'no-cache',
+      'Pragma': 'no-cache'
+    },
               }
             );
 
@@ -1920,7 +1933,11 @@
 
             const response = await fetch(url, {
               method,
-              headers,
+              headers: {
+      ...headers,
+      'Cache-Control': 'no-cache',
+      'Pragma': 'no-cache'
+    },
               body: JSON.stringify(data),
             });
 
@@ -1982,7 +1999,11 @@
 
             const response = await fetch(`${API_BASE}/admin/delete`, {
               method: "DELETE",
-              headers,
+              headers: {
+      ...headers,
+      'Cache-Control': 'no-cache',
+      'Pragma': 'no-cache'
+    },
               body: JSON.stringify({ email: admin.email }),
             });
 
