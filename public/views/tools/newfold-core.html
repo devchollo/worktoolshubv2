@@ -909,7 +909,7 @@
   <body>
     <div id="header"></div>
     <div id="bread"></div>
-    <!-- Add this right after the search section, before the results section -->
+    <div id="user-info"></div>
     <div
       id="adminAccess"
       style="display: none; text-align: center; margin-bottom: 2rem"
@@ -1217,13 +1217,13 @@
     <script src="/auth-utils.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", async () => {
-        const toolName = "business-listing-update"; // Change this per tool
+        const toolName = "newfold-core"; 
         const result = await authUtils.initToolAuth(
           toolName,
-          "Update business listings",
+          "Newfold Core - Knowledge Repository",
           {
             showUserInfo: true,
-            userInfoContainerId: "user-info", // Add this div to your HTML
+            userInfoContainerId: "user-info", 
           }
         );
 
@@ -2306,7 +2306,6 @@
             });
           });
 
-          // Add some smooth scroll behavior for better UX
           document.documentElement.style.scrollBehavior = "smooth";
         }
       });

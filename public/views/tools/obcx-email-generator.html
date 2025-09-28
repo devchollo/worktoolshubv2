@@ -147,6 +147,7 @@
 
     <main>
       <section class="tool-container">
+        <div id="user-info"></div>
         <div class="tool-header">
           <h1>OBCX Callback Email Generator</h1>
           <p class="subtitle">
@@ -297,10 +298,10 @@
     <script src="/auth-utils.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", async () => {
-        const toolName = "business-listing-update"; // Change this per tool
+        const toolName = "obcx-email-creator"; // Change this per tool
         const result = await authUtils.initToolAuth(
           toolName,
-          "Update business listings",
+          "Create OBCX Follow-up Emails",
           {
             showUserInfo: true,
             userInfoContainerId: "user-info", // Add this div to your HTML

@@ -7,7 +7,11 @@
       name="description"
       content="Generate embed codes for audio, video, and image files with drag-and-drop upload to Backblaze - WorkToolsHub"
     />
-    <link rel="icon" type="image/x-icon" href="https://www.worktoolshub.info/assets/icon-192.png">
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="https://www.worktoolshub.info/assets/icon-192.png"
+    />
     <meta
       name="keywords"
       content="embed code generator, file upload, audio player, video player, Backblaze, drag and drop"
@@ -17,7 +21,7 @@
     <link rel="preconnect" href="https://worktoolshubv2.onrender.com" />
     <link rel="stylesheet" href="../styles/main.css" />
     <link rel="stylesheet" href="../styles/tools.css" />
-<!-- Structured Data -->
+    <!-- Structured Data -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -515,6 +519,7 @@
 
     <main>
       <section class="tool-container">
+        <div id="user-info"></div>
         <div class="tool-header">
           <h1>Embed Code Generator</h1>
           <p class="subtitle">
@@ -570,190 +575,194 @@
     <script src="../scripts/layout.js"></script>
     <script type="module" src="../scripts/main.js" defer></script>
     <script src="/auth-utils.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', async () => {
-  const toolName = 'business-listing-update'; // Change this per tool
-  const result = await authUtils.initToolAuth(toolName, 'Update business listings', {
-    showUserInfo: true,
-    userInfoContainerId: 'user-info' // Add this div to your HTML
-  });
-  
-  if (result.success) {
-      class EmbedCodeGenerator {
-        constructor() {
-          this.uploadContainer = document.getElementById("uploadContainer");
-          this.fileInput = document.getElementById("fileInput");
-          this.uploadButton = document.getElementById("uploadButton");
-          this.uploadProgress = document.getElementById("uploadProgress");
-          this.progressFill = document.getElementById("progressFill");
-          this.statusMessage = document.getElementById("statusMessage");
-          this.filePreview = document.getElementById("filePreview");
-          this.fileInfo = document.getElementById("fileInfo");
-          this.embedOptions = document.getElementById("embedOptions");
-
-          this.supportedTypes = {
-            audio: ["mp3", "wav", "m4a", "aac", "ogg"],
-            video: ["mp4", "webm", "avi", "mov", "wmv"],
-            image: ["jpg", "jpeg", "png", "gif", "webp", "svg"],
-          };
-
-          this.init();
-        }
-
-        init() {
-          this.bindEvents();
-        }
-
-        bindEvents() {
-          // File input change
-          this.fileInput.addEventListener("change", (e) =>
-            this.handleFiles(e.target.files)
-          );
-
-          // Upload button click
-          this.uploadButton.addEventListener("click", () =>
-            this.fileInput.click()
-          );
-
-          // Drag and drop events
-          this.uploadContainer.addEventListener("dragover", (e) =>
-            this.handleDragOver(e)
-          );
-          this.uploadContainer.addEventListener("dragleave", (e) =>
-            this.handleDragLeave(e)
-          );
-          this.uploadContainer.addEventListener("drop", (e) =>
-            this.handleDrop(e)
-          );
-
-          // Paste event
-          document.addEventListener("paste", (e) => this.handlePaste(e));
-        }
-
-        handleDragOver(e) {
-          e.preventDefault();
-          this.uploadContainer.classList.add("drag-over");
-        }
-
-        handleDragLeave(e) {
-          e.preventDefault();
-          if (!this.uploadContainer.contains(e.relatedTarget)) {
-            this.uploadContainer.classList.remove("drag-over");
+    <script>
+      document.addEventListener("DOMContentLoaded", async () => {
+        const toolName = "embed-code-generator"; 
+        const result = await authUtils.initToolAuth(
+          toolName,
+          "Update business listings",
+          {
+            showUserInfo: true,
+            userInfoContainerId: "user-info", 
           }
-        }
+        );
 
-        handleDrop(e) {
-          e.preventDefault();
-          this.uploadContainer.classList.remove("drag-over");
-          const files = Array.from(e.dataTransfer.files);
-          if (files.length > 0) {
-            this.handleFiles(files);
-          }
-        }
+        if (result.success) {
+          class EmbedCodeGenerator {
+            constructor() {
+              this.uploadContainer = document.getElementById("uploadContainer");
+              this.fileInput = document.getElementById("fileInput");
+              this.uploadButton = document.getElementById("uploadButton");
+              this.uploadProgress = document.getElementById("uploadProgress");
+              this.progressFill = document.getElementById("progressFill");
+              this.statusMessage = document.getElementById("statusMessage");
+              this.filePreview = document.getElementById("filePreview");
+              this.fileInfo = document.getElementById("fileInfo");
+              this.embedOptions = document.getElementById("embedOptions");
 
-        handlePaste(e) {
-          const items = Array.from(e.clipboardData.items);
-          const files = items
-            .filter((item) => item.kind === "file")
-            .map((item) => item.getAsFile());
+              this.supportedTypes = {
+                audio: ["mp3", "wav", "m4a", "aac", "ogg"],
+                video: ["mp4", "webm", "avi", "mov", "wmv"],
+                image: ["jpg", "jpeg", "png", "gif", "webp", "svg"],
+              };
 
-          if (files.length > 0) {
-            this.handleFiles(files);
-          }
-        }
-
-        async handleFiles(files) {
-          for (const file of files) {
-            if (this.isValidFile(file)) {
-              await this.uploadFile(file);
-            } else {
-              this.showStatus(
-                `"${file.name}" is not a supported file type.`,
-                "error"
-              );
+              this.init();
             }
-          }
-        }
 
-        isValidFile(file) {
-          const extension = file.name.split(".").pop().toLowerCase();
-          const allSupported = [
-            ...this.supportedTypes.audio,
-            ...this.supportedTypes.video,
-            ...this.supportedTypes.image,
-          ];
-          return allSupported.includes(extension);
-        }
+            init() {
+              this.bindEvents();
+            }
 
-        getFileType(file) {
-          const extension = file.name.split(".").pop().toLowerCase();
+            bindEvents() {
+              // File input change
+              this.fileInput.addEventListener("change", (e) =>
+                this.handleFiles(e.target.files)
+              );
 
-          if (this.supportedTypes.audio.includes(extension)) return "audio";
-          if (this.supportedTypes.video.includes(extension)) return "video";
-          if (this.supportedTypes.image.includes(extension)) return "image";
+              // Upload button click
+              this.uploadButton.addEventListener("click", () =>
+                this.fileInput.click()
+              );
 
-          return "unknown";
-        }
+              // Drag and drop events
+              this.uploadContainer.addEventListener("dragover", (e) =>
+                this.handleDragOver(e)
+              );
+              this.uploadContainer.addEventListener("dragleave", (e) =>
+                this.handleDragLeave(e)
+              );
+              this.uploadContainer.addEventListener("drop", (e) =>
+                this.handleDrop(e)
+              );
 
-        async uploadFile(file) {
-          const formData = new FormData();
-          formData.append("file", file);
+              // Paste event
+              document.addEventListener("paste", (e) => this.handlePaste(e));
+            }
 
-          this.showUploadProgress();
-          this.showStatus("Uploading file...", "info");
+            handleDragOver(e) {
+              e.preventDefault();
+              this.uploadContainer.classList.add("drag-over");
+            }
 
-          try {
-            const response = await fetch(
-              "https://worktoolshubv2.onrender.com/api/upload/embed-file",
-              {
-                method: "POST",
-                body: formData,
+            handleDragLeave(e) {
+              e.preventDefault();
+              if (!this.uploadContainer.contains(e.relatedTarget)) {
+                this.uploadContainer.classList.remove("drag-over");
               }
-            );
-
-            if (!response.ok) {
-              const errorData = await response.json();
-              throw new Error(
-                errorData.message || `Upload failed: ${response.status}`
-              );
             }
 
-            const result = await response.json();
-            this.handleUploadSuccess(file, result);
-          } catch (error) {
-            console.error("Upload error:", error);
-            this.showStatus(`Upload failed: ${error.message}`, "error");
-          } finally {
-            this.hideUploadProgress();
-          }
-        }
+            handleDrop(e) {
+              e.preventDefault();
+              this.uploadContainer.classList.remove("drag-over");
+              const files = Array.from(e.dataTransfer.files);
+              if (files.length > 0) {
+                this.handleFiles(files);
+              }
+            }
 
-        handleUploadSuccess(file, result) {
-          const fileType = this.getFileType(file);
+            handlePaste(e) {
+              const items = Array.from(e.clipboardData.items);
+              const files = items
+                .filter((item) => item.kind === "file")
+                .map((item) => item.getAsFile());
 
-          this.showFilePreview(file, result, fileType);
-          this.generateEmbedCodes(file, result, fileType);
-          this.showStatus("File uploaded successfully!", "success");
-        }
+              if (files.length > 0) {
+                this.handleFiles(files);
+              }
+            }
 
-        showFilePreview(file, result, fileType) {
-          const fileSize = (file.size / 1024 / 1024).toFixed(2);
-          const typeColors = {
-            audio: "#8b5cf6",
-            video: "#ef4444",
-            image: "#10b981",
-          };
+            async handleFiles(files) {
+              for (const file of files) {
+                if (this.isValidFile(file)) {
+                  await this.uploadFile(file);
+                } else {
+                  this.showStatus(
+                    `"${file.name}" is not a supported file type.`,
+                    "error"
+                  );
+                }
+              }
+            }
 
-          const typeIcons = {
-            audio: "🎵",
-            video: "🎬",
-            image: "🖼️",
-          };
+            isValidFile(file) {
+              const extension = file.name.split(".").pop().toLowerCase();
+              const allSupported = [
+                ...this.supportedTypes.audio,
+                ...this.supportedTypes.video,
+                ...this.supportedTypes.image,
+              ];
+              return allSupported.includes(extension);
+            }
 
-          this.fileInfo.innerHTML = `
+            getFileType(file) {
+              const extension = file.name.split(".").pop().toLowerCase();
+
+              if (this.supportedTypes.audio.includes(extension)) return "audio";
+              if (this.supportedTypes.video.includes(extension)) return "video";
+              if (this.supportedTypes.image.includes(extension)) return "image";
+
+              return "unknown";
+            }
+
+            async uploadFile(file) {
+              const formData = new FormData();
+              formData.append("file", file);
+
+              this.showUploadProgress();
+              this.showStatus("Uploading file...", "info");
+
+              try {
+                const response = await fetch(
+                  "https://worktoolshubv2.onrender.com/api/upload/embed-file",
+                  {
+                    method: "POST",
+                    body: formData,
+                  }
+                );
+
+                if (!response.ok) {
+                  const errorData = await response.json();
+                  throw new Error(
+                    errorData.message || `Upload failed: ${response.status}`
+                  );
+                }
+
+                const result = await response.json();
+                this.handleUploadSuccess(file, result);
+              } catch (error) {
+                console.error("Upload error:", error);
+                this.showStatus(`Upload failed: ${error.message}`, "error");
+              } finally {
+                this.hideUploadProgress();
+              }
+            }
+
+            handleUploadSuccess(file, result) {
+              const fileType = this.getFileType(file);
+
+              this.showFilePreview(file, result, fileType);
+              this.generateEmbedCodes(file, result, fileType);
+              this.showStatus("File uploaded successfully!", "success");
+            }
+
+            showFilePreview(file, result, fileType) {
+              const fileSize = (file.size / 1024 / 1024).toFixed(2);
+              const typeColors = {
+                audio: "#8b5cf6",
+                video: "#ef4444",
+                image: "#10b981",
+              };
+
+              const typeIcons = {
+                audio: "🎵",
+                video: "🎬",
+                image: "🖼️",
+              };
+
+              this.fileInfo.innerHTML = `
             <div class="file-icon ${fileType}" style="background: linear-gradient(135deg, ${
-            typeColors[fileType]
-          }, ${typeColors[fileType]}dd)">
+                typeColors[fileType]
+              }, ${typeColors[fileType]}dd)">
               ${typeIcons[fileType]}
             </div>
             <div class="file-details">
@@ -764,23 +773,23 @@ document.addEventListener('DOMContentLoaded', async () => {
             </div>
           `;
 
-          this.filePreview.classList.add("show");
-        }
+              this.filePreview.classList.add("show");
+            }
 
-        generateEmbedCodes(file, result, fileType) {
-          this.embedOptions.innerHTML = "";
+            generateEmbedCodes(file, result, fileType) {
+              this.embedOptions.innerHTML = "";
 
-          if (fileType === "image") {
-            this.generateImageEmbed(file, result);
-          } else if (fileType === "audio") {
-            this.generateAudioEmbeds(file, result);
-          } else if (fileType === "video") {
-            this.generateVideoEmbeds(file, result);
-          }
-        }
+              if (fileType === "image") {
+                this.generateImageEmbed(file, result);
+              } else if (fileType === "audio") {
+                this.generateAudioEmbeds(file, result);
+              } else if (fileType === "video") {
+                this.generateVideoEmbeds(file, result);
+              }
+            }
 
-        generateImageEmbed(file, result) {
-          this.embedOptions.innerHTML = `
+            generateImageEmbed(file, result) {
+              this.embedOptions.innerHTML = `
             <div class="embed-section image-link-section">
               <h4 class="embed-title">Image Link</h4>
               <p class="embed-description">Direct link to your image hosted on secure cloud storage</p>
@@ -795,18 +804,18 @@ document.addEventListener('DOMContentLoaded', async () => {
               </div>
             </div>
           `;
-        }
+            }
 
-        // audio embed
-        generateAudioEmbeds(file, result) {
-          const fileName = file.name.replace(/\.[^/.]+$/, "");
+            // audio embed
+            generateAudioEmbeds(file, result) {
+              const fileName = file.name.replace(/\.[^/.]+$/, "");
 
-          const basicEmbed = `<audio controls>
+              const basicEmbed = `<audio controls>
   <source src="${result.publicUrl}" type="audio/mpeg">
   Your browser does not support the audio element.
 </audio>`;
 
-          const spotifyEmbed = `<div style="background: linear-gradient(135deg, #1db954, #1ed760); color: white; padding: 24px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); font-family: Arial, sans-serif;">
+              const spotifyEmbed = `<div style="background: linear-gradient(135deg, #1db954, #1ed760); color: white; padding: 24px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); font-family: Arial, sans-serif;">
   <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px;">
     <div style="width: 60px; height: 60px; background: rgba(255,255,255,0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 24px;">🎵</div>
     <div>
@@ -819,7 +828,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   </audio>
 </div>`;
 
-          this.embedOptions.innerHTML = `
+              this.embedOptions.innerHTML = `
     <div class="embed-section">
       <h4 class="embed-title">Basic Audio Player</h4>
       <p class="embed-description">Simple HTML5 audio player</p>
@@ -862,30 +871,30 @@ document.addEventListener('DOMContentLoaded', async () => {
     </div>
   `;
 
-          // Store the code for copying
-          this.embedCodes = {
-            "basic-audio": basicEmbed,
-            "spotify-audio": spotifyEmbed,
-          };
-        }
+              // Store the code for copying
+              this.embedCodes = {
+                "basic-audio": basicEmbed,
+                "spotify-audio": spotifyEmbed,
+              };
+            }
 
-        // video embed
-        // DEBUG PLAYER NOT PLAYING VIDEO - 
-        // EMBED CODE SHOWS UP AND WORKING JUST FINE
-        generateVideoEmbeds(file, result) {
-          const basicEmbed = `<video controls width="100%" height="auto">
+            // video embed
+            // DEBUG PLAYER NOT PLAYING VIDEO -
+            // EMBED CODE SHOWS UP AND WORKING JUST FINE
+            generateVideoEmbeds(file, result) {
+              const basicEmbed = `<video controls width="100%" height="auto">
   <source src="${result.publicUrl}" type="video/mp4">
   Your browser does not support the video element.
 </video>`;
 
-          const styledEmbed = `<div style="position: relative; width: 100%; max-width: 640px; margin: 0 auto; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.3);">
+              const styledEmbed = `<div style="position: relative; width: 100%; max-width: 640px; margin: 0 auto; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.3);">
   <video controls style="width: 100%; height: auto; display: block;">
     <source src="${result.publicUrl}" type="video/mp4">
     Your browser does not support the video element.
   </video>
 </div>`;
 
-          this.embedOptions.innerHTML = `
+              this.embedOptions.innerHTML = `
     <div class="embed-section">
       <h4 class="embed-title">Basic Video Player</h4>
       <p class="embed-description">Simple HTML5 video player</p>
@@ -921,73 +930,73 @@ document.addEventListener('DOMContentLoaded', async () => {
     </div>
   `;
 
-          // Store the code for copying
-          this.embedCodes = {
-            "basic-video": basicEmbed,
-            "styled-video": styledEmbed,
-          };
-        }
-
-        escapeHtml(unsafe) {
-          return unsafe
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-        }
-
-        showUploadProgress() {
-          this.uploadContainer.classList.add("uploading");
-          this.uploadProgress.classList.add("show");
-          this.progressFill.style.width = "100%";
-        }
-
-        hideUploadProgress() {
-          this.uploadContainer.classList.remove("uploading");
-          this.uploadProgress.classList.remove("show");
-          this.progressFill.style.width = "0%";
-        }
-
-        showStatus(message, type) {
-          this.statusMessage.textContent = message;
-          this.statusMessage.className = `status-message ${type}`;
-
-          if (type === "success" || type === "info") {
-            setTimeout(() => {
-              this.statusMessage.classList.remove("success", "info");
-            }, 3000);
-          }
-        }
-
-        // copy code and clipboard
-        copyCode(button, codeType) {
-          const code = this.embedCodes && this.embedCodes[codeType];
-          if (code) this.copyToClipboard(code, button);
-        }
-
-        async copyToClipboard(text, button) {
-          try {
-            await navigator.clipboard.writeText(text);
-            if (button) {
-              const original = button.textContent;
-              button.textContent = "Copied!";
-              button.style.opacity = "0.7";
-              setTimeout(() => {
-                button.textContent = original;
-                button.style.opacity = "";
-              }, 1800);
+              // Store the code for copying
+              this.embedCodes = {
+                "basic-video": basicEmbed,
+                "styled-video": styledEmbed,
+              };
             }
-            this.showStatus("Embed copied to clipboard", "success");
-          } catch (err) {
-            console.error("copy failed", err);
-            this.showStatus("Failed to copy", "error");
+
+            escapeHtml(unsafe) {
+              return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+            }
+
+            showUploadProgress() {
+              this.uploadContainer.classList.add("uploading");
+              this.uploadProgress.classList.add("show");
+              this.progressFill.style.width = "100%";
+            }
+
+            hideUploadProgress() {
+              this.uploadContainer.classList.remove("uploading");
+              this.uploadProgress.classList.remove("show");
+              this.progressFill.style.width = "0%";
+            }
+
+            showStatus(message, type) {
+              this.statusMessage.textContent = message;
+              this.statusMessage.className = `status-message ${type}`;
+
+              if (type === "success" || type === "info") {
+                setTimeout(() => {
+                  this.statusMessage.classList.remove("success", "info");
+                }, 3000);
+              }
+            }
+
+            // copy code and clipboard
+            copyCode(button, codeType) {
+              const code = this.embedCodes && this.embedCodes[codeType];
+              if (code) this.copyToClipboard(code, button);
+            }
+
+            async copyToClipboard(text, button) {
+              try {
+                await navigator.clipboard.writeText(text);
+                if (button) {
+                  const original = button.textContent;
+                  button.textContent = "Copied!";
+                  button.style.opacity = "0.7";
+                  setTimeout(() => {
+                    button.textContent = original;
+                    button.style.opacity = "";
+                  }, 1800);
+                }
+                this.showStatus("Embed copied to clipboard", "success");
+              } catch (err) {
+                console.error("copy failed", err);
+                this.showStatus("Failed to copy", "error");
+              }
+            }
           }
+          window.embedGenerator = new EmbedCodeGenerator();
         }
-      }
-embedGenerator = new EmbedCodeGenerator();
-  }
-});
-</script>
+      });
+    </script>
   </body>
 </html>

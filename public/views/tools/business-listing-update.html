@@ -612,8 +612,6 @@
             showUserInfo: true,
             userInfoContainerId: "user-info",
             onAuthSuccess: (data) => {
-              console.log("User authenticated:", data.user);
-              // Initialize the tool here after successful auth
               initializeTool();
             },
             onAuthFailed: (data) => {
