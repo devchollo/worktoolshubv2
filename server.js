@@ -422,7 +422,7 @@ app.post("/api/admin/logout", async (req, res) => {
 });
 
 // Verify admin token
-app.post("/api/admin/verify", authenticateAdmin, async (req, res) => {
+app.post("/api/admin/verify", async (req, res) => {
   try {
     const { token } = req.body;
 
