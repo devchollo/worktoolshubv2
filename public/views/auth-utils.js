@@ -135,7 +135,7 @@ class AuthUtils {
           ${
             canAccessAdmin
               ? `
-            <button onclick="window.open('/admin.html', '_blank')" 
+            <button onclick="window.open('/tools/admin', '_blank')" 
                     style="padding: 0.5rem 1rem; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.875rem;">
               Admin Panel
             </button>
