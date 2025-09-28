@@ -286,7 +286,7 @@
       }
 
       .skeleton {
-        background: rgba(99, 121, 244, .20);
+        background: rgba(99, 121, 244, 0.2);
         border-radius: 4px;
         height: 20px;
         margin: 10px 0;
@@ -550,7 +550,7 @@
         <div class="skeleton content"></div>
         <div class="skeleton content"></div>
       </div>
-
+      <div id="user-info"></div>
       <div id="articleContent" style="display: none">
         <div class="article-header">
           <span id="articleCategory" class="article-category"></span>
@@ -559,9 +559,15 @@
 
           <div class="article-meta">
             <div class="meta-left">
-              <span style="font-size: 14px; color: #64748b;" id="articleAuthor"></span>
+              <span
+                style="font-size: 14px; color: #64748b"
+                id="articleAuthor"
+              ></span>
               <span>•</span>
-              <span style="font-size: 14px; color: #64748b;" id="articleDate"></span>
+              <span
+                style="font-size: 14px; color: #64748b"
+                id="articleDate"
+              ></span>
             </div>
             <div class="meta-right">
               <span id="articleReadTime"></span>
@@ -569,8 +575,13 @@
               <span><span id="articleViews"></span> views</span>
             </div>
           </div>
-          <div style="display: flex; padding: 10px 0; margin-bottom: 1rem;">
-            <span style="font-size: 12px; color: #64748b;"><span id="articleUpdatedDate" style="font-size: 14px; color: #64748b;"></span></span>
+          <div style="display: flex; padding: 10px 0; margin-bottom: 1rem">
+            <span style="font-size: 12px; color: #64748b"
+              ><span
+                id="articleUpdatedDate"
+                style="font-size: 14px; color: #64748b"
+              ></span
+            ></span>
           </div>
           <div id="articleTags" class="article-tags"></div>
         </div>
@@ -654,155 +665,176 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="/auth-utils.js"></script>
     <script>
-      class ArticlePage {
-        constructor() {
-          this.articleId = this.getArticleIdFromUrl();
-          this.article = null;
-          this.init();
-        }
-
-        getArticleIdFromUrl() {
-          const params = new URLSearchParams(window.location.search);
-          return params.get("id");
-        }
-
-        async init() {
-          if (!this.articleId) {
-            this.showError("No article ID provided");
-            return;
+      document.addEventListener("DOMContentLoaded", async () => {
+        const toolName = "article"; 
+        const result = await authUtils.initToolAuth(
+          toolName,
+          "Forbidden Knowledge In One Place",
+          {
+            showUserInfo: true,
+            userInfoContainerId: "user-info", 
           }
+        );
 
-          await this.loadArticle();
-          this.bindEvents();
-        }
-
-        async loadArticle() {
-          try {
-            const response = await fetch(
-              `https://worktoolshubv2.onrender.com/api/knowledge-base/articles/${this.articleId}`
-            );
-
-            if (!response.ok) {
-              throw new Error(`Article not found (${response.status})`);
+        if (result.success) {
+          class ArticlePage {
+            constructor() {
+              this.articleId = this.getArticleIdFromUrl();
+              this.article = null;
+              this.init();
             }
 
-            this.article = await response.json();
-            this.renderArticle();
-          } catch (error) {
-            console.error("Failed to load article:", error);
-            this.showError("Failed to load article. Please try again later.");
-          }
-        }
+            getArticleIdFromUrl() {
+              const params = new URLSearchParams(window.location.search);
+              return params.get("id");
+            }
 
-        renderArticle() {
-          // Hide loading, show content
-          document.getElementById("loadingState").style.display = "none";
-          document.getElementById("articleContent").style.display = "block";
+            async init() {
+              if (!this.articleId) {
+                this.showError("No article ID provided");
+                return;
+              }
 
-          // Update page title
-          document.title = `${this.article.title} - WorkToolsHub Knowledge Base`;
+              await this.loadArticle();
+              this.bindEvents();
+            }
 
-          // Helper to set text safely
-          const setText = (id, value, fallback = "") => {
-            const el = document.getElementById(id);
-            if (el) el.textContent = value ?? fallback;
-          };
+            async loadArticle() {
+              try {
+                const response = await fetch(
+                  `https://worktoolshubv2.onrender.com/api/knowledge-base/articles/${this.articleId}`
+                );
 
-          // Populate header fields
-          setText(
-            "articleCategory",
-            this.formatCategory(this.article.category)
-          );
-          setText("articleTitle", this.article.title);
-          setText("articleExcerpt", this.article.excerpt);
-          setText("articleAuthor", this.article.author);
-          setText("articleDate", this.formatDate(this.article.date));
-          if (
-            this.article.updatedAt &&
-            this.article.updatedAt !== this.article.date
-          ) {
-            setText(
-              "articleUpdatedDate",
-              `Updated: ${this.formatDate(this.article.updatedAt)}`
-            );
-          }
-          setText("articleReadTime", this.article.readTime, "5 min read");
-          setText("articleViews", this.article.views?.toLocaleString() || "0");
+                if (!response.ok) {
+                  throw new Error(`Article not found (${response.status})`);
+                }
 
-          // Render tags
-          const tagsContainer = document.getElementById("articleTags");
-          if (tagsContainer) {
-            tagsContainer.innerHTML = (this.article.tags || [])
-              .map((tag) => `<span class="article-tag">${tag}</span>`)
-              .join("");
-          }
+                this.article = await response.json();
+                this.renderArticle();
+              } catch (error) {
+                console.error("Failed to load article:", error);
+                this.showError(
+                  "Failed to load article. Please try again later."
+                );
+              }
+            }
 
-          // Render article body using marked (frontend Markdown -> HTML)
-          const articleBody = document.getElementById("articleBody");
-          if (articleBody) {
-            articleBody.innerHTML =
-              this.article.contentHtml ||
-              marked.parse(this.article.content || "");
-          }
+            renderArticle() {
+              // Hide loading, show content
+              document.getElementById("loadingState").style.display = "none";
+              document.getElementById("articleContent").style.display = "block";
 
-          // Action buttons
-          setText("upvoteCount", this.article.upvotes || 0);
-          setText("helpfulText", `Helped ${this.article.helpfulCount || 0}`);
+              // Update page title
+              document.title = `${this.article.title} - WorkToolsHub Knowledge Base`;
 
-          // Upvote button state
-          const upvoteBtn = document.getElementById("upvoteBtn");
-          if (upvoteBtn && this.article.userUpvoted) {
-            upvoteBtn.classList.add("upvoted");
-          }
-        }
+              // Helper to set text safely
+              const setText = (id, value, fallback = "") => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = value ?? fallback;
+              };
 
-        formatContent(content) {
-          // Basic markdown-to-HTML conversion (simplified)
-          return content
-            .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-            .replace(/\*(.*?)\*/g, "<em>$1</em>")
-            .replace(/`(.*?)`/g, "<code>$1</code>")
-            .replace(/\n\n/g, "</p><p>")
-            .replace(/\n/g, "<br>")
-            .replace(/^(.+)$/gm, "<p>$1</p>")
-            .replace(/<p><\/p>/g, "");
-        }
+              // Populate header fields
+              setText(
+                "articleCategory",
+                this.formatCategory(this.article.category)
+              );
+              setText("articleTitle", this.article.title);
+              setText("articleExcerpt", this.article.excerpt);
+              setText("articleAuthor", this.article.author);
+              setText("articleDate", this.formatDate(this.article.date));
+              if (
+                this.article.updatedAt &&
+                this.article.updatedAt !== this.article.date
+              ) {
+                setText(
+                  "articleUpdatedDate",
+                  `Updated: ${this.formatDate(this.article.updatedAt)}`
+                );
+              }
+              setText("articleReadTime", this.article.readTime, "5 min read");
+              setText(
+                "articleViews",
+                this.article.views?.toLocaleString() || "0"
+              );
 
-        formatCategory(category) {
-          const categoryMap = {
-            technical: "Technical Guides",
-            tutorials: "Tutorials",
-            troubleshooting: "Troubleshooting",
-            "best-practices": "Best Practices",
-            tools: "Tools & Resources",
-          };
-          return categoryMap[category] || category;
-        }
+              // Render tags
+              const tagsContainer = document.getElementById("articleTags");
+              if (tagsContainer) {
+                tagsContainer.innerHTML = (this.article.tags || [])
+                  .map((tag) => `<span class="article-tag">${tag}</span>`)
+                  .join("");
+              }
 
-        formatDate(dateString) {
-          const date = new Date(dateString);
-          return date.toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          });
-        }
+              // Render article body using marked (frontend Markdown -> HTML)
+              const articleBody = document.getElementById("articleBody");
+              if (articleBody) {
+                articleBody.innerHTML =
+                  this.article.contentHtml ||
+                  marked.parse(this.article.content || "");
+              }
 
-        showToast(type, title, message) {
-          // Remove any existing toast
-          const existingToast = document.querySelector(".toast");
-          if (existingToast) {
-            existingToast.remove();
-          }
+              // Action buttons
+              setText("upvoteCount", this.article.upvotes || 0);
+              setText(
+                "helpfulText",
+                `Helped ${this.article.helpfulCount || 0}`
+              );
 
-          // Create toast element
-          const toast = document.createElement("div");
-          toast.className = `toast ${type}`;
+              // Upvote button state
+              const upvoteBtn = document.getElementById("upvoteBtn");
+              if (upvoteBtn && this.article.userUpvoted) {
+                upvoteBtn.classList.add("upvoted");
+              }
+            }
 
-          const icon = type === "success" ? "✓" : "✕";
+            formatContent(content) {
+              // Basic markdown-to-HTML conversion (simplified)
+              return content
+                .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+                .replace(/\*(.*?)\*/g, "<em>$1</em>")
+                .replace(/`(.*?)`/g, "<code>$1</code>")
+                .replace(/\n\n/g, "</p><p>")
+                .replace(/\n/g, "<br>")
+                .replace(/^(.+)$/gm, "<p>$1</p>")
+                .replace(/<p><\/p>/g, "");
+            }
 
-          toast.innerHTML = `
+            formatCategory(category) {
+              const categoryMap = {
+                technical: "Technical Guides",
+                tutorials: "Tutorials",
+                troubleshooting: "Troubleshooting",
+                "best-practices": "Best Practices",
+                tools: "Tools & Resources",
+              };
+              return categoryMap[category] || category;
+            }
+
+            formatDate(dateString) {
+              const date = new Date(dateString);
+              return date.toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              });
+            }
+
+            showToast(type, title, message) {
+              // Remove any existing toast
+              const existingToast = document.querySelector(".toast");
+              if (existingToast) {
+                existingToast.remove();
+              }
+
+              // Create toast element
+              const toast = document.createElement("div");
+              toast.className = `toast ${type}`;
+
+              const icon = type === "success" ? "✓" : "✕";
+
+              toast.innerHTML = `
         <div class="toast-icon">${icon}</div>
         <div class="toast-content">
             <div class="toast-title">${title}</div>
@@ -811,217 +843,218 @@
         <div class="toast-close">&times;</div>
     `;
 
-          document.body.appendChild(toast);
+              document.body.appendChild(toast);
 
-          // Show toast with animation
-          requestAnimationFrame(() => {
-            toast.classList.add("show");
-          });
+              // Show toast with animation
+              requestAnimationFrame(() => {
+                toast.classList.add("show");
+              });
 
-          // Auto-hide after 5 seconds
-          setTimeout(() => {
-            this.hideToast(toast);
-          }, 5000);
+              // Auto-hide after 5 seconds
+              setTimeout(() => {
+                this.hideToast(toast);
+              }, 5000);
 
-          // Close button functionality
-          toast.querySelector(".toast-close").addEventListener("click", () => {
-            this.hideToast(toast);
-          });
-        }
-
-        hideToast(toast) {
-          toast.classList.remove("show");
-          setTimeout(() => {
-            if (toast.parentNode) {
-              toast.parentNode.removeChild(toast);
+              // Close button functionality
+              toast
+                .querySelector(".toast-close")
+                .addEventListener("click", () => {
+                  this.hideToast(toast);
+                });
             }
-          }, 300);
-        }
 
-        hideEditModal() {
-          document.getElementById("editModal").classList.remove("active");
-          document.getElementById("editForm").reset();
-        }
+            hideToast(toast) {
+              toast.classList.remove("show");
+              setTimeout(() => {
+                if (toast.parentNode) {
+                  toast.parentNode.removeChild(toast);
+                }
+              }, 300);
+            }
 
-        bindEvents() {
-          // Upvote button
-          document.getElementById("upvoteBtn").addEventListener("click", () => {
-            this.handleUpvote();
-          });
+            hideEditModal() {
+              document.getElementById("editModal").classList.remove("active");
+              document.getElementById("editForm").reset();
+            }
 
-          // Helpful button
-          document
-            .getElementById("helpfulBtn")
-            .addEventListener("click", () => {
-              this.handleHelpful();
-            });
-
-          // Suggest edit button
-          document
-            .getElementById("suggestEditBtn")
-            .addEventListener("click", () => {
-              this.showEditModal();
-            });
-
-          // Add these modal event handlers:
-
-          // Modal close button
-          document
-            .getElementById("modalClose")
-            .addEventListener("click", () => {
-              this.hideEditModal();
-            });
-
-          // Cancel button
-          document
-            .getElementById("cancelEdit")
-            .addEventListener("click", () => {
-              this.hideEditModal();
-            });
-
-          // Form submission
-          document
-            .getElementById("editForm")
-            .addEventListener("submit", (e) => {
-              e.preventDefault(); // Prevent default form submission
-
-              const formData = {
-                articleId: document.getElementById("editArticleId").value,
-                articleTitle: document.getElementById("editTitle").value,
-                editorName: document.getElementById("editorName").value,
-                editType: document.getElementById("editType").value,
-                suggestion: document.getElementById("editSuggestion").value,
-                timestamp: new Date().toISOString(),
-              };
-
-              this.submitEditSuggestion(formData);
-            });
-
-          // Close modal when clicking outside
-          document
-            .getElementById("editModal")
-            .addEventListener("click", (e) => {
-              if (e.target.id === "editModal") {
-                this.hideEditModal();
-              }
-            });
-        }
-
-        async handleUpvote() {
-          try {
-            const response = await fetch(
-              `https://worktoolshubv2.onrender.com/api/knowledge-base/articles/${this.articleId}/upvote`,
-              {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ upvote: !this.article.userUpvoted }),
-              }
-            );
-
-            if (response.ok) {
-              const result = await response.json();
-              console.log("Upvote response:", result); // Debug log
-              this.article.upvotes = result.upvotes;
-              this.article.userUpvoted = result.userUpvoted;
-
-              // Update UI
-              document.getElementById("upvoteCount").textContent =
-                result.upvotes;
+            bindEvents() {
+              // Upvote button
               document
                 .getElementById("upvoteBtn")
-                .classList.toggle("upvoted", result.userUpvoted);
-            } else {
-              console.error("Upvote failed:", response.status);
-            }
-          } catch (error) {
-            console.error("Upvote error:", error);
-          }
-        }
+                .addEventListener("click", () => {
+                  this.handleUpvote();
+                });
 
-        async handleHelpful() {
-          try {
-            const response = await fetch(
-              `https://worktoolshubv2.onrender.com/api/knowledge-base/articles/${this.articleId}/helpful`,
-              {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
+              // Helpful button
+              document
+                .getElementById("helpfulBtn")
+                .addEventListener("click", () => {
+                  this.handleHelpful();
+                });
+
+              // Suggest edit button
+              document
+                .getElementById("suggestEditBtn")
+                .addEventListener("click", () => {
+                  this.showEditModal();
+                });
+
+              // Add these modal event handlers:
+
+              // Modal close button
+              document
+                .getElementById("modalClose")
+                .addEventListener("click", () => {
+                  this.hideEditModal();
+                });
+
+              // Cancel button
+              document
+                .getElementById("cancelEdit")
+                .addEventListener("click", () => {
+                  this.hideEditModal();
+                });
+
+              // Form submission
+              document
+                .getElementById("editForm")
+                .addEventListener("submit", (e) => {
+                  e.preventDefault(); // Prevent default form submission
+
+                  const formData = {
+                    articleId: document.getElementById("editArticleId").value,
+                    articleTitle: document.getElementById("editTitle").value,
+                    editorName: document.getElementById("editorName").value,
+                    editType: document.getElementById("editType").value,
+                    suggestion: document.getElementById("editSuggestion").value,
+                    timestamp: new Date().toISOString(),
+                  };
+
+                  this.submitEditSuggestion(formData);
+                });
+
+              // Close modal when clicking outside
+              document
+                .getElementById("editModal")
+                .addEventListener("click", (e) => {
+                  if (e.target.id === "editModal") {
+                    this.hideEditModal();
+                  }
+                });
+            }
+
+            async handleUpvote() {
+              try {
+                const response = await fetch(
+                  `https://worktoolshubv2.onrender.com/api/knowledge-base/articles/${this.articleId}/upvote`,
+                  {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ upvote: !this.article.userUpvoted }),
+                  }
+                );
+
+                if (response.ok) {
+                  const result = await response.json();
+                  console.log("Upvote response:", result); // Debug log
+                  this.article.upvotes = result.upvotes;
+                  this.article.userUpvoted = result.userUpvoted;
+
+                  // Update UI
+                  document.getElementById("upvoteCount").textContent =
+                    result.upvotes;
+                  document
+                    .getElementById("upvoteBtn")
+                    .classList.toggle("upvoted", result.userUpvoted);
+                } else {
+                  console.error("Upvote failed:", response.status);
+                }
+              } catch (error) {
+                console.error("Upvote error:", error);
               }
-            );
-
-            if (response.ok) {
-              const result = await response.json();
-              console.log("Helpful response:", result); // Debug log
-              this.article.helpfulCount = result.helpfulCount;
-
-              // Update UI
-              document.getElementById(
-                "helpfulText"
-              ).textContent = `Helped ${result.helpfulCount}`;
-
-              // Visual feedback
-              const btn = document.getElementById("helpfulBtn");
-              btn.style.background = "#10b981";
-              btn.style.color = "white";
-              setTimeout(() => {
-                btn.style.background = "";
-                btn.style.color = "";
-              }, 1000);
-            } else {
-              console.error("Helpful failed:", response.status);
             }
-          } catch (error) {
-            console.error("Helpful error:", error);
-          }
-        }
 
-        showEditModal() {
-          document.getElementById("editArticleId").value = this.articleId;
-          document.getElementById("editTitle").value = this.article.title;
-          document.getElementById("editModal").classList.add("active");
-        }
-        async submitEditSuggestion(formData) {
-          try {
-            const response = await fetch(
-              "https://worktoolshubv2.onrender.com/api/knowledge-base/edit-suggestions",
-              {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData),
+            async handleHelpful() {
+              try {
+                const response = await fetch(
+                  `https://worktoolshubv2.onrender.com/api/knowledge-base/articles/${this.articleId}/helpful`,
+                  {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                  }
+                );
+
+                if (response.ok) {
+                  const result = await response.json();
+                  console.log("Helpful response:", result); // Debug log
+                  this.article.helpfulCount = result.helpfulCount;
+
+                  // Update UI
+                  document.getElementById(
+                    "helpfulText"
+                  ).textContent = `Helped ${result.helpfulCount}`;
+
+                  // Visual feedback
+                  const btn = document.getElementById("helpfulBtn");
+                  btn.style.background = "#10b981";
+                  btn.style.color = "white";
+                  setTimeout(() => {
+                    btn.style.background = "";
+                    btn.style.color = "";
+                  }, 1000);
+                } else {
+                  console.error("Helpful failed:", response.status);
+                }
+              } catch (error) {
+                console.error("Helpful error:", error);
               }
-            );
-
-            if (response.ok) {
-              this.showToast(
-                "success",
-                "Success!",
-                "Your edit suggestion has been submitted for review."
-              );
-              this.hideEditModal();
-            } else {
-              throw new Error("Failed to submit suggestion");
             }
-          } catch (error) {
-            console.error("Edit suggestion error:", error);
-            this.showToast(
-              "error",
-              "Error",
-              "There was an error submitting your suggestion. Please try again."
-            );
+
+            showEditModal() {
+              document.getElementById("editArticleId").value = this.articleId;
+              document.getElementById("editTitle").value = this.article.title;
+              document.getElementById("editModal").classList.add("active");
+            }
+            async submitEditSuggestion(formData) {
+              try {
+                const response = await fetch(
+                  "https://worktoolshubv2.onrender.com/api/knowledge-base/edit-suggestions",
+                  {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(formData),
+                  }
+                );
+
+                if (response.ok) {
+                  this.showToast(
+                    "success",
+                    "Success!",
+                    "Your edit suggestion has been submitted for review."
+                  );
+                  this.hideEditModal();
+                } else {
+                  throw new Error("Failed to submit suggestion");
+                }
+              } catch (error) {
+                console.error("Edit suggestion error:", error);
+                this.showToast(
+                  "error",
+                  "Error",
+                  "There was an error submitting your suggestion. Please try again."
+                );
+              }
+            }
+
+            showError(message) {
+              document.getElementById("loadingState").style.display = "block";
+              document.getElementById("errorState").style.display = "block";
+              document.getElementById("errorMessage").textContent = message;
+            }
           }
+          new ArticlePage();
         }
-
-        showError(message) {
-          document.getElementById("loadingState").style.display = "block";
-          document.getElementById("errorState").style.display = "block";
-          document.getElementById("errorMessage").textContent = message;
-        }
-      }
-
-      // Initialize article page when DOM loads
-      document.addEventListener("DOMContentLoaded", () => {
-        new ArticlePage();
       });
     </script>
-    <script src="../../scripts/page-auth.js"></script> 
   </body>
 </html>

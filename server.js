@@ -676,6 +676,18 @@ app.post("/api/auth/check-tool-access", authenticateAdmin, async (req, res) => {
         "Moderator",
         "User",
       ],
+      "article": [
+        "Super Admin",
+        "Administrator",
+        "Moderator",
+        "User",
+      ],
+      "newfold-core": [
+        "Super Admin",
+        "Administrator",
+        "Moderator",
+        "User",
+      ],
     };
 
     const hasAccess =
@@ -732,6 +744,16 @@ app.get("/api/auth/tool-info/:toolName", (req, res) => {
     "embed-code-generator": {
       name: "Embed Code Generator",
       description: "Create escalation emails",
+      requiresAuth: true,
+    },
+    "article": {
+      name: "Article - Forbidden Knowledge In One Place",
+      description: "Grimoire of power",
+      requiresAuth: true,
+    },
+    "newfold-core": {
+      name: "Knowledge Repository",
+      description: "Read all the Grimoire To Gain Power",
       requiresAuth: true,
     },
   };
