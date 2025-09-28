@@ -1358,35 +1358,43 @@
 
         // ============ AUTHENTICATION ============
         async checkAuth() {
-          const token = localStorage.getItem("adminToken");
+  const token = localStorage.getItem("adminToken");
 
-          if (!token) {
-            this.showLogin();
-            return;
-          }
+  if (!token) {
+    this.showLogin();
+    return;
+  }
 
-          try {
-            const response = await fetch(`${API_BASE}/admin/verify`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ token }),
-            });
+  try {
+    const response = await fetch(`${API_BASE}/admin/verify`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token }),
+    });
 
-            if (response.ok) {
-              const data = await response.json();
-              this.user = data.user;
-              this.showDashboard();
-            } else {
-              this.clearAuth();
-              this.showLogin();
-            }
-          } catch (error) {
-            console.error("Auth verification error:", error);
-            this.clearAuth();
-            this.showLogin();
-          }
-        }
-
+    if (response.ok) {
+      const data = await response.json();
+      this.user = data.user;
+      
+      // Block regular Users from accessing admin panel
+      if (this.user.role === 'User') {
+        this.showError("Access denied: Admin privileges required");
+        this.clearAuth();
+        this.showLogin();
+        return;
+      }
+      
+      this.showDashboard();
+    } else {
+      this.clearAuth();
+      this.showLogin();
+    }
+  } catch (error) {
+    console.error("Auth verification error:", error);
+    this.clearAuth();
+    this.showLogin();
+  }
+}
         async handleLogin() {
           const email = document.getElementById("loginEmail").value;
           const password = document.getElementById("loginPassword").value;

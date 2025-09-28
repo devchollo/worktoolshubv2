@@ -105,6 +105,11 @@ export const toolCategories = {
         internal: true,
       },
       {
+        name: "Newfold Core",
+        path: "/newfold-core",
+        internal: true,
+      },
+      {
         name: "Schema Generator",
         path: "/error.html?status=coming-soon",
         pending: true,
