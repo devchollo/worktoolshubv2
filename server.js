@@ -682,7 +682,7 @@ app.post("/api/auth/check-tool-access", authenticateAdmin, async (req, res) => {
         "Moderator",
         "User",
       ],
-      "newfold-core": [
+      "knowledge-base": [
         "Super Admin",
         "Administrator",
         "Moderator",
@@ -751,7 +751,7 @@ app.get("/api/auth/tool-info/:toolName", (req, res) => {
       description: "Grimoire of power",
       requiresAuth: true,
     },
-    "newfold-core": {
+    "knowledge-base": {
       name: "Knowledge Repository",
       description: "Read all the Grimoire To Gain Power",
       requiresAuth: true,
