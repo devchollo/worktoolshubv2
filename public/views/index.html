@@ -606,35 +606,41 @@
     <script src="../scripts/layout.js"></script>
     <script type="module" src="../scripts/main.js" defer></script>
     <script>
-      window.handleToolClick = function (event, linkElement) {
-        event.preventDefault();
-        event.stopPropagation();
-
-        const path =
-          linkElement.dataset.href || linkElement.getAttribute("data-href");
-        const toolName =
-          linkElement.querySelector(".newfold-title")?.textContent ||
-          "Newfold Core";
-
-        console.log("Handling tool click:", path, toolName); // Debug log
-
-        if (typeof authUtils !== "undefined") {
-          authUtils.isAuthenticated().then((isAuthenticated) => {
-            if (isAuthenticated) {
-              window.location.href = path;
-            } else {
-              authUtils.redirectToAuth(toolName, `Access ${toolName}`);
-            }
-          });
-        } else {
-          const currentUrl = encodeURIComponent(path);
-          window.location.href = `/auth.html?redirect=${currentUrl}&tool=${encodeURIComponent(
-            toolName
-          )}`;
-        }
-
-        return false;
-      };
+      window.handleToolClick = function(event, linkElement) {
+  event.preventDefault();
+  event.stopPropagation();
+  
+  // Debug: Check what we're getting
+  console.log('LinkElement:', linkElement);
+  console.log('data-href attribute:', linkElement.getAttribute('data-href'));
+  console.log('dataset.href:', linkElement.dataset.href);
+  
+  const path = linkElement.getAttribute('data-href');
+  
+  if (!path) {
+    console.error('No path found in data-href attribute');
+    return false;
+  }
+  
+  const toolName = linkElement.querySelector('.newfold-title')?.textContent || 'Newfold Core';
+  
+  console.log('Path:', path, 'Tool name:', toolName);
+  
+  if (typeof authUtils !== 'undefined') {
+    authUtils.isAuthenticated().then(isAuthenticated => {
+      if (isAuthenticated) {
+        window.location.href = path;
+      } else {
+        authUtils.redirectToAuth(toolName, `Access ${toolName}`);
+      }
+    });
+  } else {
+    const currentUrl = encodeURIComponent(window.location.origin + path);
+    window.location.href = `/auth.html?redirect=${currentUrl}&tool=${encodeURIComponent(toolName)}`;
+  }
+  
+  return false;
+}
     </script>
   </body>
 </html>
