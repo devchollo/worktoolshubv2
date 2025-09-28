@@ -1268,6 +1268,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       } else if (this.adminUser) {
         isAdmin = this.adminUser.isAdmin || this.adminUser.role === 'admin';
         console.log("Auth user admin status:", isAdmin, this.adminUser);
+        
+      }else {
+        window.location.href = "/auth.html"; 
       }
       
       const adminAccess = document.getElementById("adminAccess");
@@ -1282,7 +1285,6 @@ document.addEventListener("DOMContentLoaded", async () => {
           adminAccess.style.display = "none";
           adminLogin.style.display = "block";
           console.log("No admin access - redirecting");
-           window.location.href = "/auth.html"
         }
       }
     }
