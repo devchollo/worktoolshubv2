@@ -673,7 +673,7 @@
             document.getElementById(option + "-form").classList.add("active");
           }
 
-          async function generateNote(type) {
+          window.generateNote = async function(type) {
             const btn = document.querySelector(".generate-btn");
             const spinner = btn.querySelector(".loading-spinner");
             const btnText = btn.querySelector(".btn-text");
