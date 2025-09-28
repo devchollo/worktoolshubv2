@@ -1281,7 +1281,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         } else {
           adminAccess.style.display = "none";
           adminLogin.style.display = "block";
-          console.log("No admin access");
+          console.log("No admin access - redirecting");
+           window.location.href = "/auth.html"
         }
       }
     }
