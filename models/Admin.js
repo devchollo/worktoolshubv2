@@ -34,7 +34,7 @@ const adminSchema = new mongoose.Schema({
     type: String, 
     default: "Administrator",
     enum: {
-      values: ["Administrator", "Super Admin", "Moderator", "Editor"],
+      values: ["Administrator", "Super Admin", "Moderator", "Editor", "User"],
       message: '{VALUE} is not a valid role'
     }
   },
