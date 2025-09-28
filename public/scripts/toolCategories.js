@@ -106,7 +106,7 @@ export const toolCategories = {
       },
       {
         name: "Newfold Core",
-        path: "/newfold-core",
+        path: "tools/newfold-core",
         internal: true,
       },
       {
