@@ -705,8 +705,8 @@ app.get("/api/auth/tool-info/:toolName", (req, res) => {
       requiresAuth: true,
     },
     "offline-mods-note-email-generator": {
-      name: "Offline Mods & Note Generator",
-      description: "Create escalation emails",
+      name: "Offline Mods Note & Email Generator",
+      description: "Create concise offline mods note and emails",
       requiresAuth: true,
     },
     "business-listing-update": {

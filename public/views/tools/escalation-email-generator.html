@@ -441,6 +441,7 @@
 
     <main>
       <section class="tool-container">
+        <div id="user-info"></div>
         <div class="tool-header">
           <h1>Escalation Email Generator</h1>
           <p class="subtitle">
@@ -664,13 +665,13 @@
     <script src="/auth-utils.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", async () => {
-        const toolName = "business-listing-update"; // Change this per tool
+        const toolName = "escalation-email-generator"; 
         const result = await authUtils.initToolAuth(
           toolName,
-          "Update business listings",
+          "Create Escalation Emails",
           {
             showUserInfo: true,
-            userInfoContainerId: "user-info", // Add this div to your HTML
+            userInfoContainerId: "user-info", 
           }
         );
 
