@@ -4,7 +4,6 @@ import { toolCategories } from "./toolCategories.js";
 import { CategoryRenderer } from "./categoryRenderer.js";
 import { Analytics } from "./analytics.js";
 import { PerformanceMonitor } from "./performanceMonitor.js";
-import { initInternalToolAuth } from './api/auth/internal-auth.js';
 
 function initThemeManager() {
   const btn = document.getElementById("themeToggle");
@@ -17,16 +16,9 @@ function initThemeManager() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  // Initialize authentication system first (before CategoryRenderer)
-
-  const auth = initInternalToolAuth();
-  window.auth = auth;
-  
+document.addEventListener("DOMContentLoaded", () => {  
   // Initialize theme manager
   initThemeManager();
-
-  // Initialize category renderer (after auth system is ready)
 
   window.categoryRenderer = new CategoryRenderer();
   
