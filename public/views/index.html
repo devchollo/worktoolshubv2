@@ -144,10 +144,9 @@
         <div class="container-wide">
           <div class="custom-center">
             <!-- Newfold Core Announcement Card - True Landscape -->
+            <a href="/tools/newfold-core" style="color: inherit; text-decoration: none;" onclick="return handleToolClick(event, this)">
             <div
               class="newfold-announcement-card"
-              data-href="/tools/newfold-core"
-              onclick="return handleToolClick(event, this)"
             >
               <div class="newfold-bg-effects">
                 <div class="newfold-gradient-orb newfold-orb-1"></div>
@@ -203,6 +202,7 @@
                 </div>
               </div>
             </div>
+            </a>
 
             <style>
               .newfold-announcement-card {
@@ -607,14 +607,25 @@
     <script type="module" src="../scripts/main.js" defer></script>
     <script src="/auth-utils.js"></script>
     <script>
-     window.handleToolClick = function(event, linkElement) {
+// Add this at the end of your categoryRenderer.js file, outside the class
+window.handleToolClick = function(event, linkElement) {
   event.preventDefault();
-  event.stopPropagation();
   
-  const path = "/tools/newfold-core";
-  const toolName = "Newfold Core";
+  const path = linkElement.getAttribute('href');
+  const toolName = linkElement.textContent.trim().split(' ')[0]; 
   
-  authUtils.redirectToAuth(toolName, `Access ${toolName}`);
+  if (typeof authUtils !== 'undefined') {
+    authUtils.isAuthenticated().then(isAuthenticated => {
+      if (isAuthenticated) {
+        window.location.href = path;
+      } else {
+        authUtils.redirectToAuth(toolName, `Access ${toolName}`);
+      }
+    });
+  } else {
+    const currentUrl = encodeURIComponent(path);
+    window.location.href = `/auth.html?redirect=${currentUrl}&tool=${encodeURIComponent(toolName)}`;
+  }
   
   return false;
 }
