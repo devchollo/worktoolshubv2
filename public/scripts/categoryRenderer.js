@@ -23,7 +23,7 @@ export class CategoryRenderer {
         if (isAuthenticated) {
           window.location.href = path;
         } else {
-          authUtils.redirectToAuth(path, `Access ${toolName}`);
+          authUtils.redirectToAuth(toolName, `Access ${toolName}`);
         }
       });
     } else {

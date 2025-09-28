@@ -323,7 +323,7 @@
           console.log("Search params:", window.location.search);
           console.log("Raw redirect param:", params.get("redirect"));
 
-          this.redirectUrl = params.get("redirect"); // Try without decoding first
+          this.redirectUrl = decodeURIComponent(params.get("redirect") || "");
 
           console.log("Final redirect URL:", this.redirectUrl);
 
