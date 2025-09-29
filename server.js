@@ -391,6 +391,36 @@ app.post("/api/admin/panel-login", async (req, res) => {
   }
 });
 
+// edit suggestion and search end point for admin
+// GET /api/admin/suggestions - Get all edit suggestions
+router.get('/admin/suggestions', verifyAdmin, async (req, res) => {
+  try {
+    const suggestions = await EditSuggestion.find().sort({ createdAt: -1 });
+    res.json({ suggestions });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to load suggestions' });
+  }
+});
+
+// PUT /api/admin/suggestions/:id - Update suggestion status
+router.put('/admin/suggestions/:id', verifyAdmin, async (req, res) => {
+  try {
+    const { status } = req.body;
+    const suggestion = await EditSuggestion.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    );
+    
+    if (!suggestion) {
+      return res.status(404).json({ error: 'Suggestion not found' });
+    }
+    
+    res.json({ suggestion });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update suggestion' });
+  }
+});
 
 // Admin login
 app.post("/api/admin/login", async (req, res) => {

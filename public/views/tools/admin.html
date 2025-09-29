@@ -858,6 +858,10 @@
             <span>📚</span>
             <span>Articles</span>
           </div>
+          <div class="nav-item" data-view="suggestions">
+            <span>💡</span>
+            <span>Edit Suggestions</span>
+          </div>
           <div class="nav-item" data-view="stats">
             <span>📊</span>
             <span>Statistics</span>
@@ -920,6 +924,18 @@
                     👁️
                   </div>
                 </div>
+                <div class="stat-card">
+                  <div class="stat-header">
+                    <div
+                      class="stat-icon"
+                      style="background: #f3e8ff; color: #8b5cf6"
+                    >
+                      💡
+                    </div>
+                  </div>
+                  <div class="stat-value" id="totalSuggestions">0</div>
+                  <div class="stat-label">Edit Suggestions</div>
+                </div>
                 <div class="stat-value" id="totalViews">0</div>
                 <div class="stat-label">Total Views</div>
               </div>
@@ -949,6 +965,28 @@
               </div>
             </div>
 
+            <!-- Search Articles -->
+            <div class="section" style="margin-bottom: 1rem">
+              <div class="section-header">
+                <div
+                  style="
+                    display: flex;
+                    gap: 1rem;
+                    align-items: center;
+                    width: 100%;
+                  "
+                >
+                  <input
+                    type="text"
+                    class="form-input"
+                    id="articleSearch"
+                    placeholder="Search articles by title, category, or author..."
+                    style="flex: 1; margin: 0"
+                  />
+                  <button class="btn-secondary" id="clearSearch">Clear</button>
+                </div>
+              </div>
+            </div>
             <!-- Articles Section -->
             <div class="section">
               <div class="section-header">
@@ -1136,6 +1174,95 @@
                     </tr>
                   </thead>
                   <tbody id="adminsTableBody">
+                    <!-- Will be populated dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Edit Suggestions -->
+          <div class="view-section" id="suggestionsView">
+            <!-- Suggestions Stats -->
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-header">
+                  <div
+                    class="stat-icon"
+                    style="background: #fef3c7; color: #f59e0b"
+                  >
+                    ⏳
+                  </div>
+                </div>
+                <div class="stat-value" id="pendingSuggestions">0</div>
+                <div class="stat-label">Pending</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-header">
+                  <div
+                    class="stat-icon"
+                    style="background: #dcfce7; color: #22c55e"
+                  >
+                    ✅
+                  </div>
+                </div>
+                <div class="stat-value" id="approvedSuggestions">0</div>
+                <div class="stat-label">Approved</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-header">
+                  <div
+                    class="stat-icon"
+                    style="background: #fee2e2; color: #ef4444"
+                  >
+                    ❌
+                  </div>
+                </div>
+                <div class="stat-value" id="rejectedSuggestions">0</div>
+                <div class="stat-label">Rejected</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-header">
+                  <div
+                    class="stat-icon"
+                    style="background: #e0e7ff; color: #6366f1"
+                  >
+                    📊
+                  </div>
+                </div>
+                <div class="stat-value" id="totalSuggestionsStats">0</div>
+                <div class="stat-label">Total Suggestions</div>
+              </div>
+            </div>
+
+            <!-- Suggestions Section -->
+            <div class="section">
+              <div class="section-header">
+                <h2>Edit Suggestions</h2>
+                <select
+                  class="form-select"
+                  id="suggestionFilter"
+                  style="width: auto"
+                >
+                  <option value="">All Status</option>
+                  <option value="pending">Pending</option>
+                  <option value="approved">Approved</option>
+                  <option value="rejected">Rejected</option>
+                </select>
+              </div>
+              <div class="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Article</th>
+                      <th>Editor</th>
+                      <th>Type</th>
+                      <th>Status</th>
+                      <th>Date</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="suggestionsTableBody">
                     <!-- Will be populated dynamically -->
                   </tbody>
                 </table>
@@ -1339,6 +1466,70 @@
       </div>
     </div>
 
+    <!-- Suggestions Modal -->
+    <div class="modal" id="suggestionModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Edit Suggestion Details</h3>
+          <button class="btn-close" id="closeSuggestionModal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Article</label>
+            <input
+              type="text"
+              class="form-input"
+              id="suggestionArticle"
+              readonly
+            />
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Editor Name</label>
+              <input
+                type="text"
+                class="form-input"
+                id="suggestionEditor"
+                readonly
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Edit Type</label>
+              <input
+                type="text"
+                class="form-input"
+                id="suggestionType"
+                readonly
+              />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Suggestion</label>
+            <textarea
+              class="form-input"
+              id="suggestionText"
+              readonly
+              rows="6"
+            ></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <select class="form-select" id="suggestionStatus">
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" id="cancelSuggestionBtn">Cancel</button>
+          <button class="btn btn-primary" id="saveSuggestionBtn">
+            Update Status
+          </button>
+        </div>
+      </div>
+    </div>
+
     <script>
       const API_BASE = "https://worktoolshubv2.onrender.com/api";
 
@@ -1350,6 +1541,9 @@
           this.tags = [];
           this.currentArticle = null;
           this.currentAdmin = null;
+          this.suggestions = [];
+          this.filteredArticles = [];
+          this.currentSuggestion = null;
           this.currentView = "articles";
           this.init();
         }
@@ -1578,6 +1772,8 @@
             this.loadStats();
           } else if (view === "admins") {
             this.loadAdmins();
+          } else if (view === "suggestions") {
+            this.loadSuggestions();
           }
         }
 
@@ -1616,6 +1812,21 @@
           bind("cancelAdminBtn", "click", () => this.closeAdminModal());
           bind("saveAdminBtn", "click", () => this.saveAdmin());
 
+          // Suggestions events
+          bind("closeSuggestionModal", "click", () =>
+            this.closeSuggestionModal()
+          );
+          bind("cancelSuggestionBtn", "click", () =>
+            this.closeSuggestionModal()
+          );
+          bind("saveSuggestionBtn", "click", () => this.saveSuggestionStatus());
+
+          document
+            .getElementById("suggestionFilter")
+            ?.addEventListener("change", () => {
+              this.renderSuggestions();
+            });
+
           // Tag input - Using event delegation to handle dynamically created elements
           document.addEventListener("keypress", (e) => {
             if (
@@ -1633,31 +1844,33 @@
         // ============ DATA LOADING ============
         async loadData() {
           await this.loadArticles();
+          this.setupArticleSearch();
           if (this.currentView === "admins") {
             await this.loadAdmins();
           }
         }
 
         async loadArticles() {
-          try {
-            const cacheBuster = `?_=${Date.now()}`;
-            const response = await fetch(
-              `${API_BASE}/knowledge-base/articles${cacheBuster}`,
-              {
-                headers: {
-                  "Cache-Control": "no-cache",
-                  Pragma: "no-cache",
-                },
-              }
-            );
-            this.articles = await response.json();
-            this.renderArticles();
-            this.updateArticleStats();
-          } catch (error) {
-            console.error("Failed to load articles:", error);
-            this.showToast("error", "Failed to load articles");
-          }
-        }
+  try {
+    const cacheBuster = `?_=${Date.now()}`;
+    const response = await fetch(
+      `${API_BASE}/knowledge-base/articles${cacheBuster}`,
+      {
+        headers: {
+          "Cache-Control": "no-cache",
+          Pragma: "no-cache",
+        },
+      }
+    );
+    this.articles = await response.json();
+    this.filteredArticles = [...this.articles]; // Add this line
+    this.renderArticles();
+    this.updateArticleStats();
+  } catch (error) {
+    console.error("Failed to load articles:", error);
+    this.showToast("error", "Failed to load articles");
+  }
+}
 
         async loadAdmins() {
           try {
@@ -1727,35 +1940,50 @@
         // ============ ARTICLE MANAGEMENT ============
         renderArticles() {
           const tbody = document.getElementById("articlesTableBody");
-          tbody.innerHTML = this.articles
+          const articlesToRender =
+            this.filteredArticles.length > 0 ||
+            document.getElementById("articleSearch")?.value
+              ? this.filteredArticles
+              : this.articles;
+
+          tbody.innerHTML = articlesToRender
             .map(
               (article) => `
-                <tr>
-                    <td><strong><a href='https://www.worktoolshub.info/tools/article.html?id=${
-                      article._id
-                    }' target="_blank" style="color: inherit; text-decoration: none;">${
+        <tr>
+            <td><strong><a href='https://www.worktoolshub.info/tools/article.html?id=${
+              article._id
+            }' target="_blank" style="color: inherit; text-decoration: none;">${
                 article.title
               }</a></strong></td>
-                    <td><span class="category-badge">${this.formatCategory(
-                      article.category
-                    )}</span></td>
-                    <td>${article.views || 0}</td>
-                    <td>${article.upvotes || 0}</td>
-                    <td>${new Date(article.date).toLocaleDateString()}</td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="btn-icon btn-edit" onclick="adminDashboard.editArticle('${
-                              article._id
-                            }')">✏️</button>
-                            <button class="btn-icon btn-delete" onclick="adminDashboard.deleteArticle('${
-                              article._id
-                            }')">🗑️</button>
-                        </div>
-                    </td>
-                </tr>
-            `
+            <td><span class="category-badge">${this.formatCategory(
+              article.category
+            )}</span></td>
+            <td>${article.views || 0}</td>
+            <td>${article.upvotes || 0}</td>
+            <td>${new Date(article.date).toLocaleDateString()}</td>
+            <td>
+                <div class="action-buttons">
+                    <button class="btn-icon btn-edit" onclick="adminDashboard.editArticle('${
+                      article._id
+                    }')">✏️</button>
+                    <button class="btn-icon btn-delete" onclick="adminDashboard.deleteArticle('${
+                      article._id
+                    }')">🗑️</button>
+                </div>
+            </td>
+        </tr>
+    `
             )
             .join("");
+
+          // Show no results message if search returned empty
+          if (
+            document.getElementById("articleSearch")?.value &&
+            articlesToRender.length === 0
+          ) {
+            tbody.innerHTML =
+              '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">No articles found matching your search.</td></tr>';
+          }
         }
 
         async saveArticle() {
@@ -2240,7 +2468,203 @@
             totalUpvotes.toLocaleString();
           document.getElementById("statsHelpful").textContent =
             totalHelpful.toLocaleString();
+
+            if (this.suggestions.length > 0) {
+  document.getElementById("totalSuggestions").textContent = this.suggestions.length;
+}
         }
+
+          // new methods for search and edit suggestions
+          setupArticleSearch() {
+  const searchInput = document.getElementById('articleSearch');
+  const clearBtn = document.getElementById('clearSearch');
+  
+  searchInput?.addEventListener('input', (e) => {
+    this.filterArticles(e.target.value);
+  });
+  
+  clearBtn?.addEventListener('click', () => {
+    searchInput.value = '';
+    this.filterArticles('');
+  });
+}
+
+filterArticles(searchTerm) {
+  if (!searchTerm.trim()) {
+    this.filteredArticles = [...this.articles];
+  } else {
+    const term = searchTerm.toLowerCase();
+    this.filteredArticles = this.articles.filter(article =>
+      article.title.toLowerCase().includes(term) ||
+      article.category.toLowerCase().includes(term) ||
+      article.author.toLowerCase().includes(term)
+    );
+  }
+  this.renderArticles(); 
+}
+
+renderFilteredArticles() {
+  const tbody = document.getElementById("articlesTableBody");
+  const articlesToShow = this.filteredArticles.length > 0 || document.getElementById('articleSearch')?.value 
+    ? this.filteredArticles 
+    : this.articles;
+
+  tbody.innerHTML = articlesToShow
+    .map(article => `
+      <tr>
+        <td><strong><a href='https://www.worktoolshub.info/tools/article.html?id=${article._id}' target="_blank" style="color: inherit; text-decoration: none;">${article.title}</a></strong></td>
+        <td><span class="category-badge">${this.formatCategory(article.category)}</span></td>
+        <td>${article.views || 0}</td>
+        <td>${article.upvotes || 0}</td>
+        <td>${new Date(article.date).toLocaleDateString()}</td>
+        <td>
+          <div class="action-buttons">
+            <button class="btn-icon btn-edit" onclick="adminDashboard.editArticle('${article._id}')">✏️</button>
+            <button class="btn-icon btn-delete" onclick="adminDashboard.deleteArticle('${article._id}')">🗑️</button>
+          </div>
+        </td>
+      </tr>
+    `).join("");
+
+  if (document.getElementById('articleSearch')?.value && articlesToShow.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">No articles found matching your search.</td></tr>';
+  }
+}
+
+async loadSuggestions() {
+  try {
+    const headers = this.getAuthHeaders();
+    if (!headers) return;
+
+    const response = await fetch(`${API_BASE}/admin/suggestions`, {
+      headers: {
+        ...headers,
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
+      }
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      this.suggestions = data.suggestions || [];
+      this.renderSuggestions();
+      this.updateSuggestionStats();
+    } else if (response.status === 401 || response.status === 403) {
+      this.handleAuthError("Session expired. Please log in again.");
+    } else {
+      this.showToast("error", "Failed to load suggestions");
+    }
+  } catch (error) {
+    console.error("Failed to load suggestions:", error);
+    this.showToast("error", "Failed to load suggestions");
+  }
+}
+
+renderSuggestions() {
+  const tbody = document.getElementById("suggestionsTableBody");
+  const filter = document.getElementById("suggestionFilter")?.value;
+  
+  let filteredSuggestions = this.suggestions;
+  if (filter) {
+    filteredSuggestions = this.suggestions.filter(s => s.status === filter);
+  }
+
+  tbody.innerHTML = filteredSuggestions
+    .map(suggestion => {
+      const article = this.articles.find(a => a._id === suggestion.articleId);
+      return `
+        <tr>
+          <td>
+            <strong>${article ? article.title : 'Article not found'}</strong>
+            <div style="font-size: 0.875rem; color: var(--text-muted);">ID: ${suggestion.articleId}</div>
+          </td>
+          <td>${suggestion.editorName}</td>
+          <td><span class="category-badge" style="background: var(--warning)">${suggestion.editType}</span></td>
+          <td><span class="status-badge ${suggestion.status === 'approved' ? 'active' : suggestion.status === 'rejected' ? 'inactive' : ''}" 
+               style="${suggestion.status === 'pending' ? 'background: var(--warning)' : ''}">${suggestion.status}</span></td>
+          <td>${new Date(suggestion.createdAt).toLocaleDateString()}</td>
+          <td>
+            <div class="action-buttons">
+              <button class="btn-icon btn-edit" onclick="adminDashboard.viewSuggestion('${suggestion._id}')" title="View Details">👁️</button>
+              ${suggestion.status === 'pending' ? `
+                <button class="btn-icon" onclick="adminDashboard.updateSuggestionStatus('${suggestion._id}', 'approved')" 
+                        style="background: var(--success); color: white;" title="Approve">✓</button>
+                <button class="btn-icon" onclick="adminDashboard.updateSuggestionStatus('${suggestion._id}', 'rejected')" 
+                        style="background: var(--danger); color: white;" title="Reject">✗</button>
+              ` : ''}
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join("");
+}
+
+updateSuggestionStats() {
+  const pending = this.suggestions.filter(s => s.status === 'pending').length;
+  const approved = this.suggestions.filter(s => s.status === 'approved').length;
+  const rejected = this.suggestions.filter(s => s.status === 'rejected').length;
+
+  document.getElementById("pendingSuggestions").textContent = pending;
+  document.getElementById("approvedSuggestions").textContent = approved;
+  document.getElementById("rejectedSuggestions").textContent = rejected;
+  document.getElementById("totalSuggestionsStats").textContent = this.suggestions.length;
+  document.getElementById("totalSuggestions").textContent = this.suggestions.length;
+}
+
+async viewSuggestion(id) {
+  const suggestion = this.suggestions.find(s => s._id === id);
+  if (!suggestion) return;
+
+  const article = this.articles.find(a => a._id === suggestion.articleId);
+  
+  document.getElementById("suggestionArticle").value = article ? article.title : 'Article not found';
+  document.getElementById("suggestionEditor").value = suggestion.editorName;
+  document.getElementById("suggestionType").value = suggestion.editType;
+  document.getElementById("suggestionText").value = suggestion.suggestion;
+  document.getElementById("suggestionStatus").value = suggestion.status;
+  
+  this.currentSuggestion = suggestion;
+  document.getElementById("suggestionModal").classList.add("active");
+}
+
+async updateSuggestionStatus(id, status) {
+  try {
+    const headers = this.getAuthHeaders();
+    if (!headers) return;
+
+    const response = await fetch(`${API_BASE}/admin/suggestions/${id}`, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify({ status })
+    });
+
+    if (response.ok) {
+      this.showToast("success", `Suggestion ${status} successfully`);
+      await this.loadSuggestions();
+    } else if (response.status === 401 || response.status === 403) {
+      this.handleAuthError("Session expired. Please log in again.");
+    } else {
+      const errorData = await response.json();
+      this.showToast("error", errorData.error || "Failed to update suggestion");
+    }
+  } catch (error) {
+    console.error("Update error:", error);
+    this.showToast("error", "Failed to update suggestion");
+  }
+}
+
+async saveSuggestionStatus() {
+  const status = document.getElementById("suggestionStatus").value;
+  if (this.currentSuggestion) {
+    await this.updateSuggestionStatus(this.currentSuggestion._id, status);
+    this.closeSuggestionModal();
+  }
+}
+
+closeSuggestionModal() {
+  document.getElementById("suggestionModal").classList.remove("active");
+  this.currentSuggestion = null;
+}
 
         renderTopArticles() {
           // Most viewed
