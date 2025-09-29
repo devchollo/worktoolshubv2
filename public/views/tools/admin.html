@@ -1376,28 +1376,18 @@
               const data = await response.json();
               this.user = data.user;
 
-              // Block regular Users from accessing admin panel
-              console.log(
-                "User data:",
-                this.user,
-                "Role:",
-                this.user.role,
-                "Type:",
-                typeof this.user.role
-              );
-
-              // Block users without admin privileges
+              // Block users without admin privileges BEFORE any UI updates
               const allowedRoles = ["Super Admin", "Admin", "Editor"];
               if (
                 !this.user.role ||
                 !allowedRoles.includes(this.user.role.trim())
               ) {
-                this.showError("Access denied: Admin privileges required");
+                console.log("Access denied for role:", this.user.role);
                 this.clearAuth();
-                setTimeout(() => {
-                  window.location.href = "/auth.html";
-                }, 2000);
-                return;
+                this.showLogin();
+                this.showError("Access denied: Admin privileges required");
+                // Prevent any further execution
+                throw new Error("Unauthorized role");
               }
 
               this.showDashboard();
@@ -1411,6 +1401,7 @@
             this.showLogin();
           }
         }
+
         async handleLogin() {
           const email = document.getElementById("loginEmail").value;
           const password = document.getElementById("loginPassword").value;
