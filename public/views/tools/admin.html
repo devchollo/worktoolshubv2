@@ -1377,8 +1377,18 @@
               this.user = data.user;
 
               // Block regular Users from accessing admin panel
-              console.log("User data:", this.user, "Role:", this.user.role, "Type:", typeof this.user.role);
-              if (this.user.role === "User") {
+              console.log(
+                "User data:",
+                this.user,
+                "Role:",
+                this.user.role,
+                "Type:",
+                typeof this.user.role
+              );
+
+              // Make this check more comprehensive
+              const allowedRoles = ["Super Admin", "Admin", "Editor"];
+              if (!allowedRoles.includes(this.user.role)) {
                 this.showError("Access denied: Admin privileges required");
                 this.clearAuth();
                 this.showLogin();
@@ -1616,11 +1626,13 @@
             const headers = this.getAuthHeaders();
             if (!headers) return;
 
-            const response = await fetch(`${API_BASE}/admin/list`, { headers: {
-    ...headers,
-    'Cache-Control': 'no-cache',
-    'Pragma': 'no-cache'
-  } });
+            const response = await fetch(`${API_BASE}/admin/list`, {
+              headers: {
+                ...headers,
+                "Cache-Control": "no-cache",
+                Pragma: "no-cache",
+              },
+            });
 
             if (response.ok) {
               const data = await response.json();
@@ -1775,9 +1787,8 @@
               );
               this.closeArticleModal();
               setTimeout(() => {
-    this.loadArticles();
-  }, 100);
-
+                this.loadArticles();
+              }, 100);
             } else if (response.status === 401 || response.status === 403) {
               this.handleAuthError("Session expired. Please log in again.");
             } else {
@@ -1812,8 +1823,8 @@
             if (response.ok) {
               this.showToast("success", "Article deleted successfully");
               setTimeout(() => {
-    this.loadArticles();
-  }, 100);
+                this.loadArticles();
+              }, 100);
             } else if (response.status === 401 || response.status === 403) {
               this.handleAuthError("Session expired. Please log in again.");
             } else {
@@ -1958,8 +1969,8 @@
               this.closeAdminModal();
               if (this.currentView === "admins") {
                 setTimeout(() => {
-    this.loadArticles();
-  }, 100);
+                  this.loadAdmins();
+                }, 100);
               }
             } else if (response.status === 401 || response.status === 403) {
               this.handleAuthError("Session expired. Please log in again.");
@@ -2001,8 +2012,8 @@
             if (response.ok) {
               this.showToast("success", "Admin deleted successfully");
               setTimeout(() => {
-    this.loadArticles();
-  }, 100);
+                this.loadAdmins();
+              }, 100);
             } else if (response.status === 401 || response.status === 403) {
               this.handleAuthError("Session expired. Please log in again.");
             } else {
