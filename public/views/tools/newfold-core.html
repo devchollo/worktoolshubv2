@@ -988,7 +988,7 @@
             <div class="search-filters">
               <select class="filter-select" id="categoryFilter">
                 <option value="">All Categories</option>
-                <option value="technical">Technical Guides</option>
+                <option value="technical guides">Technical Guides</option>
                 <option value="tutorials">Tutorials</option>
                 <option value="troubleshooting">Troubleshooting</option>
                 <option value="best-practices">Best Practices</option>
@@ -1754,10 +1754,10 @@
             const searchInput = document.getElementById("searchInput");
             if (searchInput) {
               searchInput.value = tagText;
-              console.log("Search input set to:", tagText); 
+              console.log("Search input set to:", tagText);
               this.handleSearch(tagText);
             } else {
-              console.error("Search input element not found!"); 
+              console.error("Search input element not found!");
             }
           }
 
@@ -1796,11 +1796,14 @@
               }
 
               // Difficulty filter
-              if (
-                this.currentFilters.difficulty &&
-                article.difficulty !== this.currentFilters.difficulty
-              ) {
-                return false;
+              if (this.currentFilters.difficulty) {
+                console.log(
+                  `Article: "${article.title}", Difficulty: "${article.difficulty}", Filter: "${this.currentFilters.difficulty}"`
+                );
+
+                if (article.difficulty !== this.currentFilters.difficulty) {
+                  return false;
+                }
               }
 
               // Date filter
@@ -1841,6 +1844,12 @@
             const articleDate = new Date(article.date);
             const now = new Date();
 
+            console.log(
+              `Checking date for "${article.title}": ${article.date}`
+            );
+            console.log(`Article date:`, articleDate);
+            console.log(`Filter:`, dateFilter);
+
             const daysMap = {
               week: 7,
               month: 30,
@@ -1854,7 +1863,10 @@
             const cutoffDate = new Date(
               now.getTime() - days * 24 * 60 * 60 * 1000
             );
-            return articleDate >= cutoffDate;
+            const passes = articleDate >= cutoffDate;
+
+            console.log(`Cutoff date:`, cutoffDate, `Passes:`, passes);
+            return passes;
           }
           renderArticles() {
             const grid = document.getElementById("articlesGrid");
