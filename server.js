@@ -915,31 +915,19 @@ app.get("/api/docs", (req, res) => {
   });
 });
 
-// Homepage
-app.get("/", (req, res) => {
-  res.json({
-    message: "WorkToolsHub API Server",
-    status: "running",
-    version: "2.0.0",
-    documentation: "/api/docs",
-    health: "/api/health",
-    knowledgeBase: "/knowledge-base",
-  });
-});
 
-// edit suggestion and search end point for admin
-// GET /api/admin/suggestions - Get all edit suggestions
-app.get('api/admin/suggestions', authenticateAdmin , async (req, res) => {
+// Edit suggestions routes
+app.get('/api/admin/suggestions', authenticateAdmin, async (req, res) => {
   try {
     const suggestions = await EditSuggestion.find().sort({ createdAt: -1 });
     res.json({ suggestions });
   } catch (error) {
+    console.error('Failed to load suggestions:', error);
     res.status(500).json({ error: 'Failed to load suggestions' });
   }
 });
 
-// PUT /api/admin/suggestions/:id - Update suggestion status
-app.put('api/admin/suggestions/:id', authenticateAdmin, async (req, res) => {
+app.put('/api/admin/suggestions/:id', authenticateAdmin, async (req, res) => {
   try {
     const { status } = req.body;
     const suggestion = await EditSuggestion.findByIdAndUpdate(
@@ -954,12 +942,22 @@ app.put('api/admin/suggestions/:id', authenticateAdmin, async (req, res) => {
     
     res.json({ suggestion });
   } catch (error) {
+    console.error('Failed to update suggestion:', error);
     res.status(500).json({ error: 'Failed to update suggestion' });
   }
 });
 
-
-
+// Homepage
+app.get("/", (req, res) => {
+  res.json({
+    message: "WorkToolsHub API Server",
+    status: "running",
+    version: "2.0.0",
+    documentation: "/api/docs",
+    health: "/api/health",
+    knowledgeBase: "/knowledge-base",
+  });
+});
 // 404 handler for API routes
 app.use("/api/*", (req, res) => {
   res.status(404).json({
