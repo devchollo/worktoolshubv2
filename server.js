@@ -289,7 +289,7 @@ app.post("/api/admin/register", authenticateAdmin, async (req, res) => {
       password: hashedPassword,
       name,
       avatar,
-      role: role || "Administrator",
+      role: role || "Admin",
       department,
       phone,
       permissions,
@@ -356,7 +356,7 @@ app.post("/api/admin/panel-login", async (req, res) => {
     }
 
     // BLOCK USERS HERE - only for admin panel
-    const allowedRoles = ["Super Admin", "Admin", "Editor"];
+    const allowedRoles = ["Super Admin", "Admin", "Moderator", "Editor"];
     if (!allowedRoles.includes(admin.role)) {
       return res.status(403).json({ 
         error: "Access denied: Admin privileges required" 
@@ -715,41 +715,41 @@ app.post("/api/auth/check-tool-access", authenticateAdmin, async (req, res) => {
 
     // Define role-based tool access
     const toolAccess = {
-      "admin-panel": ["Super Admin", "Administrator", "Moderator"],
-      "escalation-email": ["Super Admin", "Administrator", "Moderator", "User"],
+      "admin-panel": ["Super Admin", "Admin", "Moderator"],
+      "escalation-email": ["Super Admin", "Admin", "Moderator", "User"],
       "business-listing-update": [
         "Super Admin",
-        "Administrator",
+        "Admin",
         "Moderator",
         "User",
       ],
       "offline-mods-note-email-generator": [
         "Super Admin",
-        "Administrator",
+        "Admin",
         "Moderator",
         "User",
       ],
-      "qr-generator": ["Super Admin", "Administrator", "Moderator", "User"],
+      "qr-generator": ["Super Admin", "Admin", "Moderator", "User"],
       "osad-and-site-launch": [
         "Super Admin",
-        "Administrator",
+        "Admin",
         "Moderator",
         "User",
       ],
       "obcx-email-creator": [
         "Super Admin",
-        "Administrator",
+        "Admin",
         "Moderator",
         "User",
       ],
       "embed-code-generator": [
         "Super Admin",
-        "Administrator",
+        "Admin",
         "Moderator",
         "User",
       ],
-      article: ["Super Admin", "Administrator", "Moderator", "User"],
-      "knowledge-base": ["Super Admin", "Administrator", "Moderator", "User"],
+      article: ["Super Admin", "Admin", "Moderator", "User"],
+      "knowledge-base": ["Super Admin", "Admin", "Moderator", "User"],
     };
 
     const hasAccess =
