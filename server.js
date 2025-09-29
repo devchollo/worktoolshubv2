@@ -350,18 +350,31 @@ app.post("/api/admin/register", authenticateAdmin, async (req, res) => {
       return res.status(400).json({ error: "Admin already exists" });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 12);
+    // const hashedPassword = await bcrypt.hash(password, 12);
 
+    // const newAdmin = new Admin({
+    //   email: email.toLowerCase(),
+    //   password: hashedPassword,
+    //   name,
+    //   avatar,
+    //   role: role || "Admin",
+    //   department,
+    //   phone,
+    //   permissions,
+    // });
     const newAdmin = new Admin({
-      email: email.toLowerCase(),
-      password: hashedPassword,
-      name,
-      avatar,
-      role: role || "Admin",
-      department,
-      phone,
-      permissions,
-    });
+  email: email.toLowerCase(),
+  password: 'TEMP_PASSWORD_TO_BE_SET', // Temporary placeholder
+  name,
+  avatar,
+  role: role || "Admin",
+  department,
+  phone,
+  permissions,
+  passwordSetupToken: setupToken,
+  passwordSetupExpires: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
+  isPasswordSet: false
+});
     const setupToken = crypto.randomBytes(32).toString('hex');
 newAdmin.passwordSetupToken = setupToken;
 newAdmin.passwordSetupExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
