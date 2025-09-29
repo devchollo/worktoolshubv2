@@ -1390,140 +1390,144 @@
           //     }
           //   });
           // }
-bindStaticEvents() {
-  // Helper function for safe event binding
-  const bindEvent = (id, event, handler) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.addEventListener(event, handler);
-      console.log(`✓ Bound ${event} to #${id}`);
-    } else {
-      console.warn(`Element with id '${id}' not found`);
-    }
-  };
+          bindStaticEvents() {
+            // Helper function for safe event binding
+            const bindEvent = (id, event, handler) => {
+              const element = document.getElementById(id);
+              if (element) {
+                element.addEventListener(event, handler);
+                console.log(`✓ Bound ${event} to #${id}`);
+              } else {
+                console.warn(`Element with id '${id}' not found`);
+              }
+            };
 
-  // Search
-  bindEvent(
-    "searchInput",
-    "input",
-    this.debounce((e) => this.handleSearch(e.target.value), 300)
-  );
+            // Search
+            bindEvent(
+              "searchInput",
+              "input",
+              this.debounce((e) => this.handleSearch(e.target.value), 300)
+            );
 
-  // Filters
-  bindEvent("categoryFilter", "change", (e) =>
-    this.handleFilterChange("category", e.target.value)
-  );
-  bindEvent("difficultyFilter", "change", (e) =>
-    this.handleFilterChange("difficulty", e.target.value)
-  );
-  bindEvent("dateFilter", "change", (e) =>
-    this.handleFilterChange("date", e.target.value)
-  );
+            // Filters
+            bindEvent("categoryFilter", "change", (e) =>
+              this.handleFilterChange("category", e.target.value)
+            );
+            bindEvent("difficultyFilter", "change", (e) =>
+              this.handleFilterChange("difficulty", e.target.value)
+            );
+            bindEvent("dateFilter", "change", (e) =>
+              this.handleFilterChange("date", e.target.value)
+            );
 
-  // Sort
-  bindEvent("sortSelect", "change", (e) =>
-    this.handleSort(e.target.value)
-  );
+            // Sort
+            bindEvent("sortSelect", "change", (e) =>
+              this.handleSort(e.target.value)
+            );
 
-  // AI Assistant events
-  const aiToggle = document.getElementById("aiToggle");
-  if (aiToggle) {
-    aiToggle.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      console.log('AI Toggle clicked');
-      this.toggleAIAssistant(e);
-    });
-    console.log('✓ AI Toggle bound successfully');
-  } else {
-    console.warn('AI Toggle not found - will retry');
-    // Retry after a short delay
-    setTimeout(() => {
-      const retryToggle = document.getElementById("aiToggle");
-      if (retryToggle) {
-        retryToggle.addEventListener("click", (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          this.toggleAIAssistant(e);
-        });
-        console.log('✓ AI Toggle bound on retry');
-      }
-    }, 500);
-  }
+            // AI Assistant events
+            const aiToggle = document.getElementById("aiToggle");
+            if (aiToggle) {
+              aiToggle.addEventListener("click", (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log("AI Toggle clicked");
+                this.showAIAssistant();
+              });
+              console.log("✓ AI Toggle bound successfully");
+            } else {
+              console.warn("AI Toggle not found - will retry");
+              // Retry after a short delay
+              setTimeout(() => {
+                const retryToggle = document.getElementById("aiToggle");
+                if (retryToggle) {
+                  retryToggle.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.toggleAIAssistant(e);
+                  });
+                  console.log("✓ AI Toggle bound on retry");
+                }
+              }, 500);
+            }
 
-  bindEvent("aiSubmit", "click", () => this.submitAIQuery());
-  bindEvent("aiInput", "keypress", (e) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      this.submitAIQuery();
-    }
-  });
+            bindEvent("aiSubmit", "click", () => this.submitAIQuery());
+            bindEvent("aiInput", "keypress", (e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                this.submitAIQuery();
+              }
+            });
 
-  // No results AI button
-  bindEvent("noResultsAiBtn", "click", (e) => {
-    e.stopPropagation();
-    this.showAIAssistant();
-    setTimeout(() => {
-      const aiInput = document.getElementById("aiInput");
-      if (aiInput) {
-        aiInput.value = `I'm searching for: ${
-          this.currentSearch || "articles"
-        } but didn't find any results. Can you help?`;
-        aiInput.focus();
-      }
-    }, 100);
-  });
+            // No results AI button
+            bindEvent("noResultsAiBtn", "click", (e) => {
+              e.stopPropagation();
+              this.showAIAssistant();
+              setTimeout(() => {
+                const aiInput = document.getElementById("aiInput");
+                if (aiInput) {
+                  aiInput.value = `I'm searching for: ${
+                    this.currentSearch || "articles"
+                  } but didn't find any results. Can you help?`;
+                  aiInput.focus();
+                }
+              }, 100);
+            });
 
-  // Edit modal events
-  bindEvent("modalClose", "click", () => this.hideEditModal());
-  bindEvent("cancelEdit", "click", () => this.hideEditModal());
+            // Edit modal events
+            bindEvent("modalClose", "click", () => this.hideEditModal());
+            bindEvent("cancelEdit", "click", () => this.hideEditModal());
 
-  const editForm = document.getElementById("editForm");
-  if (editForm) {
-    editForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const formData = {
-        articleId: document.getElementById("editArticleId").value,
-        editorName: document.getElementById("editorName").value,
-        editType: document.getElementById("editType").value,
-        suggestion: document.getElementById("editSuggestion").value,
-        timestamp: new Date().toISOString(),
-      };
-      this.submitEditSuggestion(formData);
-    });
-  }
+            const editForm = document.getElementById("editForm");
+            if (editForm) {
+              editForm.addEventListener("submit", (e) => {
+                e.preventDefault();
+                const formData = {
+                  articleId: document.getElementById("editArticleId").value,
+                  editorName: document.getElementById("editorName").value,
+                  editType: document.getElementById("editType").value,
+                  suggestion: document.getElementById("editSuggestion").value,
+                  timestamp: new Date().toISOString(),
+                };
+                this.submitEditSuggestion(formData);
+              });
+            }
 
-  // Modal overlay clicks
-  const editModal = document.getElementById("editModal");
-  if (editModal) {
-    editModal.addEventListener("click", (e) => {
-      if (e.target.id === "editModal") {
-        this.hideEditModal();
-      }
-    });
-  }
+            // Modal overlay clicks
+            const editModal = document.getElementById("editModal");
+            if (editModal) {
+              editModal.addEventListener("click", (e) => {
+                if (e.target.id === "editModal") {
+                  this.hideEditModal();
+                }
+              });
+            }
 
-  // Click outside to close AI panel - use event capturing
-  document.addEventListener("click", (e) => {
-    const aiToggleEl = document.getElementById("aiToggle");
-    const aiPanel = document.getElementById("aiPanel");
-    const aiAssistant = document.querySelector(".ai-assistant");
+            // Click outside to close AI panel - use event capturing
+            document.addEventListener(
+              "click",
+              (e) => {
+                const aiToggleEl = document.getElementById("aiToggle");
+                const aiPanel = document.getElementById("aiPanel");
+                const aiAssistant = document.querySelector(".ai-assistant");
 
-    // Ignore if clicking toggle or panel doesn't exist
-    if (!aiPanel || (aiToggleEl && aiToggleEl.contains(e.target))) {
-      return;
-    }
+                // Ignore if clicking toggle or panel doesn't exist
+                if (!aiPanel || (aiToggleEl && aiToggleEl.contains(e.target))) {
+                  return;
+                }
 
-    // Close if clicking outside and panel is open
-    if (
-      aiPanel.classList.contains("active") &&
-      aiAssistant &&
-      !aiAssistant.contains(e.target)
-    ) {
-      this.hideAIAssistant();
-    }
-  }, true); // Use capture phase
-}
+                // Close if clicking outside and panel is open
+                if (
+                  aiPanel.classList.contains("active") &&
+                  aiAssistant &&
+                  !aiAssistant.contains(e.target)
+                ) {
+                  this.hideAIAssistant();
+                }
+              },
+              true
+            ); // Use capture phase
+          }
           bindDynamicEvents() {
             // Bind events for dynamically created elements
 
@@ -2250,25 +2254,25 @@ bindStaticEvents() {
           }
 
           toggleAIAssistant(event) {
-  if (event) {
-    event.preventDefault();
-    event.stopPropagation();
-  }
-  
-  const panel = document.getElementById("aiPanel");
-  console.log('Toggle called, panel found:', !!panel);
-  
-  if (panel) {
-    const isActive = panel.classList.contains("active");
-    console.log('Panel active status:', isActive);
-    
-    if (isActive) {
-      this.hideAIAssistant();
-    } else {
-      this.showAIAssistant();
-    }
-  }
-}
+            if (event) {
+              event.preventDefault();
+              event.stopPropagation();
+            }
+
+            const panel = document.getElementById("aiPanel");
+            console.log("Toggle called, panel found:", !!panel);
+
+            if (panel) {
+              const isActive = panel.classList.contains("active");
+              console.log("Panel active status:", isActive);
+
+              if (isActive) {
+                this.hideAIAssistant();
+              } else {
+                this.showAIAssistant();
+              }
+            }
+          }
 
           showAIAssistant() {
             const panel = document.getElementById("aiPanel");
