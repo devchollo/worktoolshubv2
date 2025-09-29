@@ -763,6 +763,14 @@
           box-shadow: 0 20px 60px rgba(99, 102, 241, 0.4);
         }
       }
+
+      #dashboard {
+        display: none;
+      }
+
+      #dashboard.active {
+        display: block;
+      }
     </style>
   </head>
   <body>
@@ -1476,12 +1484,14 @@
 
         // ============ UI STATE ============
         showLogin() {
-          document.getElementById("loginPage").style.display = "flex";
-          document.getElementById("dashboard").classList.remove("active");
-        }
+  document.getElementById("loginPage").style.display = "flex";
+  document.getElementById("dashboard").style.display = "none"; 
+  document.getElementById("dashboard").classList.remove("active");
+}
 
         showDashboard() {
           document.getElementById("loginPage").style.display = "none";
+          document.getElementById("dashboard").style.display = "block";
           document.getElementById("dashboard").classList.add("active");
 
           document.getElementById("userName").textContent = this.user.name;
