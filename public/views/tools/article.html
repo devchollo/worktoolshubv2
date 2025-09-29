@@ -668,13 +668,13 @@
     <script src="/auth-utils.js"></script>
     <script>
       document.addEventListener("DOMContentLoaded", async () => {
-        const toolName = "article"; 
+        const toolName = "article";
         const result = await authUtils.initToolAuth(
           toolName,
           "Forbidden Knowledge In One Place",
           {
             showUserInfo: true,
-            userInfoContainerId: "user-info", 
+            userInfoContainerId: "user-info",
           }
         );
 
@@ -781,7 +781,7 @@
                 "helpfulText",
                 `Helped ${this.article.helpfulCount || 0}`
               );
-
+              this.article.userUpvoted = this.article.userUpvoted || false;
               // Upvote button state
               const upvoteBtn = document.getElementById("upvoteBtn");
               if (upvoteBtn && this.article.userUpvoted) {
@@ -986,7 +986,14 @@
 
                 if (response.ok) {
                   const result = await response.json();
-                  console.log("Helpful response:", result); // Debug log
+                  console.log("Helpful response:", result);
+
+                  // Check if user already marked it
+                  if (result.message) {
+                    this.showToast("error", "Already Marked", result.message);
+                    return;
+                  }
+
                   this.article.helpfulCount = result.helpfulCount;
 
                   // Update UI
@@ -998,18 +1005,16 @@
                   const btn = document.getElementById("helpfulBtn");
                   btn.style.background = "#10b981";
                   btn.style.color = "white";
+                  btn.disabled = true; // Disable button after marking
                   setTimeout(() => {
                     btn.style.background = "";
                     btn.style.color = "";
                   }, 1000);
-                } else {
-                  console.error("Helpful failed:", response.status);
                 }
               } catch (error) {
                 console.error("Helpful error:", error);
               }
             }
-
             showEditModal() {
               document.getElementById("editArticleId").value = this.articleId;
               document.getElementById("editTitle").value = this.article.title;

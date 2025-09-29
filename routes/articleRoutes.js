@@ -189,14 +189,52 @@ router.get('/articles', async (req, res) => {
 });
 
 // GET single article
+// router.get('/articles/:id', async (req, res) => {
+//   try {
+//     const { id } = req.params;
+
+//     if (!checkDBConnection()) {
+//       const demoArticles = getDemoArticles();
+//       const demoArticle = demoArticles.find(a => a._id === id);
+//       if (demoArticle) return res.json(demoArticle);
+//       return res.status(404).json({ error: 'Article not found' });
+//     }
+
+//     if (!mongoose.Types.ObjectId.isValid(id)) {
+//       return res.status(400).json({ error: 'Invalid article ID format' });
+//     }
+
+//     const article = await Article.findById(id).maxTimeMS(5000);
+//     if (!article) return res.status(404).json({ error: 'Article not found' });
+
+//     article.views += 1;
+//     await article.save();
+
+//     res.json(article); // raw content
+
+//   } catch (error) {
+//     console.error('Error fetching article:', error);
+//     if (error.name === 'CastError') return res.status(400).json({ error: 'Invalid article ID' });
+//     res.status(500).json({ error: 'Failed to fetch article' });
+//   }
+// });
+// GET single article
 router.get('/articles/:id', async (req, res) => {
   try {
     const { id } = req.params;
+    const userId = req.user?.id || req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || req.connection.remoteAddress || req.ip || 'anonymous';
 
     if (!checkDBConnection()) {
       const demoArticles = getDemoArticles();
       const demoArticle = demoArticles.find(a => a._id === id);
-      if (demoArticle) return res.json(demoArticle);
+      if (demoArticle) {
+        // Add user status for demo articles
+        return res.json({
+          ...demoArticle,
+          userUpvoted: false,
+          userMarkedHelpful: false
+        });
+      }
       return res.status(404).json({ error: 'Article not found' });
     }
 
@@ -207,10 +245,20 @@ router.get('/articles/:id', async (req, res) => {
     const article = await Article.findById(id).maxTimeMS(5000);
     if (!article) return res.status(404).json({ error: 'Article not found' });
 
+    // Increment views
     article.views += 1;
     await article.save();
 
-    res.json(article); // raw content
+    // Convert to plain object and add user's interaction status
+    const articleData = article.toObject();
+    articleData.userUpvoted = article.upvotedBy?.includes(userId) || false;
+    articleData.userMarkedHelpful = article.helpfulBy?.includes(userId) || false;
+
+    // Remove internal tracking arrays from response (optional - for cleaner API)
+    delete articleData.upvotedBy;
+    delete articleData.helpfulBy;
+
+    res.json(articleData);
 
   } catch (error) {
     console.error('Error fetching article:', error);
@@ -218,7 +266,6 @@ router.get('/articles/:id', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch article' });
   }
 });
-
 
 // POST /ai-query
 router.post('/ai-query', async (req, res) => {
@@ -592,24 +639,46 @@ router.post('/articles/:id/upvote', async (req, res) => {
 router.post('/articles/:id/helpful', async (req, res) => {
   try {
     const { id } = req.params;
+    const userId = req.user?.id || req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || req.connection.remoteAddress || req.ip || 'anonymous';
+
+    console.log(`Helpful attempt by user ${userId} for article ${id}`);
 
     if (!checkDBConnection()) {
-      return res.json({ helpfulCount: 1 });
+      return res.json({ helpfulCount: 1, userMarkedHelpful: false });
     }
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ error: 'Invalid article ID format' });
     }
 
-    const article = await Article.findByIdAndUpdate(
-      id,
-      { $inc: { helpfulCount: 1 } },
-      { new: true }
-    ).maxTimeMS(5000);
-
+    const article = await Article.findById(id).maxTimeMS(5000);
     if (!article) return res.status(404).json({ error: 'Article not found' });
 
-    res.json({ helpfulCount: article.helpfulCount });
+    // Check if user already marked as helpful
+    const hasMarkedHelpful = article.helpfulBy?.includes(userId);
+    console.log(`User ${userId} has marked helpful: ${hasMarkedHelpful}`);
+
+    if (hasMarkedHelpful) {
+      // User already marked it - return current state without incrementing
+      return res.json({ 
+        helpfulCount: article.helpfulCount,
+        userMarkedHelpful: true,
+        message: 'You already marked this as helpful'
+      });
+    }
+
+    // Increment and add user to tracking array
+    article.helpfulCount += 1;
+    if (!article.helpfulBy) article.helpfulBy = [];
+    article.helpfulBy.push(userId);
+
+    const savedArticle = await article.save();
+    console.log(`Helpful count updated to ${savedArticle.helpfulCount}`);
+
+    res.json({ 
+      helpfulCount: savedArticle.helpfulCount,
+      userMarkedHelpful: true
+    });
 
   } catch (error) {
     console.error('Error updating helpful count:', error);

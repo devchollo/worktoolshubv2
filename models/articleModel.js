@@ -24,7 +24,8 @@ const articleSchema = new mongoose.Schema({
 
   upvotes: { type: Number, default: 0 },
   helpfulCount: { type: Number, default: 0 },
-  upvotedBy: [{ type: String }]
+  upvotedBy: [{ type: String }],
+  helpfulBy: [String],
 });
 
 // Text search index

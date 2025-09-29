@@ -439,7 +439,11 @@
         color: var(--kb-primary);
         transform: translateY(-1px);
       }
-
+      .action-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+      }
       .action-btn.upvoted {
         background: var(--kb-primary);
         color: white;
@@ -2063,7 +2067,7 @@
             </div>
           </div>
           <div class="article-actions">
-            <button class="action-btn upvote-btn ${
+            <button disabled class="action-btn upvote-btn ${
               article.userUpvoted ? "upvoted" : ""
             }"
                     data-id="${
@@ -2072,13 +2076,13 @@
               <span>👍</span>
               <span>${article.upvotes || 0}</span>
             </button>
-            <button class="action-btn helpful-btn" data-id="${
+            <button disabled class="action-btn helpful-btn"  data-id="${
               article._id || article.id
             }" title="This helped me">
               <span>✅</span>
               <span>Helped ${article.helpfulCount || 0}</span>
             </button>
-            <button class="action-btn suggest-edit" data-id="${
+            <button disabled class="action-btn suggest-edit" data-id="${
               article._id || article.id
             }" title="Suggest edit">
               <span>✏️</span>
@@ -2098,31 +2102,6 @@
                 const articleId = card.dataset.id;
                 this.openArticle(articleId);
               });
-
-              // Individual button handlers
-              const upvoteBtn = card.querySelector(".upvote-btn");
-              if (upvoteBtn) {
-                upvoteBtn.addEventListener("click", (e) => {
-                  e.stopPropagation();
-                  this.handleUpvote(upvoteBtn.dataset.id);
-                });
-              }
-
-              const helpfulBtn = card.querySelector(".helpful-btn");
-              if (helpfulBtn) {
-                helpfulBtn.addEventListener("click", (e) => {
-                  e.stopPropagation();
-                  this.handleHelpful(helpfulBtn.dataset.id);
-                });
-              }
-
-              const editBtn = card.querySelector(".suggest-edit");
-              if (editBtn) {
-                editBtn.addEventListener("click", (e) => {
-                  e.stopPropagation();
-                  this.showEditModal(editBtn.dataset.id);
-                });
-              }
             });
           }
 
