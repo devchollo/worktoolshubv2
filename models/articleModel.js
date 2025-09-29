@@ -22,7 +22,6 @@ const articleSchema = new mongoose.Schema({
   published: { type: Boolean, default: true },
   updatedAt: { type: Date, default: Date.now },
 
-  // 👇 Add these for frontend compatibility
   upvotes: { type: Number, default: 0 },
   helpfulCount: { type: Number, default: 0 },
   upvotedBy: [{ type: String }]

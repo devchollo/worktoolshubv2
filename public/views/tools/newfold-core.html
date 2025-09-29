@@ -1406,9 +1406,10 @@
           }
 
           tagClickHandler(e) {
-            this.handleTagClick(e.target.textContent);
+            const tagText = e.target.textContent.trim();
+            console.log("Tag clicked:", tagText);
+            this.handleTagClick(tagText);
           }
-
           async loadStats() {
             try {
               const cacheBuster = `?_=${Date.now()}`;
@@ -1749,10 +1750,14 @@
           }
 
           handleTagClick(tagText) {
+            console.log("handleTagClick called with:", tagText);
             const searchInput = document.getElementById("searchInput");
             if (searchInput) {
               searchInput.value = tagText;
+              console.log("Search input set to:", tagText); 
               this.handleSearch(tagText);
+            } else {
+              console.error("Search input element not found!"); 
             }
           }
 
