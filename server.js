@@ -18,6 +18,7 @@ const articleRoutes = require("./routes/articleRoutes");
 
 // Import Admin model
 const Admin = require("./models/Admin");
+const EditSuggestion = require('./models/editSuggestions');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -393,7 +394,7 @@ app.post("/api/admin/panel-login", async (req, res) => {
 
 // edit suggestion and search end point for admin
 // GET /api/admin/suggestions - Get all edit suggestions
-router.get('/admin/suggestions', verifyAdmin, async (req, res) => {
+app.get('/admin/suggestions', authenticateAdmin , async (req, res) => {
   try {
     const suggestions = await EditSuggestion.find().sort({ createdAt: -1 });
     res.json({ suggestions });
@@ -403,7 +404,7 @@ router.get('/admin/suggestions', verifyAdmin, async (req, res) => {
 });
 
 // PUT /api/admin/suggestions/:id - Update suggestion status
-router.put('/admin/suggestions/:id', verifyAdmin, async (req, res) => {
+app.put('/admin/suggestions/:id', authenticateAdmin, async (req, res) => {
   try {
     const { status } = req.body;
     const suggestion = await EditSuggestion.findByIdAndUpdate(
