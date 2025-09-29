@@ -15,7 +15,7 @@ const qrRoutes = require("./routes/qrRoutes");
 const sitemapRoutes = require("./routes/sitemapRoutes");
 const notesRoutes = require("./routes/notesRoutes");
 const articleRoutes = require("./routes/articleRoutes");
-const { sendWelcomeEmail } = require('./utils/emailService');
+const { sendAccountSetupEmail  } = require('./utils/emailService');
 
 // Import Admin model
 const Admin = require("./models/Admin");
@@ -362,17 +362,20 @@ app.post("/api/admin/register", authenticateAdmin, async (req, res) => {
       phone,
       permissions,
     });
+    const setupToken = crypto.randomBytes(32).toString('hex');
+newAdmin.passwordSetupToken = setupToken;
+newAdmin.passwordSetupExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
+newAdmin.isPasswordSet = false;
 
     await newAdmin.save();
 
     // Send welcome email with credentials
     try {
-      await sendWelcomeEmail(email, name, password, role || "Admin");
-      console.log(`Welcome email sent to ${email}`);
-    } catch (emailError) {
-      console.error('Failed to send welcome email:', emailError);
-      // Don't fail the registration if email fails
-    }
+  await sendAccountSetupEmail(email, name, setupToken, role || "Admin");
+  console.log(`Setup email sent to ${email}`);
+} catch (emailError) {
+  console.error('Failed to send setup email:', emailError);
+}
 
     res.status(201).json({
       message: "Admin registered successfully. Welcome email sent.",
