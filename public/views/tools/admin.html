@@ -928,17 +928,17 @@
                 <div class="stat-label">Total Views</div>
               </div>
               <div class="stat-card">
-                  <div class="stat-header">
-                    <div
-                      class="stat-icon"
-                      style="background: #f3e8ff; color: #8b5cf6"
-                    >
-                      💡
-                    </div>
+                <div class="stat-header">
+                  <div
+                    class="stat-icon"
+                    style="background: #f3e8ff; color: #8b5cf6"
+                  >
+                    💡
                   </div>
-                  <div class="stat-value" id="totalSuggestions">0</div>
-                  <div class="stat-label">Pending Suggestions</div>
                 </div>
+                <div class="stat-value" id="totalSuggestions">0</div>
+                <div class="stat-label">Pending Suggestions</div>
+              </div>
               <div class="stat-card">
                 <div class="stat-header">
                   <div
@@ -1104,43 +1104,63 @@
           <!-- Admins View -->
           <div class="view-section" id="adminsView">
             <!-- Admin Stats -->
-<div class="stats-grid">
-  <div class="stat-card">
-    <div class="stat-header">
-      <div class="stat-icon" style="background: #dbeafe; color: #3b82f6">👥</div>
-    </div>
-    <div class="stat-value" id="totalUsers">0</div>
-    <div class="stat-label">Total Users</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-header">
-      <div class="stat-icon" style="background: #f3e8ff; color: #8b5cf6">🛡️</div>
-    </div>
-    <div class="stat-value" id="totalAdminsCount">0</div>
-    <div class="stat-label">Admins</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-header">
-      <div class="stat-icon" style="background: #dcfce7; color: #22c55e">✅</div>
-    </div>
-    <div class="stat-value" id="activeAdmins">0</div>
-    <div class="stat-label">Active Users</div>
-  </div>
-  <div class="stat-card">
-    <div class="stat-header">
-      <div class="stat-icon" style="background: #fef3c7; color: #f59e0b">🔄</div>
-    </div>
-    <div class="stat-value" id="recentLogins">0</div>
-    <div class="stat-label">Recent Logins (24h)</div>
-  </div>
-</div>
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-header">
+                  <div
+                    class="stat-icon"
+                    style="background: #dbeafe; color: #3b82f6"
+                  >
+                    👥
+                  </div>
+                </div>
+                <div class="stat-value" id="totalUsers">0</div>
+                <div class="stat-label">Total Users</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-header">
+                  <div
+                    class="stat-icon"
+                    style="background: #f3e8ff; color: #8b5cf6"
+                  >
+                    🛡️
+                  </div>
+                </div>
+                <div class="stat-value" id="totalAdminsCount">0</div>
+                <div class="stat-label">Admins</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-header">
+                  <div
+                    class="stat-icon"
+                    style="background: #dcfce7; color: #22c55e"
+                  >
+                    ✅
+                  </div>
+                </div>
+                <div class="stat-value" id="activeAdmins">0</div>
+                <div class="stat-label">Active Users</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-header">
+                  <div
+                    class="stat-icon"
+                    style="background: #fef3c7; color: #f59e0b"
+                  >
+                    🔄
+                  </div>
+                </div>
+                <div class="stat-value" id="recentLogins">0</div>
+                <div class="stat-label">Recent Logins (24h)</div>
+              </div>
+            </div>
 
             <!-- Admins Section -->
             <div class="section">
               <div class="section-header">
-  <h2>All Users</h2>
-  <button class="btn-new" id="newAdminBtn">+ New User</button>
-</div>
+                <h2>All Users</h2>
+                <button class="btn-new" id="newAdminBtn">+ New User</button>
+              </div>
               <div class="table-container">
                 <table>
                   <thead>
@@ -1408,8 +1428,10 @@
                   type="text"
                   class="form-input"
                   id="adminDepartment"
-                  placeholder="e.g., IT, Content, Support"
+                  placeholder="e.g., Pro Serv Leader, PPCC, PPFF, Max Character 80"
+                  maxlength="80"
                 />
+                <small style="color: var(--text-muted); font-size: 0.75rem;">Max 80 characters</small>
               </div>
               <div class="form-group">
                 <label class="form-label">Phone</label>
@@ -1886,31 +1908,36 @@
           }
         }
         async loadAdminStats() {
-  try {
-    const headers = this.getAuthHeaders();
-    if (!headers) return;
+          try {
+            const headers = this.getAuthHeaders();
+            if (!headers) return;
 
-    const response = await fetch(`${API_BASE}/admin/stats`, {
-      headers,
-    });
+            const response = await fetch(`${API_BASE}/admin/stats`, {
+              headers,
+            });
 
-    if (response.ok) {
-      const stats = await response.json();
-      
-      // Calculate admin count (non-User roles)
-      const adminCount = this.admins.filter(a => a.role !== 'User').length;
-      
-      document.getElementById("totalUsers").textContent = stats.total;
-      document.getElementById("totalAdminsCount").textContent = adminCount;
-      document.getElementById("activeAdmins").textContent = stats.active;
-      document.getElementById("recentLogins").textContent = stats.recentLogins;
-    } else if (response.status === 401 || response.status === 403) {
-      this.handleAuthError("Session expired. Please log in again.");
-    }
-  } catch (error) {
-    console.error("Failed to load admin stats:", error);
-  }
-}
+            if (response.ok) {
+              const stats = await response.json();
+
+              // Calculate admin count (non-User roles)
+              const adminCount = this.admins.filter(
+                (a) => a.role !== "User"
+              ).length;
+
+              document.getElementById("totalUsers").textContent = stats.total;
+              document.getElementById("totalAdminsCount").textContent =
+                adminCount;
+              document.getElementById("activeAdmins").textContent =
+                stats.active;
+              document.getElementById("recentLogins").textContent =
+                stats.recentLogins;
+            } else if (response.status === 401 || response.status === 403) {
+              this.handleAuthError("Session expired. Please log in again.");
+            }
+          } catch (error) {
+            console.error("Failed to load admin stats:", error);
+          }
+        }
         async loadStats() {
           // Update basic stats
           this.updateStatsView();
@@ -2135,6 +2162,7 @@
         async saveAdmin() {
           const id = document.getElementById("adminId").value;
           const isCurrentUser = id === this.user.id;
+
           // Validate required fields
           const name = document.getElementById("adminName").value.trim();
           const email = document.getElementById("adminEmail").value.trim();
@@ -2155,8 +2183,8 @@
             return;
           }
 
+          // Build data object - don't include id for new users
           const data = {
-            id,
             name,
             email,
             role,
@@ -2165,10 +2193,17 @@
             avatar: document.getElementById("adminAvatar").value.trim(),
           };
 
-          // Only include password for new admins or if it's being changed
+          // Only include id when editing existing user
+          if (id) {
+            data.id = id;
+          }
+
+          // Only include password if provided
           if (!id || password) {
             data.password = password;
           }
+
+          // Only include isActive when editing another user
           if (id && !isCurrentUser) {
             data.isActive =
               document.getElementById("adminStatus").value === "true";
@@ -2212,7 +2247,7 @@
 
               this.showToast(
                 "success",
-                `Admin ${id ? "updated" : "created"} successfully`
+                `User ${id ? "updated" : "created"} successfully`
               );
               this.closeAdminModal();
               if (this.currentView === "admins") {
@@ -2225,12 +2260,12 @@
             } else {
               const errorData = await response.json();
               throw new Error(
-                errorData.error || errorData.message || "Failed to save admin"
+                errorData.error || errorData.message || "Failed to save user"
               );
             }
           } catch (error) {
             console.error("Save error:", error);
-            this.showToast("error", error.message || "Failed to save admin");
+            this.showToast("error", error.message || "Failed to save user");
           }
         }
         async editAdmin(id) {
@@ -2331,7 +2366,7 @@
 
           if (admin) {
             document.getElementById("adminModalTitle").textContent =
-      isCurrentUser ? "Edit My Profile" : "Edit User";
+              isCurrentUser ? "Edit My Profile" : "Edit User";
             document.getElementById("adminId").value =
               admin.id || admin._id || "";
             document.getElementById("adminName").value = admin.name || "";
@@ -2581,7 +2616,11 @@
               return `
         <tr>
           <td>
-            <strong><a href="/tools/article.html?id=${suggestion.articleId}" target="_blank" style"color: inherit; text-decoration: none;"> ${article ? article.title : "Article not found"}</a></strong>
+            <strong><a href="/tools/article.html?id=${
+              suggestion.articleId
+            }" target="_blank" style"color: inherit; text-decoration: none;"> ${
+                article ? article.title : "Article not found"
+              }</a></strong>
             <div style="font-size: 0.875rem; color: var(--text-muted);">ID: ${
               suggestion.articleId
             }</div>
@@ -2627,18 +2666,25 @@
         }
 
         updateSuggestionStats() {
-  const pending = this.suggestions.filter(s => s.status === 'pending').length;
-  const approved = this.suggestions.filter(s => s.status === 'approved').length;
-  const rejected = this.suggestions.filter(s => s.status === 'rejected').length;
+          const pending = this.suggestions.filter(
+            (s) => s.status === "pending"
+          ).length;
+          const approved = this.suggestions.filter(
+            (s) => s.status === "approved"
+          ).length;
+          const rejected = this.suggestions.filter(
+            (s) => s.status === "rejected"
+          ).length;
 
-  document.getElementById("pendingSuggestions").textContent = pending;
-  document.getElementById("approvedSuggestions").textContent = approved;
-  document.getElementById("rejectedSuggestions").textContent = rejected;
-  document.getElementById("totalSuggestionsStats").textContent = this.suggestions.length;
-  
-  // Update main stats with PENDING count instead of total
-  document.getElementById("totalSuggestions").textContent = pending;
-}
+          document.getElementById("pendingSuggestions").textContent = pending;
+          document.getElementById("approvedSuggestions").textContent = approved;
+          document.getElementById("rejectedSuggestions").textContent = rejected;
+          document.getElementById("totalSuggestionsStats").textContent =
+            this.suggestions.length;
+
+          // Update main stats with PENDING count instead of total
+          document.getElementById("totalSuggestions").textContent = pending;
+        }
         async viewSuggestion(id) {
           const suggestion = this.suggestions.find((s) => s._id === id);
           if (!suggestion) return;

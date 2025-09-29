@@ -61,7 +61,7 @@ const adminSchema = new mongoose.Schema({
   department: {
     type: String,
     trim: true,
-    maxlength: [30, 'Department cannot be more than 30 characters']
+    maxlength: [80, 'Department cannot be more than 80 characters']
   },
   phone: {
     type: String,
