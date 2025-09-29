@@ -338,9 +338,9 @@ app.post("/api/admin/register", authenticateAdmin, async (req, res) => {
       permissions,
     } = req.body;
 
-    if (!email || !password || !name) {
+    if (!email || !name) {
       return res.status(400).json({
-        error: "Email, password, and name are required",
+        error: "Email, and name are required",
       });
     }
 
