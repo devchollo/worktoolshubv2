@@ -1240,11 +1240,11 @@
 
           async init() {
             console.log("Initializing Knowledge Base...");
-            this.bindStaticEvents(); // Bind events that don't depend on dynamic content
+            this.bindStaticEvents(); 
             this.checkAdminAuth();
 
             await Promise.all([this.loadArticles(), this.loadStats()]);
-            this.renderStats(); // This now includes dynamic event binding
+            this.renderStats(); 
             this.renderArticles();
 
             // Set global reference
@@ -1730,6 +1730,8 @@
 
             // Update filter
             const category = link.dataset.category;
+            console.log("Category clicked:", category);
+            console.log("Sample article categories:", this.articles.slice(0, 3).map(a => a.category));
             this.currentFilters.category = category;
 
             const categoryFilter = document.getElementById("categoryFilter");
