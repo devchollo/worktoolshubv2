@@ -353,7 +353,12 @@ app.post("/api/admin/login", async (req, res) => {
       await admin.incLoginAttempts();
       return res.status(401).json({ error: "Invalid credentials" });
     }
-
+    const allowedRoles = ["Super Admin", "Admin", "Editor"];
+    if (!allowedRoles.includes(admin.role)) {
+      return res.status(403).json({
+        error: "Access denied: Admin privileges required",
+      });
+    }
     // Reset login attempts on successful login
     await admin.resetLoginAttempts();
 
@@ -443,13 +448,11 @@ app.post("/api/admin/verify", async (req, res) => {
       return res.status(401).json({ error: "Invalid token" });
     }
 
-    
     const allowedRoles = ["Super Admin", "Admin", "Editor"];
     if (!allowedRoles.includes(admin.role)) {
       return res.status(403).json({ error: "Insufficient permissions" });
     }
 
-  
     if (decoded.sessionId) {
       const hasValidSession = admin.sessionIds.some(
         (session) => session.sessionId === decoded.sessionId
@@ -680,18 +683,8 @@ app.post("/api/auth/check-tool-access", authenticateAdmin, async (req, res) => {
         "Moderator",
         "User",
       ],
-      "article": [
-        "Super Admin",
-        "Administrator",
-        "Moderator",
-        "User",
-      ],
-      "knowledge-base": [
-        "Super Admin",
-        "Administrator",
-        "Moderator",
-        "User",
-      ],
+      article: ["Super Admin", "Administrator", "Moderator", "User"],
+      "knowledge-base": ["Super Admin", "Administrator", "Moderator", "User"],
     };
 
     const hasAccess =
@@ -750,7 +743,7 @@ app.get("/api/auth/tool-info/:toolName", (req, res) => {
       description: "Create escalation emails",
       requiresAuth: true,
     },
-    "article": {
+    article: {
       name: "Article - Forbidden Knowledge In One Place",
       description: "Grimoire of power",
       requiresAuth: true,
@@ -781,7 +774,6 @@ app.get("/sitemap.xml", (req, res) => {
 app.get("/robots.txt", (req, res) => {
   res.redirect(301, "/api/robots.txt");
 });
-
 
 // Health check endpoint
 app.get("/api/health", async (req, res) => {
