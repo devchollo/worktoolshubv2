@@ -1388,7 +1388,7 @@
 
               // Make this check more comprehensive
               const allowedRoles = ["Super Admin", "Admin", "Editor"];
-              if (!allowedRoles.includes(this.user.role)) {
+              if (!this.user.role || !allowedRoles.includes(this.user.role.trim())) {
                 this.showError("Access denied: Admin privileges required");
                 this.clearAuth();
                 this.showLogin();
