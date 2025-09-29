@@ -1240,11 +1240,11 @@
 
           async init() {
             console.log("Initializing Knowledge Base...");
-            this.bindStaticEvents(); 
+            this.bindStaticEvents();
             this.checkAdminAuth();
 
             await Promise.all([this.loadArticles(), this.loadStats()]);
-            this.renderStats(); 
+            this.renderStats();
             this.renderArticles();
 
             // Set global reference
@@ -1731,7 +1731,13 @@
             // Update filter
             const category = link.dataset.category;
             console.log("Category clicked:", category);
-            console.log("Sample article categories:", this.articles.slice(0, 3).map(a => a.category));
+            console.log(
+              "First 3 article categories:",
+              this.articles
+                .slice(0, 3)
+                .map((a) => ({ title: a.title, category: a.category }))
+            );
+
             this.currentFilters.category = category;
 
             const categoryFilter = document.getElementById("categoryFilter");
@@ -1751,35 +1757,29 @@
           }
 
           applyFilters() {
+            console.log("Applying filters:", this.currentFilters);
+            console.log(
+              "Total articles before filtering:",
+              this.articles.length
+            );
+
             this.filteredArticles = this.articles.filter((article) => {
               // Search filter
-              if (this.currentSearch) {
-                const searchMatch =
-                  article.title.toLowerCase().includes(this.currentSearch) ||
-                  article.excerpt.toLowerCase().includes(this.currentSearch) ||
-                  (article.tags &&
-                    article.tags.some((tag) =>
-                      tag.toLowerCase().includes(this.currentSearch)
-                    )) ||
-                  article.author.toLowerCase().includes(this.currentSearch);
-
-                if (!searchMatch) return false;
+              if (
+                this.currentSearch &&
+                !this.matchesSearch(article, this.currentSearch)
+              ) {
+                return false;
               }
 
-              // Category filter - add debugging
-              if (
-                this.currentFilters.category &&
-                article.category !== this.currentFilters.category
-              ) {
-                console.log(
-                  "Filtering out article:",
-                  article.title,
-                  "Expected:",
-                  this.currentFilters.category,
-                  "Got:",
-                  article.category
-                );
-                return false;
+              // Category filter
+              if (this.currentFilters.category) {
+                if (article.category !== this.currentFilters.category) {
+                  console.log(
+                    `Filtering out: "${article.title}" - Expected: "${this.currentFilters.category}", Got: "${article.category}"`
+                  );
+                  return false;
+                }
               }
 
               // Difficulty filter
@@ -1791,48 +1791,58 @@
               }
 
               // Date filter
-              if (this.currentFilters.date) {
-                const articleDate = new Date(article.date);
-                const now = new Date();
-                let cutoffDate;
-
-                switch (this.currentFilters.date) {
-                  case "week":
-                    cutoffDate = new Date(
-                      now.getTime() - 7 * 24 * 60 * 60 * 1000
-                    );
-                    break;
-                  case "month":
-                    cutoffDate = new Date(
-                      now.getTime() - 30 * 24 * 60 * 60 * 1000
-                    );
-                    break;
-                  case "quarter":
-                    cutoffDate = new Date(
-                      now.getTime() - 90 * 24 * 60 * 60 * 1000
-                    );
-                    break;
-                  case "year":
-                    cutoffDate = new Date(
-                      now.getTime() - 365 * 24 * 60 * 60 * 1000
-                    );
-                    break;
-                  default:
-                    cutoffDate = null;
-                }
-
-                if (cutoffDate && articleDate < cutoffDate) {
-                  return false;
-                }
+              if (
+                this.currentFilters.date &&
+                !this.matchesDateFilter(article, this.currentFilters.date)
+              ) {
+                return false;
               }
 
               return true;
             });
 
+            console.log(
+              "Filtered articles count:",
+              this.filteredArticles.length
+            );
             this.renderArticles();
             this.updateResultsCount();
           }
 
+          // Helper method for search matching
+          matchesSearch(article, searchTerm) {
+            const searchLower = searchTerm.toLowerCase();
+            return (
+              article.title.toLowerCase().includes(searchLower) ||
+              article.excerpt.toLowerCase().includes(searchLower) ||
+              (article.tags &&
+                article.tags.some((tag) =>
+                  tag.toLowerCase().includes(searchLower)
+                )) ||
+              article.author.toLowerCase().includes(searchLower)
+            );
+          }
+
+          // Helper method for date filtering
+          matchesDateFilter(article, dateFilter) {
+            const articleDate = new Date(article.date);
+            const now = new Date();
+
+            const daysMap = {
+              week: 7,
+              month: 30,
+              quarter: 90,
+              year: 365,
+            };
+
+            const days = daysMap[dateFilter];
+            if (!days) return true;
+
+            const cutoffDate = new Date(
+              now.getTime() - days * 24 * 60 * 60 * 1000
+            );
+            return articleDate >= cutoffDate;
+          }
           renderArticles() {
             const grid = document.getElementById("articlesGrid");
             const noResults = document.getElementById("noResults");
