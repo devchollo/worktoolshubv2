@@ -2177,13 +2177,13 @@
           }
 
           // For new admins, password is required
-          if (!id) {
-            this.showToast(
-              "error",
-              "Something went wrong!"
-            );
-            return;
-          }
+          // if (!id && !password) {
+          //   this.showToast(
+          //     "error",
+          //     "Something went wrong!"
+          //   );
+          //   return;
+          // }
 
           // Build data object - don't include id for new users
           const data = {
