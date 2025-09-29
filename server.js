@@ -572,12 +572,58 @@ app.put("/api/admin/edit", authenticateAdmin, async (req, res) => {
       return res.status(404).json({ error: "Admin not found" });
     }
 
+    // Role hierarchy protection
+    const roleHierarchy = {
+      "Super Admin": 4,
+      "Admin": 3,
+      "Editor": 2,
+      "Moderator": 2,
+      "User": 1
+    };
+
+    const currentUserLevel = roleHierarchy[req.admin.role] || 0;
+    const targetUserLevel = roleHierarchy[admin.role] || 0;
+    const newRoleLevel = role ? (roleHierarchy[role] || 0) : targetUserLevel;
+
+    // Allow users to edit their own profile
+    const isEditingSelf = admin._id.toString() === req.admin._id.toString();
+
+    if (!isEditingSelf) {
+      // Prevent lower-level users from editing higher-level users
+      if (currentUserLevel < targetUserLevel) {
+        return res.status(403).json({ 
+          error: "Insufficient privileges to edit this user"
+        });
+      }
+
+      // Prevent promoting users to a level higher than yourself
+      if (newRoleLevel > currentUserLevel) {
+        return res.status(403).json({ 
+          error: "Cannot assign a role higher than your own privilege level"
+        });
+      }
+
+      // Prevent same-level editing unless Super Admin
+      if (currentUserLevel === targetUserLevel && req.admin.role !== "Super Admin") {
+        return res.status(403).json({ 
+          error: "Cannot edit users at your privilege level"
+        });
+      }
+    } else {
+      // Prevent demoting yourself from Super Admin
+      if (req.admin.role === "Super Admin" && role && role !== "Super Admin") {
+        return res.status(403).json({ 
+          error: "Cannot demote yourself from Super Admin. Another Super Admin must do this."
+        });
+      }
+    }
+
     // Update fields if provided
     if (name) admin.name = name;
     if (email) admin.email = email.toLowerCase();
     if (avatar) admin.avatar = avatar;
-    if (role) admin.role = role;
-    if (typeof isActive === "boolean") admin.isActive = isActive;
+    if (role && !isEditingSelf) admin.role = role; // Only allow role change by others
+    if (typeof isActive === "boolean" && !isEditingSelf) admin.isActive = isActive;
     if (department !== undefined) admin.department = department;
     if (phone !== undefined) admin.phone = phone;
     if (permissions) admin.permissions = permissions;
@@ -598,16 +644,13 @@ app.put("/api/admin/edit", authenticateAdmin, async (req, res) => {
 
     if (error.name === "ValidationError") {
       const errors = Object.values(error.errors).map((e) => e.message);
-      return res
-        .status(400)
-        .json({ error: "Validation failed", details: errors });
+      return res.status(400).json({ error: "Validation failed", details: errors });
     }
 
     res.status(500).json({ error: "Update failed" });
   }
 });
 
-// Delete admin
 app.delete("/api/admin/delete", authenticateAdmin, async (req, res) => {
   try {
     const { email } = req.body;
@@ -624,6 +667,33 @@ app.delete("/api/admin/delete", authenticateAdmin, async (req, res) => {
     // Prevent self-deletion
     if (admin.email === req.decoded.email) {
       return res.status(400).json({ error: "Cannot delete your own account" });
+    }
+
+    // Role hierarchy - define role levels
+    const roleHierarchy = {
+      "Super Admin": 4,
+      "Admin": 3,
+      "Editor": 2,
+      "Moderator": 2,
+      "User": 1
+    };
+
+    const currentUserLevel = roleHierarchy[req.admin.role] || 0;
+    const targetUserLevel = roleHierarchy[admin.role] || 0;
+
+    // Prevent lower-level users from deleting higher-level users
+    if (currentUserLevel < targetUserLevel) {
+      return res.status(403).json({ 
+        error: "Insufficient privileges to delete this user",
+        message: `Only Super Admins can delete ${admin.role} accounts`
+      });
+    }
+
+    // Prevent same-level deletion unless Super Admin
+    if (currentUserLevel === targetUserLevel && req.admin.role !== "Super Admin") {
+      return res.status(403).json({ 
+        error: "Cannot delete users at your privilege level"
+      });
     }
 
     // Get admin info before deletion
