@@ -516,11 +516,6 @@ app.post("/api/admin/verify", async (req, res) => {
       return res.status(401).json({ error: "Invalid token" });
     }
 
-    const allowedRoles = ["Super Admin", "Admin", "Editor"];
-    if (!allowedRoles.includes(admin.role)) {
-      return res.status(403).json({ error: "Insufficient permissions" });
-    }
-
     if (decoded.sessionId) {
       const hasValidSession = admin.sessionIds.some(
         (session) => session.sessionId === decoded.sessionId
