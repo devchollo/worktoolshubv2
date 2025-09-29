@@ -318,6 +318,79 @@ app.post("/api/admin/register", authenticateAdmin, async (req, res) => {
     res.status(500).json({ error: "Registration failed" });
   }
 });
+// panel-login 
+
+// Admin panel specific login - blocks Users
+app.post("/api/admin/panel-login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const clientInfo = getClientInfo(req);
+
+    if (!email || !password) {
+      return res.status(400).json({ error: "Email and password are required" });
+    }
+
+    const admin = await Admin.findOne({
+      email: email.toLowerCase(),
+      isActive: true,
+    });
+
+    if (!admin) {
+      return res.status(401).json({ error: "Invalid credentials" });
+    }
+
+    if (admin.isLocked) {
+      return res.status(423).json({
+        error: "Account temporarily locked due to too many failed login attempts",
+        lockUntil: admin.lockUntil,
+      });
+    }
+
+    const isValidPassword = await bcrypt.compare(password, admin.password);
+
+    if (!isValidPassword) {
+      await admin.incLoginAttempts();
+      return res.status(401).json({ error: "Invalid credentials" });
+    }
+
+    // BLOCK USERS HERE - only for admin panel
+    const allowedRoles = ["Super Admin", "Admin", "Editor"];
+    if (!allowedRoles.includes(admin.role)) {
+      return res.status(403).json({ 
+        error: "Access denied: Admin privileges required" 
+      });
+    }
+
+    // Reset login attempts and continue with token generation
+    await admin.resetLoginAttempts();
+    const sessionId = crypto.randomUUID();
+    await admin.addSession(sessionId, clientInfo.userAgent, clientInfo.ipAddress);
+
+    const token = jwt.sign(
+      { id: admin._id, email: admin.email, role: admin.role, sessionId: sessionId },
+      process.env.JWT_SECRET || "your-secret-key",
+      { expiresIn: "24h" }
+    );
+
+    res.json({
+      token,
+      user: {
+        id: admin._id,
+        email: admin.email,
+        name: admin.name,
+        role: admin.role,
+        avatar: admin.avatarUrl,
+        permissions: admin.permissions,
+        lastLogin: admin.lastLogin,
+        department: admin.department,
+      },
+    });
+  } catch (error) {
+    console.error("Admin panel login error:", error);
+    res.status(500).json({ error: "Login failed" });
+  }
+});
+
 
 // Admin login
 app.post("/api/admin/login", async (req, res) => {
@@ -353,12 +426,7 @@ app.post("/api/admin/login", async (req, res) => {
       await admin.incLoginAttempts();
       return res.status(401).json({ error: "Invalid credentials" });
     }
-    const allowedRoles = ["Super Admin", "Admin", "Editor"];
-    if (!allowedRoles.includes(admin.role)) {
-      return res.status(403).json({
-        error: "Access denied: Admin privileges required",
-      });
-    }
+
     // Reset login attempts on successful login
     await admin.resetLoginAttempts();
 
