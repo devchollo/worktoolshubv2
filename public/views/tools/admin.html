@@ -2581,7 +2581,7 @@
               return `
         <tr>
           <td>
-            <strong>${article ? article.title : "Article not found"}</strong>
+            <strong><a href="/tools/article.html?id=${suggestion.articleId}" target="_blank" style"color: inherit; text-decoration: none;"> ${article ? article.title : "Article not found"}</a></strong>
             <div style="font-size: 0.875rem; color: var(--text-muted);">ID: ${
               suggestion.articleId
             }</div>

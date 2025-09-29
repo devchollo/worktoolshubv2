@@ -1316,21 +1316,28 @@
             );
 
             // AI Assistant events
-            bindEvent("aiToggle", "click", () => this.toggleAIAssistant());
+            bindEvent("aiToggle", "click", (e) => this.toggleAIAssistant(e));
             bindEvent("aiSubmit", "click", () => this.submitAIQuery());
             bindEvent("aiInput", "keypress", (e) => {
-              if (e.key === "Enter" && e.ctrlKey) {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
                 this.submitAIQuery();
               }
             });
 
             // No results AI button
-            bindEvent("noResultsAiBtn", "click", () => {
+            bindEvent("noResultsAiBtn", "click", (e) => {
+              e.stopPropagation();
               this.showAIAssistant();
-              const query =
-                "I didn't find any articles, please help me with this search.";
-              document.getElementById("aiInput").value = query;
-              this.handleAIQuery(query);
+              setTimeout(() => {
+                const aiInput = document.getElementById("aiInput");
+                if (aiInput) {
+                  aiInput.value = `I'm searching for: ${
+                    this.currentSearch || "articles"
+                  } but didn't find any results. Can you help?`;
+                  aiInput.focus();
+                }
+              }, 100);
             });
 
             // Edit modal events
@@ -1366,6 +1373,12 @@
             document.addEventListener("click", (e) => {
               const aiAssistant = document.querySelector(".ai-assistant");
               const aiPanel = document.getElementById("aiPanel");
+              const aiToggle = document.getElementById("aiToggle");
+
+              // Don't close if clicking the toggle button
+              if (aiToggle && aiToggle.contains(e.target)) {
+                return;
+              }
 
               if (
                 aiPanel &&
@@ -1841,29 +1854,33 @@
 
           // Helper method for date filtering
           matchesDateFilter(article, dateFilter) {
-  const articleDate = new Date(article.date);
-  const now = new Date();
+            const articleDate = new Date(article.date);
+            const now = new Date();
 
-  console.log(`Checking date for "${article.title}": ${article.date}`);
-  console.log(`Article date:`, articleDate);
-  console.log(`Filter:`, dateFilter);
+            console.log(
+              `Checking date for "${article.title}": ${article.date}`
+            );
+            console.log(`Article date:`, articleDate);
+            console.log(`Filter:`, dateFilter);
 
-  const daysMap = {
-    week: 7,
-    month: 30,
-    quarter: 90,
-    year: 365,
-  };
+            const daysMap = {
+              week: 7,
+              month: 30,
+              quarter: 90,
+              year: 365,
+            };
 
-  const days = daysMap[dateFilter];
-  if (!days) return true;
+            const days = daysMap[dateFilter];
+            if (!days) return true;
 
-  const cutoffDate = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
-  const passes = articleDate >= cutoffDate;
-  
-  console.log(`Cutoff date:`, cutoffDate, `Passes:`, passes);
-  return passes;
-}
+            const cutoffDate = new Date(
+              now.getTime() - days * 24 * 60 * 60 * 1000
+            );
+            const passes = articleDate >= cutoffDate;
+
+            console.log(`Cutoff date:`, cutoffDate, `Passes:`, passes);
+            return passes;
+          }
           renderArticles() {
             const grid = document.getElementById("articlesGrid");
             const noResults = document.getElementById("noResults");
@@ -2099,7 +2116,9 @@
             }
           }
 
-          toggleAIAssistant() {
+          toggleAIAssistant(event) {
+            if (event) event.stopPropagation();
+
             const panel = document.getElementById("aiPanel");
             if (panel) {
               if (panel.classList.contains("active")) {
