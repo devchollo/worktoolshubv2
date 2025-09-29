@@ -1386,12 +1386,17 @@
                 typeof this.user.role
               );
 
-              // Make this check more comprehensive
+              // Block users without admin privileges
               const allowedRoles = ["Super Admin", "Admin", "Editor"];
-              if (!this.user.role || !allowedRoles.includes(this.user.role.trim())) {
+              if (
+                !this.user.role ||
+                !allowedRoles.includes(this.user.role.trim())
+              ) {
                 this.showError("Access denied: Admin privileges required");
                 this.clearAuth();
-                this.showLogin();
+                setTimeout(() => {
+                  window.location.href = "/auth.html";
+                }, 2000);
                 return;
               }
 
