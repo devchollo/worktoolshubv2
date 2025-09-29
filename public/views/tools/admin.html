@@ -868,7 +868,7 @@
           </div>
           <div class="nav-item" data-view="admins">
             <span>👥</span>
-            <span>Admins</span>
+            <span>Users</span>
           </div>
         </nav>
         <div class="user-profile">
@@ -879,7 +879,7 @@
             id="userAvatar"
           />
           <div class="user-info">
-            <h4 id="userName">Admin User</h4>
+            <h4 id="userName">Total Users</h4>
             <p id="userRole">Administrator</p>
           </div>
           <button
@@ -937,7 +937,7 @@
                     </div>
                   </div>
                   <div class="stat-value" id="totalSuggestions">0</div>
-                  <div class="stat-label">Edit Suggestions</div>
+                  <div class="stat-label">Pending Suggestions</div>
                 </div>
               <div class="stat-card">
                 <div class="stat-header">
@@ -1104,63 +1104,43 @@
           <!-- Admins View -->
           <div class="view-section" id="adminsView">
             <!-- Admin Stats -->
-            <div class="stats-grid">
-              <div class="stat-card">
-                <div class="stat-header">
-                  <div
-                    class="stat-icon"
-                    style="background: #dbeafe; color: #3b82f6"
-                  >
-                    👥
-                  </div>
-                </div>
-                <div class="stat-value" id="totalAdmins">0</div>
-                <div class="stat-label">Total Admins</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-header">
-                  <div
-                    class="stat-icon"
-                    style="background: #dcfce7; color: #22c55e"
-                  >
-                    ✅
-                  </div>
-                </div>
-                <div class="stat-value" id="activeAdmins">0</div>
-                <div class="stat-label">Active Admins</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-header">
-                  <div
-                    class="stat-icon"
-                    style="background: #fee2e2; color: #ef4444"
-                  >
-                    🔒
-                  </div>
-                </div>
-                <div class="stat-value" id="lockedAdmins">0</div>
-                <div class="stat-label">Locked Accounts</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-header">
-                  <div
-                    class="stat-icon"
-                    style="background: #fef3c7; color: #f59e0b"
-                  >
-                    🔄
-                  </div>
-                </div>
-                <div class="stat-value" id="recentLogins">0</div>
-                <div class="stat-label">Recent Logins (24h)</div>
-              </div>
-            </div>
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-header">
+      <div class="stat-icon" style="background: #dbeafe; color: #3b82f6">👥</div>
+    </div>
+    <div class="stat-value" id="totalUsers">0</div>
+    <div class="stat-label">Total Users</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-header">
+      <div class="stat-icon" style="background: #f3e8ff; color: #8b5cf6">🛡️</div>
+    </div>
+    <div class="stat-value" id="totalAdminsCount">0</div>
+    <div class="stat-label">Admins</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-header">
+      <div class="stat-icon" style="background: #dcfce7; color: #22c55e">✅</div>
+    </div>
+    <div class="stat-value" id="activeAdmins">0</div>
+    <div class="stat-label">Active Users</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-header">
+      <div class="stat-icon" style="background: #fef3c7; color: #f59e0b">🔄</div>
+    </div>
+    <div class="stat-value" id="recentLogins">0</div>
+    <div class="stat-label">Recent Logins (24h)</div>
+  </div>
+</div>
 
             <!-- Admins Section -->
             <div class="section">
               <div class="section-header">
-                <h2>Admin Users</h2>
-                <button class="btn-new" id="newAdminBtn">+ New Admin</button>
-              </div>
+  <h2>All Users</h2>
+  <button class="btn-new" id="newAdminBtn">+ New User</button>
+</div>
               <div class="table-container">
                 <table>
                   <thead>
@@ -1760,7 +1740,7 @@
           const titles = {
             articles: "Articles Management",
             stats: "Statistics & Analytics",
-            admins: "Admin Management",
+            admins: "User Management",
           };
           document.getElementById("pageTitle").textContent =
             titles[view] || view;
@@ -1844,6 +1824,7 @@
         // ============ DATA LOADING ============
         async loadData() {
           await this.loadArticles();
+          await this.loadSuggestions();
           this.setupArticleSearch();
           if (this.currentView === "admins") {
             await this.loadAdmins();
@@ -1905,30 +1886,31 @@
           }
         }
         async loadAdminStats() {
-          try {
-            const headers = this.getAuthHeaders();
-            if (!headers) return;
+  try {
+    const headers = this.getAuthHeaders();
+    if (!headers) return;
 
-            const response = await fetch(`${API_BASE}/admin/stats`, {
-              headers,
-            });
+    const response = await fetch(`${API_BASE}/admin/stats`, {
+      headers,
+    });
 
-            if (response.ok) {
-              const stats = await response.json();
-              document.getElementById("totalAdmins").textContent = stats.total;
-              document.getElementById("activeAdmins").textContent =
-                stats.active;
-              document.getElementById("lockedAdmins").textContent =
-                stats.locked;
-              document.getElementById("recentLogins").textContent =
-                stats.recentLogins;
-            } else if (response.status === 401 || response.status === 403) {
-              this.handleAuthError("Session expired. Please log in again.");
-            }
-          } catch (error) {
-            console.error("Failed to load admin stats:", error);
-          }
-        }
+    if (response.ok) {
+      const stats = await response.json();
+      
+      // Calculate admin count (non-User roles)
+      const adminCount = this.admins.filter(a => a.role !== 'User').length;
+      
+      document.getElementById("totalUsers").textContent = stats.total;
+      document.getElementById("totalAdminsCount").textContent = adminCount;
+      document.getElementById("activeAdmins").textContent = stats.active;
+      document.getElementById("recentLogins").textContent = stats.recentLogins;
+    } else if (response.status === 401 || response.status === 403) {
+      this.handleAuthError("Session expired. Please log in again.");
+    }
+  } catch (error) {
+    console.error("Failed to load admin stats:", error);
+  }
+}
         async loadStats() {
           // Update basic stats
           this.updateStatsView();
@@ -2349,7 +2331,7 @@
 
           if (admin) {
             document.getElementById("adminModalTitle").textContent =
-              isCurrentUser ? "Edit My Profile" : "Edit Admin";
+      isCurrentUser ? "Edit My Profile" : "Edit User";
             document.getElementById("adminId").value =
               admin.id || admin._id || "";
             document.getElementById("adminName").value = admin.name || "";
@@ -2374,8 +2356,7 @@
               statusGroup.style.display = "block";
             }
           } else {
-            document.getElementById("adminModalTitle").textContent =
-              "New Admin";
+            document.getElementById("adminModalTitle").textContent = "New User";
             form.reset();
             document.getElementById("adminId").value = "";
             passwordField.placeholder = "Enter password";
@@ -2646,25 +2627,18 @@
         }
 
         updateSuggestionStats() {
-          const pending = this.suggestions.filter(
-            (s) => s.status === "pending"
-          ).length;
-          const approved = this.suggestions.filter(
-            (s) => s.status === "approved"
-          ).length;
-          const rejected = this.suggestions.filter(
-            (s) => s.status === "rejected"
-          ).length;
+  const pending = this.suggestions.filter(s => s.status === 'pending').length;
+  const approved = this.suggestions.filter(s => s.status === 'approved').length;
+  const rejected = this.suggestions.filter(s => s.status === 'rejected').length;
 
-          document.getElementById("pendingSuggestions").textContent = pending;
-          document.getElementById("approvedSuggestions").textContent = approved;
-          document.getElementById("rejectedSuggestions").textContent = rejected;
-          document.getElementById("totalSuggestionsStats").textContent =
-            this.suggestions.length;
-          document.getElementById("totalSuggestions").textContent =
-            this.suggestions.length;
-        }
-
+  document.getElementById("pendingSuggestions").textContent = pending;
+  document.getElementById("approvedSuggestions").textContent = approved;
+  document.getElementById("rejectedSuggestions").textContent = rejected;
+  document.getElementById("totalSuggestionsStats").textContent = this.suggestions.length;
+  
+  // Update main stats with PENDING count instead of total
+  document.getElementById("totalSuggestions").textContent = pending;
+}
         async viewSuggestion(id) {
           const suggestion = this.suggestions.find((s) => s._id === id);
           if (!suggestion) return;
