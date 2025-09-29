@@ -1729,7 +1729,7 @@
             link.classList.add("active");
 
             // Update filter
-            const category = link.dataset.category;
+            const category = link.dataset.category.trim();
             console.log("Category clicked:", category);
             console.log(
               "First 3 article categories:",
@@ -1773,10 +1773,18 @@
               }
 
               // Category filter
+
               if (this.currentFilters.category) {
-                if (article.category !== this.currentFilters.category) {
+                const articleCategory = (article.category || "")
+                  .trim()
+                  .toLowerCase();
+                const filterCategory = this.currentFilters.category
+                  .trim()
+                  .toLowerCase();
+
+                if (articleCategory !== filterCategory) {
                   console.log(
-                    `Filtering out: "${article.title}" - Expected: "${this.currentFilters.category}", Got: "${article.category}"`
+                    `Filtering out: "${article.title}" - Expected: "${filterCategory}", Got: "${articleCategory}"`
                   );
                   return false;
                 }
