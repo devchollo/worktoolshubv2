@@ -15,11 +15,11 @@ const qrRoutes = require("./routes/qrRoutes");
 const sitemapRoutes = require("./routes/sitemapRoutes");
 const notesRoutes = require("./routes/notesRoutes");
 const articleRoutes = require("./routes/articleRoutes");
-const { sendAccountSetupEmail  } = require('./utils/emailService');
+const { sendAccountSetupEmail } = require("./utils/emailService");
 
 // Import Admin model
 const Admin = require("./models/Admin");
-const EditSuggestion = require('./models/editSuggestions');
+const EditSuggestion = require("./models/editSuggestions");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -255,7 +255,6 @@ app.get("/api/test-db", async (req, res) => {
   }
 });
 
-
 // ADMIN AUTHENTICATION ROUTES
 
 // app.post("/api/admin/register", authenticateAdmin, async (req, res) => {
@@ -321,7 +320,7 @@ app.get("/api/test-db", async (req, res) => {
 //     res.status(500).json({ error: "Registration failed" });
 //   }
 // });
-// panel-login 
+// panel-login
 
 // Admin panel specific login - blocks Users
 
@@ -329,7 +328,6 @@ app.post("/api/admin/register", authenticateAdmin, async (req, res) => {
   try {
     const {
       email,
-      password,
       name,
       avatar,
       role,
@@ -363,32 +361,34 @@ app.post("/api/admin/register", authenticateAdmin, async (req, res) => {
     //   permissions,
     // });
     const newAdmin = new Admin({
-  email: email.toLowerCase(),
-  password: 'TEMP_PASSWORD_TO_BE_SET', // Temporary placeholder
-  name,
-  avatar,
-  role: role || "Admin",
-  department,
-  phone,
-  permissions,
-  passwordSetupToken: setupToken,
-  passwordSetupExpires: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
-  isPasswordSet: false
-});
-    const setupToken = crypto.randomBytes(32).toString('hex');
-newAdmin.passwordSetupToken = setupToken;
-newAdmin.passwordSetupExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
-newAdmin.isPasswordSet = false;
+      email: email.toLowerCase(),
+      password: "TEMP_PASSWORD_TO_BE_SET", // Temporary placeholder
+      name,
+      avatar,
+      role: role || "Admin",
+      department,
+      phone,
+      permissions,
+      passwordSetupToken: setupToken,
+      passwordSetupExpires: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
+      isPasswordSet: false,
+    });
+    
+    const setupToken = crypto.randomBytes(32).toString("hex");
+    console.log(`setupToken generated: ${setupToken}`)
+    newAdmin.passwordSetupToken = setupToken;
+    newAdmin.passwordSetupExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
+    newAdmin.isPasswordSet = false;
 
     await newAdmin.save();
 
     // Send welcome email with credentials
     try {
-  await sendAccountSetupEmail(email, name, setupToken, role || "Admin");
-  console.log(`Setup email sent to ${email}`);
-} catch (emailError) {
-  console.error('Failed to send setup email:', emailError);
-}
+      await sendAccountSetupEmail(email, name, setupToken, role || "Admin");
+      console.log(`Setup email sent to ${email}`);
+    } catch (emailError) {
+      console.error("Failed to send setup email:", emailError);
+    }
 
     res.status(201).json({
       message: "Admin registered successfully. Welcome email sent.",
@@ -398,18 +398,21 @@ newAdmin.isPasswordSet = false;
     console.error("Admin registration error:", error);
 
     if (error.code === 11000) {
-      return res.status(400).json({ error: "Admin with this email already exists" });
+      return res
+        .status(400)
+        .json({ error: "Admin with this email already exists" });
     }
 
     if (error.name === "ValidationError") {
       const errors = Object.values(error.errors).map((e) => e.message);
-      return res.status(400).json({ error: "Validation failed", details: errors });
+      return res
+        .status(400)
+        .json({ error: "Validation failed", details: errors });
     }
 
     res.status(500).json({ error: "Registration failed" });
   }
 });
-
 
 // Verify setup token
 app.get("/api/admin/verify-setup-token/:token", async (req, res) => {
@@ -418,20 +421,20 @@ app.get("/api/admin/verify-setup-token/:token", async (req, res) => {
 
     const admin = await Admin.findOne({
       passwordSetupToken: token,
-      passwordSetupExpires: { $gt: Date.now() }
+      passwordSetupExpires: { $gt: Date.now() },
     });
 
     if (!admin) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: "Invalid or expired setup link",
-        message: "Please contact your administrator for a new setup link"
+        message: "Please contact your administrator for a new setup link",
       });
     }
 
     res.json({
       valid: true,
       email: admin.email,
-      name: admin.name
+      name: admin.name,
     });
   } catch (error) {
     console.error("Token verification error:", error);
@@ -445,19 +448,19 @@ app.post("/api/admin/setup-password", async (req, res) => {
     const { token, password } = req.body;
 
     if (!password || password.length < 8) {
-      return res.status(400).json({ 
-        error: "Password must be at least 8 characters long" 
+      return res.status(400).json({
+        error: "Password must be at least 8 characters long",
       });
     }
 
     const admin = await Admin.findOne({
       passwordSetupToken: token,
-      passwordSetupExpires: { $gt: Date.now() }
+      passwordSetupExpires: { $gt: Date.now() },
     });
 
     if (!admin) {
-      return res.status(400).json({ 
-        error: "Invalid or expired setup link" 
+      return res.status(400).json({
+        error: "Invalid or expired setup link",
       });
     }
 
@@ -471,7 +474,7 @@ app.post("/api/admin/setup-password", async (req, res) => {
 
     res.json({
       message: "Password set successfully. You can now login.",
-      success: true
+      success: true,
     });
   } catch (error) {
     console.error("Password setup error:", error);
@@ -498,7 +501,8 @@ app.post("/api/admin/panel-login", async (req, res) => {
 
     if (admin.isLocked) {
       return res.status(423).json({
-        error: "Account temporarily locked due to too many failed login attempts",
+        error:
+          "Account temporarily locked due to too many failed login attempts",
         lockUntil: admin.lockUntil,
       });
     }
@@ -513,18 +517,27 @@ app.post("/api/admin/panel-login", async (req, res) => {
     // BLOCK USERS HERE - only for admin panel
     const allowedRoles = ["Super Admin", "Admin", "Moderator", "Editor"];
     if (!allowedRoles.includes(admin.role)) {
-      return res.status(403).json({ 
-        error: "Access denied: Admin privileges required" 
+      return res.status(403).json({
+        error: "Access denied: Admin privileges required",
       });
     }
 
     // Reset login attempts and continue with token generation
     await admin.resetLoginAttempts();
     const sessionId = crypto.randomUUID();
-    await admin.addSession(sessionId, clientInfo.userAgent, clientInfo.ipAddress);
+    await admin.addSession(
+      sessionId,
+      clientInfo.userAgent,
+      clientInfo.ipAddress
+    );
 
     const token = jwt.sign(
-      { id: admin._id, email: admin.email, role: admin.role, sessionId: sessionId },
+      {
+        id: admin._id,
+        email: admin.email,
+        role: admin.role,
+        sessionId: sessionId,
+      },
       process.env.JWT_SECRET || "your-secret-key",
       { expiresIn: "24h" }
     );
@@ -547,7 +560,6 @@ app.post("/api/admin/panel-login", async (req, res) => {
     res.status(500).json({ error: "Login failed" });
   }
 });
-
 
 // Admin login
 app.post("/api/admin/login", async (req, res) => {
@@ -730,15 +742,15 @@ app.put("/api/admin/edit", authenticateAdmin, async (req, res) => {
     // Role hierarchy protection
     const roleHierarchy = {
       "Super Admin": 4,
-      "Admin": 3,
-      "Editor": 2,
-      "Moderator": 2,
-      "User": 1
+      Admin: 3,
+      Editor: 2,
+      Moderator: 2,
+      User: 1,
     };
 
     const currentUserLevel = roleHierarchy[req.admin.role] || 0;
     const targetUserLevel = roleHierarchy[admin.role] || 0;
-    const newRoleLevel = role ? (roleHierarchy[role] || 0) : targetUserLevel;
+    const newRoleLevel = role ? roleHierarchy[role] || 0 : targetUserLevel;
 
     // Allow users to edit their own profile
     const isEditingSelf = admin._id.toString() === req.admin._id.toString();
@@ -746,29 +758,33 @@ app.put("/api/admin/edit", authenticateAdmin, async (req, res) => {
     if (!isEditingSelf) {
       // Prevent lower-level users from editing higher-level users
       if (currentUserLevel < targetUserLevel) {
-        return res.status(403).json({ 
-          error: "Insufficient privileges to edit this user"
+        return res.status(403).json({
+          error: "Insufficient privileges to edit this user",
         });
       }
 
       // Prevent promoting users to a level higher than yourself
       if (newRoleLevel > currentUserLevel) {
-        return res.status(403).json({ 
-          error: "Cannot assign a role higher than your own privilege level"
+        return res.status(403).json({
+          error: "Cannot assign a role higher than your own privilege level",
         });
       }
 
       // Prevent same-level editing unless Super Admin
-      if (currentUserLevel === targetUserLevel && req.admin.role !== "Super Admin") {
-        return res.status(403).json({ 
-          error: "Cannot edit users at your privilege level"
+      if (
+        currentUserLevel === targetUserLevel &&
+        req.admin.role !== "Super Admin"
+      ) {
+        return res.status(403).json({
+          error: "Cannot edit users at your privilege level",
         });
       }
     } else {
       // Prevent demoting yourself from Super Admin
       if (req.admin.role === "Super Admin" && role && role !== "Super Admin") {
-        return res.status(403).json({ 
-          error: "Cannot demote yourself from Super Admin. Another Super Admin must do this."
+        return res.status(403).json({
+          error:
+            "Cannot demote yourself from Super Admin. Another Super Admin must do this.",
         });
       }
     }
@@ -778,7 +794,8 @@ app.put("/api/admin/edit", authenticateAdmin, async (req, res) => {
     if (email) admin.email = email.toLowerCase();
     if (avatar) admin.avatar = avatar;
     if (role && !isEditingSelf) admin.role = role; // Only allow role change by others
-    if (typeof isActive === "boolean" && !isEditingSelf) admin.isActive = isActive;
+    if (typeof isActive === "boolean" && !isEditingSelf)
+      admin.isActive = isActive;
     if (department !== undefined) admin.department = department;
     if (phone !== undefined) admin.phone = phone;
     if (permissions) admin.permissions = permissions;
@@ -799,7 +816,9 @@ app.put("/api/admin/edit", authenticateAdmin, async (req, res) => {
 
     if (error.name === "ValidationError") {
       const errors = Object.values(error.errors).map((e) => e.message);
-      return res.status(400).json({ error: "Validation failed", details: errors });
+      return res
+        .status(400)
+        .json({ error: "Validation failed", details: errors });
     }
 
     res.status(500).json({ error: "Update failed" });
@@ -827,10 +846,10 @@ app.delete("/api/admin/delete", authenticateAdmin, async (req, res) => {
     // Role hierarchy - define role levels
     const roleHierarchy = {
       "Super Admin": 4,
-      "Admin": 3,
-      "Editor": 2,
-      "Moderator": 2,
-      "User": 1
+      Admin: 3,
+      Editor: 2,
+      Moderator: 2,
+      User: 1,
     };
 
     const currentUserLevel = roleHierarchy[req.admin.role] || 0;
@@ -838,16 +857,19 @@ app.delete("/api/admin/delete", authenticateAdmin, async (req, res) => {
 
     // Prevent lower-level users from deleting higher-level users
     if (currentUserLevel < targetUserLevel) {
-      return res.status(403).json({ 
+      return res.status(403).json({
         error: "Insufficient privileges to delete this user",
-        message: `Only Super Admins can delete ${admin.role} accounts`
+        message: `Only Super Admins can delete ${admin.role} accounts`,
       });
     }
 
     // Prevent same-level deletion unless Super Admin
-    if (currentUserLevel === targetUserLevel && req.admin.role !== "Super Admin") {
-      return res.status(403).json({ 
-        error: "Cannot delete users at your privilege level"
+    if (
+      currentUserLevel === targetUserLevel &&
+      req.admin.role !== "Super Admin"
+    ) {
+      return res.status(403).json({
+        error: "Cannot delete users at your privilege level",
       });
     }
 
@@ -942,12 +964,7 @@ app.post("/api/auth/check-tool-access", authenticateAdmin, async (req, res) => {
     const toolAccess = {
       "admin-panel": ["Super Admin", "Admin", "Moderator"],
       "escalation-email": ["Super Admin", "Admin", "Moderator", "User"],
-      "business-listing-update": [
-        "Super Admin",
-        "Admin",
-        "Moderator",
-        "User",
-      ],
+      "business-listing-update": ["Super Admin", "Admin", "Moderator", "User"],
       "offline-mods-note-email-generator": [
         "Super Admin",
         "Admin",
@@ -955,24 +972,9 @@ app.post("/api/auth/check-tool-access", authenticateAdmin, async (req, res) => {
         "User",
       ],
       "qr-generator": ["Super Admin", "Admin", "Moderator", "User"],
-      "osad-and-site-launch": [
-        "Super Admin",
-        "Admin",
-        "Moderator",
-        "User",
-      ],
-      "obcx-email-creator": [
-        "Super Admin",
-        "Admin",
-        "Moderator",
-        "User",
-      ],
-      "embed-code-generator": [
-        "Super Admin",
-        "Admin",
-        "Moderator",
-        "User",
-      ],
+      "osad-and-site-launch": ["Super Admin", "Admin", "Moderator", "User"],
+      "obcx-email-creator": ["Super Admin", "Admin", "Moderator", "User"],
+      "embed-code-generator": ["Super Admin", "Admin", "Moderator", "User"],
       article: ["Super Admin", "Admin", "Moderator", "User"],
       "knowledge-base": ["Super Admin", "Admin", "Moderator", "User"],
     };
@@ -1140,19 +1142,18 @@ app.get("/api/docs", (req, res) => {
   });
 });
 
-
 // Edit suggestions routes
-app.get('/api/admin/suggestions', authenticateAdmin, async (req, res) => {
+app.get("/api/admin/suggestions", authenticateAdmin, async (req, res) => {
   try {
     const suggestions = await EditSuggestion.find().sort({ createdAt: -1 });
     res.json({ suggestions });
   } catch (error) {
-    console.error('Failed to load suggestions:', error);
-    res.status(500).json({ error: 'Failed to load suggestions' });
+    console.error("Failed to load suggestions:", error);
+    res.status(500).json({ error: "Failed to load suggestions" });
   }
 });
 
-app.put('/api/admin/suggestions/:id', authenticateAdmin, async (req, res) => {
+app.put("/api/admin/suggestions/:id", authenticateAdmin, async (req, res) => {
   try {
     const { status } = req.body;
     const suggestion = await EditSuggestion.findByIdAndUpdate(
@@ -1160,15 +1161,15 @@ app.put('/api/admin/suggestions/:id', authenticateAdmin, async (req, res) => {
       { status },
       { new: true }
     );
-    
+
     if (!suggestion) {
-      return res.status(404).json({ error: 'Suggestion not found' });
+      return res.status(404).json({ error: "Suggestion not found" });
     }
-    
+
     res.json({ suggestion });
   } catch (error) {
-    console.error('Failed to update suggestion:', error);
-    res.status(500).json({ error: 'Failed to update suggestion' });
+    console.error("Failed to update suggestion:", error);
+    res.status(500).json({ error: "Failed to update suggestion" });
   }
 });
 
