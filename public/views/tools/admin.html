@@ -2293,7 +2293,7 @@
             });
 
             if (response.ok) {
-              this.showToast("success", "Admin deleted successfully");
+              this.showToast("success", "User deleted successfully");
               setTimeout(() => {
                 this.loadAdmins();
               }, 100);
@@ -2394,8 +2394,9 @@
             document.getElementById("adminModalTitle").textContent = "New User";
             form.reset();
             document.getElementById("adminId").value = "";
-            passwordField.placeholder = "Enter password";
-            passwordField.required = true;
+            // passwordField.placeholder = "Enter password";
+            // passwordField.required = true;
+             passwordField.closest('.form-group').style.display = 'none';
             statusGroup.style.display = "none";
           }
 

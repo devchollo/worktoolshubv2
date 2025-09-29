@@ -15,6 +15,7 @@ const qrRoutes = require("./routes/qrRoutes");
 const sitemapRoutes = require("./routes/sitemapRoutes");
 const notesRoutes = require("./routes/notesRoutes");
 const articleRoutes = require("./routes/articleRoutes");
+const { sendWelcomeEmail } = require('./utils/emailService');
 
 // Import Admin model
 const Admin = require("./models/Admin");
@@ -257,6 +258,73 @@ app.get("/api/test-db", async (req, res) => {
 
 // ADMIN AUTHENTICATION ROUTES
 
+// app.post("/api/admin/register", authenticateAdmin, async (req, res) => {
+//   try {
+//     const {
+//       email,
+//       password,
+//       name,
+//       avatar,
+//       role,
+//       department,
+//       phone,
+//       permissions,
+//     } = req.body;
+
+//     if (!email || !password || !name) {
+//       return res.status(400).json({
+//         error: "Email, password, and name are required",
+//       });
+//     }
+
+//     // Check if admin already exists
+//     const existingAdmin = await Admin.findByEmail(email);
+//     if (existingAdmin) {
+//       return res.status(400).json({ error: "Admin already exists" });
+//     }
+
+//     const hashedPassword = await bcrypt.hash(password, 12);
+
+//     const newAdmin = new Admin({
+//       email: email.toLowerCase(),
+//       password: hashedPassword,
+//       name,
+//       avatar,
+//       role: role || "Admin",
+//       department,
+//       phone,
+//       permissions,
+//     });
+
+//     await newAdmin.save();
+
+//     res.status(201).json({
+//       message: "Admin registered successfully",
+//       admin: newAdmin.toJSON(),
+//     });
+//   } catch (error) {
+//     console.error("Admin registration error:", error);
+
+//     if (error.code === 11000) {
+//       return res
+//         .status(400)
+//         .json({ error: "Admin with this email already exists" });
+//     }
+
+//     if (error.name === "ValidationError") {
+//       const errors = Object.values(error.errors).map((e) => e.message);
+//       return res
+//         .status(400)
+//         .json({ error: "Validation failed", details: errors });
+//     }
+
+//     res.status(500).json({ error: "Registration failed" });
+//   }
+// });
+// panel-login 
+
+// Admin panel specific login - blocks Users
+
 app.post("/api/admin/register", authenticateAdmin, async (req, res) => {
   try {
     const {
@@ -297,32 +365,103 @@ app.post("/api/admin/register", authenticateAdmin, async (req, res) => {
 
     await newAdmin.save();
 
+    // Send welcome email with credentials
+    try {
+      await sendWelcomeEmail(email, name, password, role || "Admin");
+      console.log(`Welcome email sent to ${email}`);
+    } catch (emailError) {
+      console.error('Failed to send welcome email:', emailError);
+      // Don't fail the registration if email fails
+    }
+
     res.status(201).json({
-      message: "Admin registered successfully",
+      message: "Admin registered successfully. Welcome email sent.",
       admin: newAdmin.toJSON(),
     });
   } catch (error) {
     console.error("Admin registration error:", error);
 
     if (error.code === 11000) {
-      return res
-        .status(400)
-        .json({ error: "Admin with this email already exists" });
+      return res.status(400).json({ error: "Admin with this email already exists" });
     }
 
     if (error.name === "ValidationError") {
       const errors = Object.values(error.errors).map((e) => e.message);
-      return res
-        .status(400)
-        .json({ error: "Validation failed", details: errors });
+      return res.status(400).json({ error: "Validation failed", details: errors });
     }
 
     res.status(500).json({ error: "Registration failed" });
   }
 });
-// panel-login 
 
-// Admin panel specific login - blocks Users
+
+// Verify setup token
+app.get("/api/admin/verify-setup-token/:token", async (req, res) => {
+  try {
+    const { token } = req.params;
+
+    const admin = await Admin.findOne({
+      passwordSetupToken: token,
+      passwordSetupExpires: { $gt: Date.now() }
+    });
+
+    if (!admin) {
+      return res.status(400).json({ 
+        error: "Invalid or expired setup link",
+        message: "Please contact your administrator for a new setup link"
+      });
+    }
+
+    res.json({
+      valid: true,
+      email: admin.email,
+      name: admin.name
+    });
+  } catch (error) {
+    console.error("Token verification error:", error);
+    res.status(500).json({ error: "Verification failed" });
+  }
+});
+
+// Set password
+app.post("/api/admin/setup-password", async (req, res) => {
+  try {
+    const { token, password } = req.body;
+
+    if (!password || password.length < 8) {
+      return res.status(400).json({ 
+        error: "Password must be at least 8 characters long" 
+      });
+    }
+
+    const admin = await Admin.findOne({
+      passwordSetupToken: token,
+      passwordSetupExpires: { $gt: Date.now() }
+    });
+
+    if (!admin) {
+      return res.status(400).json({ 
+        error: "Invalid or expired setup link" 
+      });
+    }
+
+    // Set new password
+    admin.password = await bcrypt.hash(password, 12);
+    admin.passwordSetupToken = null;
+    admin.passwordSetupExpires = null;
+    admin.isPasswordSet = true;
+
+    await admin.save();
+
+    res.json({
+      message: "Password set successfully. You can now login.",
+      success: true
+    });
+  } catch (error) {
+    console.error("Password setup error:", error);
+    res.status(500).json({ error: "Failed to set password" });
+  }
+});
 app.post("/api/admin/panel-login", async (req, res) => {
   try {
     const { email, password } = req.body;

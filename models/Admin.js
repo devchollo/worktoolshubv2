@@ -111,7 +111,19 @@ const adminSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now },
     userAgent: String,
     ipAddress: String
-  }]
+  }],
+  passwordSetupToken: {
+  type: String,
+  default: null
+},
+passwordSetupExpires: {
+  type: Date,
+  default: null
+},
+isPasswordSet: {
+  type: Boolean,
+  default: false
+}
 }, {
   timestamps: true,
   toJSON: { 
