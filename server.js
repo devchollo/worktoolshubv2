@@ -338,7 +338,7 @@ app.post("/api/admin/register", authenticateAdmin, async (req, res) => {
 
     if (!email || !name) {
       return res.status(400).json({
-        error: "Email, and name are required",
+        error: "Email and name are required",
       });
     }
 
@@ -348,21 +348,13 @@ app.post("/api/admin/register", authenticateAdmin, async (req, res) => {
       return res.status(400).json({ error: "Admin already exists" });
     }
 
-    // const hashedPassword = await bcrypt.hash(password, 12);
+    // Generate setup token FIRST
+    const setupToken = crypto.randomBytes(32).toString('hex');
 
-    // const newAdmin = new Admin({
-    //   email: email.toLowerCase(),
-    //   password: hashedPassword,
-    //   name,
-    //   avatar,
-    //   role: role || "Admin",
-    //   department,
-    //   phone,
-    //   permissions,
-    // });
+    // Create admin with temporary password
     const newAdmin = new Admin({
       email: email.toLowerCase(),
-      password: "TEMP_PASSWORD_TO_BE_SET", // Temporary placeholder
+      password: await bcrypt.hash('TEMP_' + crypto.randomBytes(16).toString('hex'), 12), // Random temp password
       name,
       avatar,
       role: role || "Admin",
@@ -371,43 +363,34 @@ app.post("/api/admin/register", authenticateAdmin, async (req, res) => {
       permissions,
       passwordSetupToken: setupToken,
       passwordSetupExpires: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
-      isPasswordSet: false,
+      isPasswordSet: false
     });
-    
-    const setupToken = crypto.randomBytes(32).toString("hex");
-    console.log(`setupToken generated: ${setupToken}`)
-    newAdmin.passwordSetupToken = setupToken;
-    newAdmin.passwordSetupExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
-    newAdmin.isPasswordSet = false;
 
     await newAdmin.save();
 
-    // Send welcome email with credentials
+    // Send setup email
     try {
       await sendAccountSetupEmail(email, name, setupToken, role || "Admin");
       console.log(`Setup email sent to ${email}`);
     } catch (emailError) {
-      console.error("Failed to send setup email:", emailError);
+      console.error('Failed to send setup email:', emailError);
+      // Don't fail the registration if email fails
     }
 
     res.status(201).json({
-      message: "Admin registered successfully. Welcome email sent.",
+      message: "Admin registered successfully. Setup email sent.",
       admin: newAdmin.toJSON(),
     });
   } catch (error) {
     console.error("Admin registration error:", error);
 
     if (error.code === 11000) {
-      return res
-        .status(400)
-        .json({ error: "Admin with this email already exists" });
+      return res.status(400).json({ error: "Admin with this email already exists" });
     }
 
     if (error.name === "ValidationError") {
       const errors = Object.values(error.errors).map((e) => e.message);
-      return res
-        .status(400)
-        .json({ error: "Validation failed", details: errors });
+      return res.status(400).json({ error: "Validation failed", details: errors });
     }
 
     res.status(500).json({ error: "Registration failed" });
