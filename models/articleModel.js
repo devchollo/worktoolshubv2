@@ -4,11 +4,11 @@ const articleSchema = new mongoose.Schema({
   title: { type: String, required: true, index: true },
   excerpt: { type: String, required: true },
   content: { type: String, required: true },
-  category: [{
+  category: {
     type: String,
     required: true,
     enum: ['technical guides', 'tutorials', 'troubleshooting', 'best-practices', 'tools', 'guide']
-  }],
+  },
   difficulty: {
     type: String,
     required: true,
