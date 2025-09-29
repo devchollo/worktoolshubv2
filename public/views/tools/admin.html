@@ -765,11 +765,12 @@
       }
     </style>
   </head>
-  <body>
-    <script>
-    // Immediate auth check before ANYTHING renders
+  <body style="visibility: hidden;">
+  <script>
+    // BLOCKING auth check - hide page until verified
     (async function() {
       const token = localStorage.getItem('adminToken');
+      
       if (token) {
         try {
           const response = await fetch('https://worktoolshubv2.onrender.com/api/admin/verify', {
@@ -779,15 +780,26 @@
           });
           
           if (!response.ok) {
+            // Unauthorized - clear and redirect immediately
             localStorage.removeItem('adminToken');
             localStorage.removeItem('adminUser');
-            window.location.href = '/auth.html';
+            window.location.replace('/auth.html'); // Use replace to prevent back button
+            return; // Stop execution
           }
+          
+          // Auth successful - show page
+          document.body.style.visibility = 'visible';
+          
         } catch (error) {
+          // Error during check - clear and redirect
           localStorage.removeItem('adminToken');
           localStorage.removeItem('adminUser');
-          window.location.href = '/auth.html';
+          window.location.replace('/auth.html');
+          return;
         }
+      } else {
+        // No token - show page normally (will show login)
+        document.body.style.visibility = 'visible';
       }
     })();
   </script>
