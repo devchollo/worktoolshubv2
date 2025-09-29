@@ -766,6 +766,31 @@
     </style>
   </head>
   <body>
+    <script>
+    // Immediate auth check before ANYTHING renders
+    (async function() {
+      const token = localStorage.getItem('adminToken');
+      if (token) {
+        try {
+          const response = await fetch('https://worktoolshubv2.onrender.com/api/admin/verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token })
+          });
+          
+          if (!response.ok) {
+            localStorage.removeItem('adminToken');
+            localStorage.removeItem('adminUser');
+            window.location.href = '/auth.html';
+          }
+        } catch (error) {
+          localStorage.removeItem('adminToken');
+          localStorage.removeItem('adminUser');
+          window.location.href = '/auth.html';
+        }
+      }
+    })();
+  </script>
     <!-- Login Page -->
     <div class="login-container" id="loginPage">
       <div class="login-card">
