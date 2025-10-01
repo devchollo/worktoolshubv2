@@ -74,7 +74,7 @@ app.use(
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5,
+  max: 15,
   message: { error: "Too many login attempts, please try again after 15 minutes" }
 });
 
@@ -784,7 +784,6 @@ app.put("/api/admin/edit", authenticateAdmin, async (req, res) => {
       admin: admin.toJSON(),
     });
   } catch (error) {
-    console.error("Admin update error:", error);
 
     if (error.name === "ValidationError") {
       const errors = Object.values(error.errors).map((e) => e.message);
@@ -856,7 +855,6 @@ app.delete("/api/admin/delete", authenticateAdmin, async (req, res) => {
       deletedAdmin: adminResponse,
     });
   } catch (error) {
-    console.error("Admin deletion error:", error);
     res.status(500).json({ error: "Deletion failed" });
   }
 });
@@ -942,7 +940,7 @@ app.get("/api/admin/list", authenticateAdmin, async (req, res) => {
       pages: Math.ceil(total / safeLimit),
     });
   } catch (error) {
-    console.error("Admin list error:", error);
+
     res.status(500).json({ error: "Failed to fetch admins" });
   }
 });
@@ -958,7 +956,6 @@ app.get("/api/admin/stats", authenticateAdmin, async (req, res) => {
       roleBreakdown: roleStats,
     });
   } catch (error) {
-    console.error("Admin stats error:", error);
     res.status(500).json({ error: "Failed to fetch stats" });
   }
 });
@@ -1011,7 +1008,8 @@ app.post("/api/auth/check-tool-access", authenticateAdmin, async (req, res) => {
       redirectUrl: hasAccess ? null : "/auth.html",
     });
   } catch (error) {
-    console.error("Tool access check error:", error);
+
+
     res.status(500).json({ error: "Access check failed" });
   }
 });
@@ -1098,7 +1096,6 @@ app.get("/api/health", async (req, res) => {
     try {
       adminCount = await Admin.countDocuments();
     } catch (error) {
-      console.error("Error counting admins:", error);
     }
   }
 
@@ -1169,7 +1166,6 @@ app.get("/api/admin/suggestions", authenticateAdmin, async (req, res) => {
     const suggestions = await EditSuggestion.find().sort({ createdAt: -1 });
     res.json({ suggestions });
   } catch (error) {
-    console.error("Failed to load suggestions:", error);
     res.status(500).json({ error: "Failed to load suggestions" });
   }
 });
@@ -1189,7 +1185,7 @@ app.put("/api/admin/suggestions/:id", authenticateAdmin, async (req, res) => {
 
     res.json({ suggestion });
   } catch (error) {
-    console.error("Failed to update suggestion:", error);
+
     res.status(500).json({ error: "Failed to update suggestion" });
   }
 });
@@ -1231,7 +1227,6 @@ app.use((error, req, res, next) => {
 setInterval(async () => {
   try {
     await Admin.cleanupExpiredSessions();
-    console.log("✅ Scheduled cleanup of expired admin sessions completed");
   } catch (error) {
     console.error("❌ Scheduled cleanup failed:", error);
   }

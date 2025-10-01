@@ -110,10 +110,8 @@ const sendAccountSetupEmail = async (
     `;
 
     const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
-    console.log("Setup email sent successfully:", result);
     return { success: true, messageId: result.messageId };
   } catch (error) {
-    console.error("Error sending setup email:", error);
     return { success: false, error: error.message };
   }
 };
