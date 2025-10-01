@@ -7,10 +7,30 @@ class EmailService {
     this.defaultTemperature = 0.3;
   }
 
+    sanitizeForPrompt(text) {
+    if (!text) return '';
+    
+    let cleaned = String(text).trim();
+    
+    // Remove potential prompt injection patterns
+    cleaned = cleaned.replace(/ignore previous instructions/gi, '[filtered]');
+    cleaned = cleaned.replace(/system:|assistant:|user:/gi, '[filtered]');
+    cleaned = cleaned.replace(/<\|.*?\|>/g, '[filtered]');
+    
+    // Limit length
+    cleaned = cleaned.substring(0, 2000);
+    
+    return cleaned;
+  }
+
   async generateEmail(prompt, systemMessage, maxTokens = 1000) {
     if (!this.apiKey) {
       throw new Error("OpenAI API key not configured");
     }
+
+    const safePrompt = this.sanitizeForPrompt(prompt);
+    const safeSystemMessage = this.sanitizeForPrompt(systemMessage);
+
 
     try {
       const response = await fetch(this.baseUrl, {
@@ -24,14 +44,14 @@ class EmailService {
           messages: [
             {
               role: "system",
-              content: systemMessage,
+              content: safeSystemMessage,
             },
             {
               role: "user",
-              content: prompt,
+              content: safePrompt,
             },
           ],
-          max_tokens: maxTokens,
+          max_tokens: Math.min(maxTokens, 2000),
           temperature: this.defaultTemperature,
         }),
       });

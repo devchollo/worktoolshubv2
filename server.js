@@ -6,7 +6,15 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
+
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
+const mongoSanitize = require("express-mongo-sanitize");
+const xss = require("xss-clean");
+
+
 require("dotenv").config();
+
 
 // Import routes
 const emailRoutes = require("./routes/emailRoutes");
@@ -24,6 +32,20 @@ const EditSuggestion = require("./models/editSuggestions");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+
+// Security Middleware
+app.use(helmet({
+  contentSecurityPolicy: false, // Set to false initially to avoid breaking frontend
+  crossOriginEmbedderPolicy: false
+}));
+
+app.use(mongoSanitize({
+  replaceWith: '_'
+}));
+
+app.use(xss());
+
 
 // Middleware
 app.use(
@@ -48,6 +70,24 @@ app.use(
     credentials: true,
   })
 );
+
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5,
+  message: { error: "Too many login attempts, please try again after 15 minutes" }
+});
+
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  message: { error: "Too many requests" }
+});
+
+// Apply general limiter to all API routes
+app.use("/api/", generalLimiter);
+
+
 
 app.use("/api/knowledge-base/articles", (req, res, next) => {
   res.set({
@@ -218,6 +258,10 @@ app.use("/api/notes", notesRoutes);
 app.use("/api/knowledge-base", articleRoutes);
 app.use('/api/dns', dnsRoutes);
 
+
+
+
+
 // Test MongoDB connection
 app.get("/api/test-db", async (req, res) => {
   try {
@@ -257,76 +301,7 @@ app.get("/api/test-db", async (req, res) => {
   }
 });
 
-// ADMIN AUTHENTICATION ROUTES
-
-// app.post("/api/admin/register", authenticateAdmin, async (req, res) => {
-//   try {
-//     const {
-//       email,
-//       password,
-//       name,
-//       avatar,
-//       role,
-//       department,
-//       phone,
-//       permissions,
-//     } = req.body;
-
-//     if (!email || !password || !name) {
-//       return res.status(400).json({
-//         error: "Email, password, and name are required",
-//       });
-//     }
-
-//     // Check if admin already exists
-//     const existingAdmin = await Admin.findByEmail(email);
-//     if (existingAdmin) {
-//       return res.status(400).json({ error: "Admin already exists" });
-//     }
-
-//     const hashedPassword = await bcrypt.hash(password, 12);
-
-//     const newAdmin = new Admin({
-//       email: email.toLowerCase(),
-//       password: hashedPassword,
-//       name,
-//       avatar,
-//       role: role || "Admin",
-//       department,
-//       phone,
-//       permissions,
-//     });
-
-//     await newAdmin.save();
-
-//     res.status(201).json({
-//       message: "Admin registered successfully",
-//       admin: newAdmin.toJSON(),
-//     });
-//   } catch (error) {
-//     console.error("Admin registration error:", error);
-
-//     if (error.code === 11000) {
-//       return res
-//         .status(400)
-//         .json({ error: "Admin with this email already exists" });
-//     }
-
-//     if (error.name === "ValidationError") {
-//       const errors = Object.values(error.errors).map((e) => e.message);
-//       return res
-//         .status(400)
-//         .json({ error: "Validation failed", details: errors });
-//     }
-
-//     res.status(500).json({ error: "Registration failed" });
-//   }
-// });
-// panel-login
-
-// Admin panel specific login - blocks Users
-
-app.post("/api/admin/register", authenticateAdmin, async (req, res) => {
+app.post("/api/admin/register", authLimiter, authenticateAdmin, async (req, res) => {
   try {
     const {
       email,
@@ -428,7 +403,7 @@ app.get("/api/admin/verify-setup-token/:token", async (req, res) => {
 });
 
 // Set password
-app.post("/api/admin/setup-password", async (req, res) => {
+app.post("/api/admin/setup-password", authLimiter, async (req, res) => {
   try {
     const { token, password } = req.body;
 
@@ -466,7 +441,8 @@ app.post("/api/admin/setup-password", async (req, res) => {
     res.status(500).json({ error: "Failed to set password" });
   }
 });
-app.post("/api/admin/panel-login", async (req, res) => {
+
+app.post("/api/admin/panel-login", authLimiter, async (req, res) => {
   try {
     const { email, password } = req.body;
     const clientInfo = getClientInfo(req);
@@ -547,7 +523,7 @@ app.post("/api/admin/panel-login", async (req, res) => {
 });
 
 // Admin login
-app.post("/api/admin/login", async (req, res) => {
+app.post("/api/admin/login", authLimiter, async (req, res) => {
   try {
     const { email, password } = req.body;
     const clientInfo = getClientInfo(req);
@@ -775,15 +751,26 @@ app.put("/api/admin/edit", authenticateAdmin, async (req, res) => {
     }
 
     // Update fields if provided
-    if (name) admin.name = name;
-    if (email) admin.email = email.toLowerCase();
-    if (avatar) admin.avatar = avatar;
-    if (role && !isEditingSelf) admin.role = role; // Only allow role change by others
-    if (typeof isActive === "boolean" && !isEditingSelf)
-      admin.isActive = isActive;
-    if (department !== undefined) admin.department = department;
-    if (phone !== undefined) admin.phone = phone;
-    if (permissions) admin.permissions = permissions;
+    // if (name) admin.name = name;
+    // if (email) admin.email = email.toLowerCase();
+    // if (avatar) admin.avatar = avatar;
+    // if (role && !isEditingSelf) admin.role = role; // Only allow role change by others
+    // if (typeof isActive === "boolean" && !isEditingSelf)
+    //   admin.isActive = isActive;
+    // if (department !== undefined) admin.department = department;
+    // if (phone !== undefined) admin.phone = phone;
+    // if (permissions) admin.permissions = permissions;
+
+    const allowedSelfFields = ['name', 'avatar', 'department', 'phone', 'permissions'];
+    const allowedAdminFields = [...allowedSelfFields, 'role', 'isActive', 'email'];
+    const fieldsToUse = isEditingSelf ? allowedSelfFields : allowedAdminFields;
+
+    // Only update whitelisted fields
+    for (const field of fieldsToUse) {
+      if (req.body[field] !== undefined) {
+        admin[field] = req.body[field];
+      }
+    }
 
     // Hash new password if provided
     if (password) {
@@ -875,6 +862,42 @@ app.delete("/api/admin/delete", authenticateAdmin, async (req, res) => {
 });
 
 // List all admins
+// app.get("/api/admin/list", authenticateAdmin, async (req, res) => {
+//   try {
+//     const { page = 1, limit = 10, role, isActive, search } = req.query;
+
+//     // Build filter
+//     const filter = {};
+//     if (role) filter.role = role;
+//     if (isActive !== undefined) filter.isActive = isActive === "true";
+//     if (search) {
+//       filter.$or = [
+//         { name: { $regex: search, $options: "i" } },
+//         { email: { $regex: search, $options: "i" } },
+//         { department: { $regex: search, $options: "i" } },
+//       ];
+//     }
+
+//     const admins = await Admin.find(filter)
+//       .sort({ createdAt: -1 })
+//       .limit(limit * 1)
+//       .skip((page - 1) * limit)
+//       .exec();
+
+//     const total = await Admin.countDocuments(filter);
+
+//     res.json({
+//       admins,
+//       total,
+//       page: parseInt(page),
+//       pages: Math.ceil(total / limit),
+//     });
+//   } catch (error) {
+//     console.error("Admin list error:", error);
+//     res.status(500).json({ error: "Failed to fetch admins" });
+//   }
+// });
+
 app.get("/api/admin/list", authenticateAdmin, async (req, res) => {
   try {
     const { page = 1, limit = 10, role, isActive, search } = req.query;
@@ -883,18 +906,31 @@ app.get("/api/admin/list", authenticateAdmin, async (req, res) => {
     const filter = {};
     if (role) filter.role = role;
     if (isActive !== undefined) filter.isActive = isActive === "true";
+    
+    // SECURE VERSION: Sanitize search input
     if (search) {
+      // Remove MongoDB operators and escape regex
+      const sanitizedSearch = String(search)
+        .replace(/[${}]/g, '')
+        .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        .substring(0, 100);
+        
       filter.$or = [
-        { name: { $regex: search, $options: "i" } },
-        { email: { $regex: search, $options: "i" } },
-        { department: { $regex: search, $options: "i" } },
+        { name: { $regex: sanitizedSearch, $options: "i" } },
+        { email: { $regex: sanitizedSearch, $options: "i" } },
+        { department: { $regex: sanitizedSearch, $options: "i" } },
       ];
     }
 
+    // Validate and sanitize pagination
+    const safePage = Math.max(1, parseInt(page) || 1);
+    const safeLimit = Math.min(100, Math.max(1, parseInt(limit) || 10));
+
     const admins = await Admin.find(filter)
       .sort({ createdAt: -1 })
-      .limit(limit * 1)
-      .skip((page - 1) * limit)
+      .limit(safeLimit)
+      .skip((safePage - 1) * safeLimit)
+      .select('-password -sessionIds') // Don't return sensitive fields
       .exec();
 
     const total = await Admin.countDocuments(filter);
@@ -902,8 +938,8 @@ app.get("/api/admin/list", authenticateAdmin, async (req, res) => {
     res.json({
       admins,
       total,
-      page: parseInt(page),
-      pages: Math.ceil(total / limit),
+      page: safePage,
+      pages: Math.ceil(total / safeLimit),
     });
   } catch (error) {
     console.error("Admin list error:", error);

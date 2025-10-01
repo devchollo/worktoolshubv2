@@ -111,7 +111,7 @@ export const toolCategories = {
       },
       {
         name: "DNS Propagation Checker",
-        path: "/tools/dns-checker.html",
+        path: "/tools/dns-checker",
         internal: true,
       },
       { name: "Invoice Creator", path: "/error.html?status=coming-soon", pending: true },

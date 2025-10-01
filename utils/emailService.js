@@ -1,30 +1,58 @@
-const SibApiV3Sdk = require('@sendinblue/client');
-const crypto = require('crypto');
+const SibApiV3Sdk = require("@sendinblue/client");
+const crypto = require("crypto");
+const validator = require("validator");
 
-const sendAccountSetupEmail = async (userEmail, userName, setupToken, userRole) => {
+const escapeHtml = (unsafe) => {
+  if (!unsafe) return "";
+  return String(unsafe)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+};
+
+const sendAccountSetupEmail = async (
+  userEmail,
+  userName,
+  setupToken,
+  userRole
+) => {
+  const safeEmail = validator.normalizeEmail(userEmail);
+  const safeName = escapeHtml(userName);
+  const safeRole = escapeHtml(userRole);
+  const safeToken = validator.escape(setupToken);
+
+  if (!validator.isEmail(safeEmail)) {
+    throw new Error("Invalid email address");
+  }
+
   const apiKey = process.env.BREVO_API_KEY;
-  
+
   if (!apiKey) {
-    console.error('Brevo API key not configured');
-    return { success: false, error: 'Email service not configured' };
+    console.error("Brevo API key not configured");
+    return { success: false, error: "Email service not configured" };
   }
 
   try {
     const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
-    apiInstance.setApiKey(SibApiV3Sdk.TransactionalEmailsApiApiKeys.apiKey, apiKey);
+    apiInstance.setApiKey(
+      SibApiV3Sdk.TransactionalEmailsApiApiKeys.apiKey,
+      apiKey
+    );
 
     const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
-    
+
     sendSmtpEmail.sender = {
-      email: process.env.BREVO_SENDER_EMAIL || 'noreply@worktoolshub.info',
-      name: process.env.BREVO_SENDER_NAME || 'WorkToolsHub Admin'
+      email: process.env.BREVO_SENDER_EMAIL || "noreply@worktoolshub.info",
+      name: process.env.BREVO_SENDER_NAME || "WorkToolsHub Admin",
     };
-    
-    sendSmtpEmail.to = [{ email: userEmail, name: userName }];
+
+        sendSmtpEmail.to = [{ email: safeEmail, name: safeName }];
     sendSmtpEmail.subject = 'Set Up Your WorkToolsHub Account';
-    
+
     const setupLink = `https://www.worktoolshub.info/setup-password.html?token=${setupToken}`;
-    
+
     sendSmtpEmail.htmlContent = `
       <!DOCTYPE html>
       <html>
@@ -47,19 +75,19 @@ const sendAccountSetupEmail = async (userEmail, userName, setupToken, userRole) 
             <h1>Welcome to WorkToolsHub!</h1>
           </div>
           <div class="content">
-            <p>Hi <strong>${userName}</strong>,</p>
-            <p>Your WorkToolsHub account has been created. You've been assigned the role of <strong>${userRole}</strong>.</p>
+            <p>Hi <strong>${safeName}</strong>,</p>
+            <p>Your WorkToolsHub account has been created. You've been assigned the role of <strong>${safeRole}</strong>.</p>
             
             <div class="info-box">
               <p><strong>Your Work Email:</strong></p>
-              <p><code>${userEmail}</code></p>
+              <p><code>${safeEmail}</code></p>
               <p style="margin-top: 15px;">This is your login email. Please keep it secure.</p>
             </div>
             
             <p>To complete your account setup, please click the button below to create your password:</p>
             
             <center>
-              <a href="${setupLink}" class="button">Set Up My Password</a>
+              <a href="${escapeHtml(setupLink)}" class="button">Set Up My Password</a>
             </center>
             
             <div class="warning">
@@ -82,11 +110,10 @@ const sendAccountSetupEmail = async (userEmail, userName, setupToken, userRole) 
     `;
 
     const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
-    console.log('Setup email sent successfully:', result);
+    console.log("Setup email sent successfully:", result);
     return { success: true, messageId: result.messageId };
-    
   } catch (error) {
-    console.error('Error sending setup email:', error);
+    console.error("Error sending setup email:", error);
     return { success: false, error: error.message };
   }
 };
