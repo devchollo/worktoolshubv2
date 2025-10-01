@@ -110,9 +110,9 @@ export const toolCategories = {
         internal: true,
       },
       {
-        name: "Schema Generator",
-        path: "/error.html?status=coming-soon",
-        pending: true,
+        name: "DNS Propagation Checker",
+        path: "/tools/dns-checker.html",
+        internal: true,
       },
       { name: "Invoice Creator", path: "/error.html?status=coming-soon", pending: true },
       {

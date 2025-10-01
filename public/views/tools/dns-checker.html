@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Check DNS propagation across global servers - WorkToolsHub"
+    />
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="https://www.worktoolshub.info/assets/icon-192.png"
+    />
+    <meta
+      name="keywords"
+      content="DNS propagation checker, DNS lookup, domain checker, DNS servers"
+    />
+    <meta name="author" content="DevChollo" />
+    <title>DNS Propagation Checker - WorkToolsHub</title>
+    <link rel="preconnect" href="https://worktoolshubv2.onrender.com" />
+    <link rel="stylesheet" href="../styles/main.css" />
+    <link rel="stylesheet" href="../styles/tools.css" />
+    <style>
+      .dns-container {
+        background: var(--surface-color);
+        border: 2px solid var(--border-color);
+        border-radius: var(--radius-xl);
+        padding: 2rem;
+        margin-bottom: 2rem;
+      }
+
+      .form-row {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .form-group {
+        width: 100%;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        font-size: 0.875rem;
+      }
+
+      .form-group input,
+      .form-group select {
+        width: 100%;
+        padding: 0.875rem;
+        border: 2px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        font-size: 1rem;
+        transition: all 0.2s ease;
+        background: var(--bg-color);
+        color: var(--text-primary);
+      }
+
+      .form-group input:focus,
+      .form-group select:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+      }
+
+      .check-button {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: var(--radius-lg);
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        width: 100%;
+      }
+
+      .check-button:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(37, 99, 235, 0.3);
+      }
+
+      .check-button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .loading-container {
+        background: var(--surface-color);
+        border: 2px solid var(--border-color);
+        border-radius: var(--radius-xl);
+        padding: 3rem 2rem;
+        text-align: center;
+        display: none;
+      }
+
+      .loading-container.show {
+        display: block;
+        animation: slideIn 0.4s ease;
+      }
+
+      .spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid rgba(37, 99, 235, 0.1);
+        border-top: 4px solid var(--primary-color);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1rem;
+      }
+
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+
+      .loading-text {
+        color: var(--text-secondary);
+        font-size: 1rem;
+      }
+
+      .results-container {
+        display: none;
+      }
+
+      .results-container.show {
+        display: block;
+        animation: slideIn 0.4s ease;
+      }
+
+      .status-banner {
+        background: var(--surface-color);
+        border: 2px solid var(--border-color);
+        border-radius: var(--radius-xl);
+        padding: 2rem;
+        margin-bottom: 2rem;
+        text-align: center;
+      }
+
+      .status-badge {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .status-badge.success {
+        background: #d1fae5;
+        color: #065f46;
+        border: 2px solid #a7f3d0;
+      }
+
+      .status-badge.warning {
+        background: #fef3c7;
+        color: #92400e;
+        border: 2px solid #fde68a;
+      }
+
+      .status-badge.error {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 2px solid #fecaca;
+      }
+
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-top: 1.5rem;
+      }
+
+      .summary-item {
+        background: var(--bg-color);
+        padding: 1.5rem;
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--border-color);
+        text-align: center;
+      }
+
+      .summary-value {
+        font-size: 2rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.25rem;
+      }
+
+      .summary-label {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+        font-weight: 500;
+      }
+
+      .results-section {
+        background: var(--surface-color);
+        border: 2px solid var(--border-color);
+        border-radius: var(--radius-xl);
+        padding: 2rem;
+      }
+
+      .results-header {
+        margin-bottom: 1.5rem;
+      }
+
+      .results-header h3 {
+        font-size: 1.25rem;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+      }
+
+      .results-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1rem;
+      }
+
+      .result-card {
+        background: var(--bg-color);
+        border: 2px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        padding: 1.25rem;
+        transition: all 0.2s ease;
+      }
+
+      .result-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .result-card.success {
+        border-color: #10b981;
+        background: linear-gradient(135deg, #f0fdf4 0%, var(--bg-color) 100%);
+      }
+
+      .result-card.failed {
+        border-color: #ef4444;
+        background: linear-gradient(135deg, #fef2f2 0%, var(--bg-color) 100%);
+      }
+
+      .result-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+      }
+
+      .server-info h4 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0 0 0.25rem;
+      }
+
+      .server-location {
+        font-size: 0.875rem;
+        color: var(--text-secondary);
+      }
+
+      .status-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        font-weight: 600;
+      }
+
+      .status-icon.success {
+        background: #d1fae5;
+        color: #065f46;
+      }
+
+      .status-icon.failed {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+
+      .response-time {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        margin-bottom: 0.75rem;
+        font-weight: 500;
+      }
+
+      .record-value {
+        background: var(--surface-color);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        padding: 0.75rem;
+        font-family: 'Courier New', monospace;
+        font-size: 0.875rem;
+        word-break: break-all;
+        color: var(--text-primary);
+        line-height: 1.5;
+      }
+
+      .error-message {
+        color: #dc2626;
+        font-size: 0.875rem;
+        font-style: italic;
+        padding: 0.75rem;
+        background: #fee2e2;
+        border-radius: var(--radius-md);
+      }
+
+      .status-message {
+        padding: 1rem;
+        border-radius: var(--radius-lg);
+        margin-bottom: 1.5rem;
+        text-align: center;
+        font-weight: 500;
+        display: none;
+      }
+
+      .status-message.show {
+        display: block;
+      }
+
+      .status-message.error {
+        background: #fee2e2;
+        border: 2px solid #fecaca;
+        color: #991b1b;
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 768px) {
+        .form-row {
+          grid-template-columns: 1fr;
+        }
+
+        .results-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .summary-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="header"></div>
+    <div id="bread"></div>
+
+    <main>
+      <section class="tool-container">
+        <div id="user-info"></div>
+        <div class="tool-header">
+          <h1>DNS Propagation Checker</h1>
+          <p class="subtitle">
+            Check how your DNS records have propagated across global DNS servers.
+            Monitor A, AAAA, CNAME, MX, TXT, NS, and SOA records from multiple locations worldwide.
+          </p>
+        </div>
+
+        <div class="form-container">
+          <div class="dns-container">
+            <form id="dnsForm">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="domain">Domain Name</label>
+                  <input 
+                    type="text" 
+                    id="domain" 
+                    placeholder="example.com" 
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <label for="recordType">Record Type</label>
+                  <select id="recordType">
+                    <option value="A">A - IPv4 Address</option>
+                    <option value="AAAA">AAAA - IPv6 Address</option>
+                    <option value="CNAME">CNAME - Canonical Name</option>
+                    <option value="MX">MX - Mail Exchange</option>
+                    <option value="TXT">TXT - Text Record</option>
+                    <option value="NS">NS - Name Server</option>
+                    <option value="SOA">SOA - Start of Authority</option>
+                  </select>
+                </div>
+              </div>
+              <button type="submit" class="check-button" id="checkButton">
+                Check DNS Propagation
+              </button>
+            </form>
+          </div>
+
+          <div class="status-message" id="statusMessage"></div>
+        </div>
+
+        <div class="loading-container" id="loadingContainer">
+          <div class="spinner"></div>
+          <p class="loading-text">Checking DNS propagation across global servers...</p>
+        </div>
+
+        <div class="results-container" id="resultsContainer">
+          <div class="status-banner" id="statusBanner"></div>
+          <div class="results-section">
+            <div class="results-header">
+              <h3>DNS Server Results</h3>
+            </div>
+            <div class="results-grid" id="resultsGrid"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div id="footer"></div>
+
+    <script src="../scripts/layout.js"></script>
+    <script type="module" src="../scripts/main.js" defer></script>
+    <script src="/auth-utils.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", async () => {
+        const toolName = "dns-propagation-checker";
+        const result = await authUtils.initToolAuth(
+          toolName,
+          "Check DNS propagation",
+          {
+            showUserInfo: true,
+            userInfoContainerId: "user-info",
+          }
+        );
+
+        if (result.success) {
+          initializeTool();
+        }
+      });
+
+      function initializeTool() {
+        class DNSPropagationChecker {
+          constructor() {
+            this.form = document.getElementById('dnsForm');
+            this.checkButton = document.getElementById('checkButton');
+            this.loadingContainer = document.getElementById('loadingContainer');
+            this.resultsContainer = document.getElementById('resultsContainer');
+            this.statusMessage = document.getElementById('statusMessage');
+            this.statusBanner = document.getElementById('statusBanner');
+            this.resultsGrid = document.getElementById('resultsGrid');
+            
+            this.apiUrl = 'https://worktoolshubv2.onrender.com/api/dns';
+            
+            this.init();
+          }
+
+          init() {
+            this.bindEvents();
+          }
+
+          bindEvents() {
+            this.form.addEventListener('submit', (e) => this.handleSubmit(e));
+          }
+
+          async handleSubmit(e) {
+            e.preventDefault();
+            
+            const domain = document.getElementById('domain').value.trim();
+            const recordType = document.getElementById('recordType').value;
+
+            if (!domain) {
+              this.showError('Please enter a domain name');
+              return;
+            }
+
+            await this.checkDNS(domain, recordType);
+          }
+
+          async checkDNS(domain, recordType) {
+            this.showLoading();
+            this.hideError();
+            this.hideResults();
+
+            try {
+              const response = await fetch(`${this.apiUrl}/check`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ domain, recordType })
+              });
+
+              if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Failed to check DNS');
+              }
+
+              const data = await response.json();
+              this.displayResults(data);
+            } catch (error) {
+              console.error('DNS check error:', error);
+              this.showError(error.message);
+            } finally {
+              this.hideLoading();
+            }
+          }
+
+          displayResults(data) {
+            this.resultsContainer.classList.add('show');
+
+            // Status banner
+            let badgeClass, badgeText, badgeIcon;
+            
+            if (data.status.fullyPropagated) {
+              badgeClass = 'success';
+              badgeText = 'Fully Propagated';
+              badgeIcon = '✓';
+            } else if (data.status.propagating) {
+              badgeClass = 'warning';
+              badgeText = 'Propagating';
+              badgeIcon = '⚡';
+            } else {
+              badgeClass = 'error';
+              badgeText = 'Not Propagated';
+              badgeIcon = '✗';
+            }
+            
+            this.statusBanner.innerHTML = `
+              <div class="status-badge ${badgeClass}">
+                ${badgeIcon} ${badgeText}
+              </div>
+              <div class="summary-grid">
+                <div class="summary-item">
+                  <div class="summary-value">${data.summary.successful}</div>
+                  <div class="summary-label">Successful</div>
+                </div>
+                <div class="summary-item">
+                  <div class="summary-value">${data.summary.failed}</div>
+                  <div class="summary-label">Failed</div>
+                </div>
+                <div class="summary-item">
+                  <div class="summary-value">${data.summary.uniqueRecords}</div>
+                  <div class="summary-label">Unique Records</div>
+                </div>
+                <div class="summary-item">
+                  <div class="summary-value">${data.summary.total}</div>
+                  <div class="summary-label">Total Servers</div>
+                </div>
+              </div>
+            `;
+
+            // Results grid
+            this.resultsGrid.innerHTML = data.results.map(result => {
+              const statusClass = result.success ? 'success' : 'failed';
+              const statusIcon = result.success ? '✓' : '✗';
+              const recordsDisplay = result.success 
+                ? this.formatRecords(result.records, result.recordType)
+                : `<div class="error-message">${result.error}</div>`;
+
+              return `
+                <div class="result-card ${statusClass}">
+                  <div class="result-header">
+                    <div class="server-info">
+                      <h4>${result.server}</h4>
+                      <div class="server-location">${result.location} • ${result.ip}</div>
+                    </div>
+                    <div class="status-icon ${statusClass}">${statusIcon}</div>
+                  </div>
+                  <div class="response-time">Response time: ${result.responseTime}ms</div>
+                  ${recordsDisplay}
+                </div>
+              `;
+            }).join('');
+          }
+
+          formatRecords(records, recordType) {
+            if (!records || records.length === 0) {
+              return '<div class="record-value">No records found</div>';
+            }
+
+            if (recordType === 'MX') {
+              return '<div class="record-value">' + 
+                records.map(r => `${r.priority} ${r.exchange}`).join('<br>') +
+                '</div>';
+            }
+
+            if (recordType === 'SOA') {
+              return '<div class="record-value">' +
+                `NS: ${records.nsname}<br>` +
+                `Email: ${records.hostmaster}<br>` +
+                `Serial: ${records.serial}` +
+                '</div>';
+            }
+
+            if (Array.isArray(records)) {
+              return '<div class="record-value">' + records.join('<br>') + '</div>';
+            }
+
+            return '<div class="record-value">' + JSON.stringify(records) + '</div>';
+          }
+
+          showLoading() {
+            this.loadingContainer.classList.add('show');
+            this.checkButton.disabled = true;
+          }
+
+          hideLoading() {
+            this.loadingContainer.classList.remove('show');
+            this.checkButton.disabled = false;
+          }
+
+          showError(message) {
+            this.statusMessage.textContent = message;
+            this.statusMessage.className = 'status-message error show';
+          }
+
+          hideError() {
+            this.statusMessage.classList.remove('show');
+          }
+
+          hideResults() {
+            this.resultsContainer.classList.remove('show');
+          }
+        }
+
+        window.dnsChecker = new DNSPropagationChecker();
+      }
+    </script>
+  </body>
+</html>
