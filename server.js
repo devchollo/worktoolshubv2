@@ -25,6 +25,8 @@ const notesRoutes = require("./routes/notesRoutes");
 const articleRoutes = require("./routes/articleRoutes");
 const { sendAccountSetupEmail } = require("./utils/emailService");
 const dnsRoutes = require('./routes/dnsRoutes');
+const contactRoutes = require("./routes/contactRoutes");
+
 
 // Import Admin model
 const Admin = require("./models/Admin");
@@ -258,7 +260,7 @@ app.use("/api", sitemapRoutes);
 app.use("/api/notes", notesRoutes);
 app.use("/api/knowledge-base", articleRoutes);
 app.use('/api/dns', dnsRoutes);
-
+app.use("/api/contact", generalLimiter, contactRoutes);
 
 
 

@@ -1,150 +1,537 @@
 <style>
-    footer .footer-section h3 {
-        color: var(--primary-color);
-    }
+  footer .footer-section h3 {
+    color: var(--primary-color);
+  }
 
-    .more-info-section {
-        display: flex;
-        /* flex-direction: column; */
-        justify-content: space-between;
-        align-items: center;
-        gap: 1.5rem;
-        padding: 1.5rem 1.5rem;
-        margin-bottom: 3rem;
-        border: 3px dotted var(--primary-color);
+  .more-info-section {
+    display: flex;
+    /* flex-direction: column; */
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.5rem 1.5rem;
+    margin-bottom: 3rem;
+    border: 3px dotted var(--primary-color);
+  }
+
+  .footer-btn {
+    display: inline-block;
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+    text-decoration: none;
+    border-radius: 5px;
+    border: 1px solid transparent;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+  }
+
+  /* Contact button style */
+  .contact-btn {
+    background-color: #007bff;
+    /* example primary colour */
+    color: #ffffff;
+  }
+
+  .contact-btn:hover {
+    background-color: #0056b3;
+  }
+
+  /* Report issue button style */
+  .report-btn {
+    background-color: #6c757d;
+    /* example grey/dark secondary */
+    color: #ffffff;
+  }
+
+  .report-btn:hover {
+    background-color: #545b62;
+  }
+
+  /* Donate button style */
+  .donate-btn {
+    background-color: #ffc107;
+    /* example accent/yellow/gold */
+    color: #212529;
+  }
+
+  .donate-btn:hover {
+    background-color: #e0a800;
+  }
+
+  /* On smaller screens, stack vertically */
+  @media (max-width: 600px) {
+    .footer-buttons {
+      flex-direction: column;
+      gap: 0.75rem;
     }
 
     .footer-btn {
-        display: inline-block;
-        padding: 0.6rem 1.2rem;
-        font-size: 1rem;
-        text-decoration: none;
-        border-radius: 5px;
-        border: 1px solid transparent;
-        transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+      width: 80%;
+      /* or auto, depending on design */
+      text-align: center;
     }
+  }
 
-    /* Contact button style */
-    .contact-btn {
-        background-color: #007bff;
-        /* example primary colour */
-        color: #ffffff;
+  @media (max-width: 830px) {
+    .more-info-section {
+      flex-direction: column;
     }
-
-    .contact-btn:hover {
-        background-color: #0056b3;
+    .footer-buttons {
+      display: flex;
+      flex-direction: column;
     }
-
-    /* Report issue button style */
-    .report-btn {
-        background-color: #6c757d;
-        /* example grey/dark secondary */
-        color: #ffffff;
+    a.footer-btn {
+      width: 100%;
     }
+  }
 
-    .report-btn:hover {
-        background-color: #545b62;
+  /* Contact Modal Styles */
+  .contact-modal {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+  }
+
+  .contact-modal-content {
+    background-color: #ffffff;
+    margin: 5% auto;
+    padding: 2.5rem;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 600px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    animation: slideIn 0.3s ease-out;
+  }
+
+  @keyframes slideIn {
+    from {
+      transform: translateY(-50px);
+      opacity: 0;
     }
-
-    /* Donate button style */
-    .donate-btn {
-        background-color: #ffc107;
-        /* example accent/yellow/gold */
-        color: #212529;
+    to {
+      transform: translateY(0);
+      opacity: 1;
     }
+  }
 
-    .donate-btn:hover {
-        background-color: #e0a800;
+  .contact-close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    line-height: 20px;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+
+  .contact-close:hover,
+  .contact-close:focus {
+    color: #000;
+  }
+
+  .contact-modal h2 {
+    margin-top: 0;
+    color: #333;
+    font-size: 1.8rem;
+  }
+
+  .contact-subtitle {
+    color: #666;
+    margin-bottom: 1.5rem;
+  }
+
+  .contact-modal .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .contact-modal label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #333;
+    font-weight: 600;
+  }
+
+  .contact-modal input,
+  .contact-modal textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-family: inherit;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+  }
+
+  .contact-modal input:focus,
+  .contact-modal textarea:focus {
+    outline: none;
+    border-color: #007bff;
+  }
+
+  .contact-modal textarea {
+    resize: vertical;
+    min-height: 120px;
+  }
+
+  .char-count {
+    display: block;
+    text-align: right;
+    color: #666;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+  }
+
+  .contact-submit-btn {
+    width: 100%;
+    padding: 0.875rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .contact-submit-btn:hover {
+    background-color: #0056b3;
+  }
+
+  .contact-submit-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+
+  .contact-spinner {
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #007bff;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
     }
-
-    /* On smaller screens, stack vertically */
-    @media (max-width: 600px) {
-        .footer-buttons {
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .footer-btn {
-            width: 80%;
-            /* or auto, depending on design */
-            text-align: center;
-        }
+    100% {
+      transform: rotate(360deg);
     }
+  }
 
+  .contact-error,
+  .contact-success {
+    padding: 0.875rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+  }
 
-    @media (max-width: 830px) {
-        .more-info-section {
-            flex-direction: column;
-        }
-        .footer-buttons {
-            display: flex;
-            flex-direction: column;
-        }
-        a.footer-btn {
-            width: 100%;
-        }
+  .contact-error {
+    background-color: #fee;
+    color: #c00;
+    border: 1px solid #fcc;
+  }
+
+  .contact-success {
+    background-color: #efe;
+    color: #0a0;
+    border: 1px solid #cfc;
+  }
+
+  @media (max-width: 600px) {
+    .contact-modal-content {
+      margin: 10% 5%;
+      padding: 1.5rem;
+      width: calc(100% - 10%);
     }
+  }
 </style>
 
 <!-- Footer -->
 <footer class="footer">
-    <div class="container">
-        <div class="more-info-section">
-            <div class="footer-info-header" style="text-align: center;">
-                <h2 style="font-size: 3rem;">Get Involved</h2>
-                <p class="footer-subtext">We’d love your feedback and support.</p>
-            </div>
-            <div class="footer-buttons">
-                <a href="https://worktoolshub.vercel.app/#contact" class="footer-btn contact-btn">
-                    Contact Us
-                </a>
-                <a href="https://github.com/devchollo/worktoolshubv2/issues/new" target="_blank" rel="noopener"
-                    class="footer-btn report-btn">
-                    Report Issue
-                </a>
-                <a href="https://www.paypal.com/ncp/payment/HJJ5YPE9FKGQN" target="_blank" rel="noopener"
-                    class="footer-btn donate-btn">
-                    Donate via PayPal
-                </a>
-            </div>
-        </div>
+  <div class="container">
+    <div class="more-info-section">
+      <div class="footer-info-header" style="text-align: center">
+        <h2 style="font-size: 3rem">Get Involved</h2>
+        <p class="footer-subtext">We’d love your feedback and support.</p>
+      </div>
+      <div class="footer-buttons">
+        <a
+          href="https://worktoolshub.vercel.app/#contact"
+          class="footer-btn contact-btn"
+        >
+          Contact Us
+        </a>
+        <a
+          href="https://github.com/devchollo/worktoolshubv2/issues/new"
+          target="_blank"
+          rel="noopener"
+          class="footer-btn report-btn"
+        >
+          Report Issue
+        </a>
+        <a
+          href="https://www.paypal.com/ncp/payment/HJJ5YPE9FKGQN"
+          target="_blank"
+          rel="noopener"
+          class="footer-btn donate-btn"
+        >
+          Donate via PayPal
+        </a>
+      </div>
     </div>
-    <div class="container">
-        <div class="footer-grid">
-            <div class="footer-section">
-                <h3>Popular Tools</h3>
-                <a href="/tool/osad-note" class="footer-link">OSAD Note Generator</a>
-                <a href="/tool/escalation-email" class="footer-link">Escalation Email</a>
-                <a href="/tool/qr-code" class="footer-link">QR Code Generator</a>
-                <a href="/tool/image-compressor" class="footer-link">Image Compressor</a>
-            </div>
-            <div class="footer-section">
-                <h3>Categories</h3>
-                <a href="/category/content-generators" class="footer-link">Content Tools</a>
-                <a href="/category/email-tools" class="footer-link">Email Generators</a>
-                <a href="/category/code-tools" class="footer-link">Development</a>
-                <a href="/category/business-tools" class="footer-link">Business Tools</a>
-            </div>
-            <div class="footer-section">
-                <h3>Resources</h3>
-                <a href="/api" class="footer-link">API Documentation</a>
-                <a href="/tutorials" class="footer-link">Tutorials</a>
-                <a href="/blog" class="footer-link">Blog</a>
-                <a href="/contact" class="footer-link">Contact</a>
-            </div>
-            <div class="footer-section">
-                <h3>Legal</h3>
-                <a href="/privacy" class="footer-link">Privacy Policy</a>
-                <a href="/terms" class="footer-link">Terms of Service</a>
-                <a href="/cookies" class="footer-link">Cookie Policy</a>
-                <a href="/gdpr" class="footer-link">GDPR</a>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>&copy; <span id="yearC"></span> WorkToolsHub. All rights reserved. Built with ❤️ for professionals.</p>
-        </div>
+  </div>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-section">
+        <h3>Popular Tools</h3>
+        <a href="/tool/osad-note" class="footer-link">OSAD Note Generator</a>
+        <a href="/tool/escalation-email" class="footer-link"
+          >Escalation Email</a
+        >
+        <a href="/tool/qr-code" class="footer-link">QR Code Generator</a>
+        <a href="/tool/image-compressor" class="footer-link"
+          >Image Compressor</a
+        >
+      </div>
+      <div class="footer-section">
+        <h3>Categories</h3>
+        <a href="/category/content-generators" class="footer-link"
+          >Content Tools</a
+        >
+        <a href="/category/email-tools" class="footer-link">Email Generators</a>
+        <a href="/category/code-tools" class="footer-link">Development</a>
+        <a href="/category/business-tools" class="footer-link"
+          >Business Tools</a
+        >
+      </div>
+      <div class="footer-section">
+        <h3>Resources</h3>
+        <a href="/api" class="footer-link">API Documentation</a>
+        <a href="/tutorials" class="footer-link">Tutorials</a>
+        <a href="/blog" class="footer-link">Blog</a>
+        <a href="/contact" class="footer-link">Contact</a>
+      </div>
+      <div class="footer-section">
+        <h3>Legal</h3>
+        <a href="/privacy" class="footer-link">Privacy Policy</a>
+        <a href="/terms" class="footer-link">Terms of Service</a>
+        <a href="/cookies" class="footer-link">Cookie Policy</a>
+        <a href="/gdpr" class="footer-link">GDPR</a>
+      </div>
     </div>
+    <div class="footer-bottom">
+      <p>
+        &copy; <span id="yearC"></span> WorkToolsHub. All rights reserved. Built
+        with ❤️ for professionals.
+      </p>
+    </div>
+  </div>
+
+  <!-- Contact Us Modal -->
+  <!-- Contact Us Modal -->
+  <div id="contactModal" class="contact-modal">
+    <div class="contact-modal-content">
+      <span class="contact-close">&times;</span>
+      <h2>Contact Us</h2>
+      <p class="contact-subtitle">
+        We'd love to hear from you. Send us a message and we'll respond as soon
+        as possible.
+      </p>
+
+      <form id="contactForm">
+        <div class="form-group">
+          <label for="contactName">Name *</label>
+          <input
+            type="text"
+            id="contactName"
+            name="name"
+            required
+            maxlength="100"
+            placeholder="Your name"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="contactEmail">Email *</label>
+          <input
+            type="email"
+            id="contactEmail"
+            name="email"
+            required
+            maxlength="100"
+            placeholder="your.email@example.com"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="contactSubject">Subject *</label>
+          <input
+            type="text"
+            id="contactSubject"
+            name="subject"
+            required
+            maxlength="200"
+            placeholder="What's this about?"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="contactMessage">Message *</label>
+          <textarea
+            id="contactMessage"
+            name="message"
+            required
+            maxlength="2000"
+            rows="6"
+            placeholder="Your message here..."
+          ></textarea>
+          <small class="char-count"
+            ><span id="charCount">0</span>/2000 characters</small
+          >
+        </div>
+
+        <div
+          id="contactError"
+          class="contact-error"
+          style="display: none"
+        ></div>
+        <div
+          id="contactSuccess"
+          class="contact-success"
+          style="display: none"
+        ></div>
+
+        <button type="submit" class="contact-submit-btn" id="contactSubmitBtn">
+          <span id="contactBtnText">Send Message</span>
+          <span
+            id="contactBtnSpinner"
+            class="contact-spinner"
+            style="display: none"
+          ></span>
+        </button>
+      </form>
+    </div>
+  </div>
 </footer>
 <script>
+  document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("yearC").textContent = new Date().getFullYear();
+  });
+
+  // Contact Modal Script
+  (function () {
+    const modal = document.getElementById("contactModal");
+    const contactBtns = document.querySelectorAll(".contact-btn");
+    const closeBtn = document.querySelector(".contact-close");
+    const form = document.getElementById("contactForm");
+    const messageTextarea = document.getElementById("contactMessage");
+    const charCount = document.getElementById("charCount");
+
+    // Open modal when any contact button is clicked
+    contactBtns.forEach((btn) => {
+      btn.addEventListener("click", function (e) {
+        e.preventDefault();
+        modal.style.display = "block";
+        document.body.style.overflow = "hidden";
+      });
+    });
+
+    // Close modal
+    function closeModal() {
+      modal.style.display = "none";
+      document.body.style.overflow = "auto";
+    }
+
+    closeBtn.addEventListener("click", closeModal);
+
+    window.addEventListener("click", function (e) {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+
+    // Character counter
+    messageTextarea.addEventListener("input", function () {
+      charCount.textContent = this.value.length;
+    });
+
+    // Form submission
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const submitBtn = document.getElementById("contactSubmitBtn");
+      const btnText = document.getElementById("contactBtnText");
+      const btnSpinner = document.getElementById("contactBtnSpinner");
+      const errorDiv = document.getElementById("contactError");
+      const successDiv = document.getElementById("contactSuccess");
+
+      // Clear previous messages
+      errorDiv.style.display = "none";
+      successDiv.style.display = "none";
+
+      // Disable button and show loading
+      submitBtn.disabled = true;
+      btnText.textContent = "Sending...";
+      btnSpinner.style.display = "inline-block";
+
+      const formData = {
+        name: document.getElementById("contactName").value.trim(),
+        email: document.getElementById("contactEmail").value.trim(),
+        subject: document.getElementById("contactSubject").value.trim(),
+        message: document.getElementById("contactMessage").value.trim(),
+      };
+
+      try {
+        const response = await fetch(
+          "https://worktoolshubv2.onrender.com/api/contact/send",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+          }
+        );
+
+        const data = await response.json();
+
+        if (response.ok) {
+          successDiv.textContent =
+            "Message sent successfully! We'll get back to you soon.";
+          successDiv.style.display = "block";
+          form.reset();
+          charCount.textContent = "0";
+
+          setTimeout(() => {
+            closeModal();
+            successDiv.style.display = "none";
+          }, 3000);
+        } else {
+          throw new Error(data.error || "Failed to send message");
+        }
+      } catch (error) {
+        errorDiv.textContent =
+          error.message || "Failed to send message. Please try again.";
+        errorDiv.style.display = "block";
+      } finally {
+        submitBtn.disabled = false;
+        btnText.textContent = "Send Message";
+        btnSpinner.style.display = "none";
+      }
+    });
+  })();
 </script>
