@@ -1915,7 +1915,10 @@
             if (!headers) return;
 
             const response = await fetch(`${API_BASE}/admin/stats`, {
-              headers,
+              headers: {
+                  "Cache-Control": "no-cache",
+                  Pragma: "no-cache",
+                },
             });
 
             if (response.ok) {
@@ -1940,6 +1943,7 @@
             console.error("Failed to load admin stats:", error);
           }
         }
+        
         async loadStats() {
           // Update basic stats
           this.updateStatsView();
@@ -2290,7 +2294,10 @@
 
             const response = await fetch(`${API_BASE}/admin/delete`, {
               method: "DELETE",
-              headers,
+              headers: {
+                  "Cache-Control": "no-cache",
+                  Pragma: "no-cache",
+                },
               body: JSON.stringify({ email: admin.email }),
             });
 
