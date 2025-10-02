@@ -46,8 +46,11 @@ const sendContactFormEmail = async (contactData) => {
 
     // Email to admin
     sendSmtpEmail.sender = {
-      email: safeEmail,
-      name: safeName,
+      // email: safeEmail,
+      // name: safeName,
+
+      email: process.env.BREVO_SENDER_EMAIL || "devchollo@gmail.com",
+      name: process.env.BREVO_SENDER_NAME || "WorkToolsHub",
     };
 
     sendSmtpEmail.to = [
