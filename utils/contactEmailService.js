@@ -52,7 +52,7 @@ const sendContactFormEmail = async (contactData) => {
 
     sendSmtpEmail.to = [
       {
-        email: process.env.CONTACT_EMAIL || "support@worktoolshub.info",
+        email: process.env.CONTACT_EMAIL || "devchollo@gmail.com",
         name: "WorkToolsHub Support",
       },
     ];
