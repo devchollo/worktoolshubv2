@@ -96,7 +96,7 @@ const adminSchema = new mongoose.Schema({
   },
   twoFactorSecret: {
     type: String,
-    select: false // Don't include in queries by default
+    select: false 
   },
   resetPasswordToken: {
     type: String,
