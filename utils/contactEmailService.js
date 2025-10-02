@@ -135,7 +135,7 @@ const sendConfirmationEmail = async (userEmail, userName) => {
     const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
 
     sendSmtpEmail.sender = {
-      email: process.env.BREVO_SENDER_EMAIL || "noreply@worktoolshub.info",
+      email: process.env.BREVO_SENDER_EMAIL || "devchollo@gmail.com",
       name: process.env.BREVO_SENDER_NAME || "WorkToolsHub",
     };
 
