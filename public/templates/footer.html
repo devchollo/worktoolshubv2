@@ -439,7 +439,7 @@
     // Open modal when any contact button is clicked
     contactBtns.forEach((btn) => {
       btn.addEventListener("click", function (e) {
-        e.preventDefault();
+        console.log("contact btn clicked");
         modal.style.display = "block";
         document.body.style.overflow = "hidden";
       });
