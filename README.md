@@ -14,7 +14,7 @@ We aim to provide real-time insights into user activity and feature usage across
 3. **Notes Generated Count** – JS template-based generation  
 4. **Alt Text Generated Count** – OpenAI API  
 5. **Files Uploaded Count** – Backblaze B2  
-6. **Code Generated Count** – OpenAI API  
+6. **Code Generated Count** – OpenAI API. 
 
 Backend logging will track each request where necessary to maintain cumulative counts.
 
