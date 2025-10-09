@@ -7,13 +7,9 @@
     { "source": "/tools/:slug/:rest*", "destination": "/views/tools/:slug/:rest*.html" },
     { "source": "/", "destination": "/views/index.html" },
     { "source": "/(.*)", "destination": "/views/$1" },
-    {
-      "source": "/sitemap.xml",
-      "destination": "https://worktoolshubv2.onrender.com/api/sitemap.xml"
-    },
-    {
-      "source": "/robots.txt",
-      "destination": "https://worktoolshubv2.onrender.com/api/robots.txt"
-    }
+
+
+    { "source": "/sitemap.xml", "destination": "/api/sitemap" },
+    { "source": "/robots.txt", "destination": "/api/robots" }
   ]
 }
