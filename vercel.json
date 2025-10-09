@@ -6,18 +6,14 @@
     { "source": "/tools/:slug", "destination": "/views/tools/:slug.html" },
     { "source": "/tools/:slug/:rest*", "destination": "/views/tools/:slug/:rest*.html" },
     { "source": "/", "destination": "/views/index.html" },
-    { "source": "/(.*)", "destination": "/views/$1" }
-  ],
-  "redirects": [
+    { "source": "/(.*)", "destination": "/views/$1" },
     {
       "source": "/sitemap.xml",
-      "destination": "https://worktoolshubv2.onrender.com/api/sitemap.xml",
-      "permanent": false
+      "destination": "https://worktoolshubv2.onrender.com/api/sitemap.xml"
     },
     {
       "source": "/robots.txt",
-      "destination": "https://worktoolshubv2.onrender.com/api/robots.txt",
-      "permanent": false
+      "destination": "https://worktoolshubv2.onrender.com/api/robots.txt"
     }
   ]
 }
