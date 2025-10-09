@@ -10,12 +10,23 @@
   ],
   "redirects": [
     {
+      // Redirect non-www to www for everything (adjust if you prefer the opposite)
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "worktoolshub.info" }],
+      "destination": "https://www.worktoolshub.info/:1",
+      "permanent": true
+    },
+    {
+      // sitemap redirect on www domain
       "source": "/sitemap.xml",
+      "has": [{ "type": "host", "value": "www.worktoolshub.info" }],
       "destination": "https://worktoolshubv2.onrender.com/api/sitemap.xml",
       "permanent": false
     },
     {
-      "source": "/robots.txt", 
+      // robots redirect on www domain
+      "source": "/robots.txt",
+      "has": [{ "type": "host", "value": "www.worktoolshub.info" }],
       "destination": "https://worktoolshubv2.onrender.com/api/robots.txt",
       "permanent": false
     }
