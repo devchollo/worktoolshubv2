@@ -686,11 +686,14 @@
         toolName,
         "Forbidden Knowledge In One Place",
         {
+          redirectIfUnauthorized: false,
           showUserInfo: true,
           userInfoContainerId: "user-info",
         }
       );
-
+const articlePage = new ArticlePage();
+  articlePage.setAuthenticationState(result.authenticated || false);
+  await articlePage.init(); 
       if (result.success) {
 
         class ArticlePage {
@@ -698,7 +701,6 @@
             this.articleId = this.getArticleIdFromUrl();
             this.article = null;
             this.isAuthenticated = false;
-            this.init();
           }
           setAuthenticationState(isAuthenticated) {
             this.isAuthenticated = isAuthenticated;
@@ -1099,9 +1101,6 @@
             document.getElementById("errorMessage").textContent = message;
           }
         }
-        // new ArticlePage();
-        const articlePage = new ArticlePage();
-        articlePage.setAuthenticationState(result.authenticated || false);
       }
     });
   </script>
