@@ -153,48 +153,48 @@ class AuthUtils {
   }
 
   // Initialize authentication for a tool page
-  async initToolAuth(toolName, toolDescription = null, options = {}) {
-    const {
-      redirectIfUnauthorized = true,
-      showUserInfo = true,
-      userInfoContainerId = "user-info",
-      onAuthSuccess = null,
-      onAuthFailed = null,
-    } = options;
+async initToolAuth(toolName, toolDescription = null, options = {}) {
+  const {
+    redirectIfUnauthorized = false,
+    showUserInfo = true,
+    userInfoContainerId = "user-info",
+    onAuthSuccess = null,
+    onAuthFailed = null,
+  } = options;
 
-    // First check if the tool requires authentication
-    try {
-      const toolInfoResponse = await fetch(
-        `${this.API_BASE}/auth/tool-info/${toolName}`
-      );
-      const toolInfo = await toolInfoResponse.json();
+  // First check if the tool requires authentication
+  try {
+    const toolInfoResponse = await fetch(
+      `${this.API_BASE}/auth/tool-info/${toolName}`
+    );
+    const toolInfo = await toolInfoResponse.json();
 
-      if (!toolInfo.requiresAuth) {
-        // Tool is public, no auth needed
-        if (onAuthSuccess) onAuthSuccess({ isPublic: true });
-        return { success: true, isPublic: true };
-      }
-    } catch (error) {
-      console.warn("Could not fetch tool info, assuming protected");
+    if (!toolInfo.requiresAuth) {
+      // Tool is public, no auth needed
+      if (onAuthSuccess) onAuthSuccess({ isPublic: true, authenticated: false });
+      return { success: true, isPublic: true, authenticated: false };
     }
-
-    // Check authentication and access
-    const accessCheck = await this.checkToolAccess(toolName);
-
-    if (accessCheck.hasAccess) {
-      if (showUserInfo && this.user) {
-        this.showUserInfo(userInfoContainerId);
-      }
-      if (onAuthSuccess) onAuthSuccess({ user: this.user });
-      return { success: true, user: this.user };
-    } else {
-      if (onAuthFailed) onAuthFailed(accessCheck);
-      if (redirectIfUnauthorized) {
-        this.redirectToAuth(toolName, toolDescription);
-      }
-      return { success: false, ...accessCheck };
-    }
+  } catch (error) {
+    console.warn("Could not fetch tool info, assuming protected");
   }
+
+  // Check authentication and access
+  const accessCheck = await this.checkToolAccess(toolName);
+
+  if (accessCheck.hasAccess) {
+    if (showUserInfo && this.user) {
+      this.showUserInfo(userInfoContainerId);
+    }
+    if (onAuthSuccess) onAuthSuccess({ user: this.user, authenticated: true });
+    return { success: true, user: this.user, authenticated: true };
+  } else {
+    if (onAuthFailed) onAuthFailed(accessCheck);
+    if (redirectIfUnauthorized) {
+      this.redirectToAuth(toolName, toolDescription);
+    }
+    return { success: false, authenticated: false, ...accessCheck };
+  }
+}
 }
 
 // Create global instance

@@ -1101,7 +1101,7 @@
         }
         // new ArticlePage();
         const articlePage = new ArticlePage();
-        articlePage.setAuthenticationState(result.authenticated);
+        articlePage.setAuthenticationState(result.authenticated || false);
       }
     });
   </script>
