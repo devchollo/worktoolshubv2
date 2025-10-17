@@ -1,21 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Article - WorkToolsHub Knowledge Base</title>
 
-    <link rel="preconnect" href="https://worktoolshubv2.onrender.com" />
-    <link
-      rel="icon"
-      type="image/x-icon"
-      href="https://www.worktoolshub.info/assets/icon-192.png"
-    />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Article - WorkToolsHub Knowledge Base</title>
 
-    <!-- Styling / CSS -->
-    <link rel="stylesheet" href="../styles/main.css" />
-    <!-- Structured Data -->
-    <script type="application/ld+json">
+  <link rel="preconnect" href="https://worktoolshubv2.onrender.com" />
+  <link rel="icon" type="image/x-icon" href="https://www.worktoolshub.info/assets/icon-192.png" />
+
+  <!-- Styling / CSS -->
+  <link rel="stylesheet" href="../styles/main.css" />
+  <!-- Structured Data -->
+  <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "WebApplication",
@@ -63,778 +60,811 @@
         }
       }
     </script>
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: #f8fafc;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .back-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #6366f1;
+      text-decoration: none;
+      margin-bottom: 20px;
+      font-weight: 500;
+    }
+
+    .back-button:hover {
+      text-decoration: underline;
+    }
+
+    .article-header {
+      background: white;
+      border-radius: 12px;
+      padding: 30px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .article-category {
+      display: inline-block;
+      background: #6366f1;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 15px;
+    }
+
+    .article-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 15px;
+      line-height: 1.2;
+    }
+
+    .article-excerpt {
+      font-size: 1.1rem;
+      color: #64748b;
+      margin-bottom: 20px;
+    }
+
+    .article-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .meta-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .meta-right {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    .article-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .article-tag {
+      background: #f1f5f9;
+      color: #475569;
+      padding: 4px 10px;
+      border-radius: 15px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .article-content {
+      background: white;
+      border-radius: 12px;
+      padding: 40px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+
+    .article-content h2 {
+      color: #1e293b;
+      margin-top: 30px;
+      margin-bottom: 15px;
+      font-size: 1.5rem;
+    }
+
+    .article-content h3 {
+      color: #1e293b;
+      margin-top: 25px;
+      margin-bottom: 12px;
+      font-size: 1.2rem;
+    }
+
+    .article-content p {
+      margin-bottom: 15px;
+      color: #374151;
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    .article-content ul,
+    .article-content ol {
+      margin-left: 20px;
+      margin-bottom: 15px;
+    }
+
+    .article-content li {
+      margin-bottom: 8px;
+      color: #374151;
+    }
+
+    .article-content code {
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: "Monaco", "Menlo", monospace;
+      font-size: 14px;
+    }
+
+    .article-content pre {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 20px;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 20px 0;
+    }
+
+    .article-actions {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+
+    .actions-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 15px;
+    }
+
+    .action-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: white;
+      color: #64748b;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s ease;
+    }
+
+    .action-btn:hover:not(:disabled) {
+      border-color: #6366f1;
+      color: #6366f1;
+    }
+
+    .action-btn.upvoted {
+      background: #6366f1;
+      color: white;
+      border-color: #6366f1;
+    }
+
+    .action-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .sign-in-notice {
+      background: #fef3c7;
+      border: 1px solid #fbbf24;
+      color: #78350f;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-top: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sign-in-notice a {
+      color: #6366f1;
+      font-weight: 500;
+      text-decoration: none;
+    }
+
+    .sign-in-notice a:hover {
+      text-decoration: underline;
+    }
+
+    .loading-article {
+      text-align: center;
+      padding: 40px;
+      color: #64748b;
+    }
+
+    .error {
+      background: #fee2e2;
+      color: #dc2626;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+
+    .skeleton {
+      background: rgba(99, 121, 244, 0.2);
+      border-radius: 4px;
+      height: 20px;
+      margin: 10px 0;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    .skeleton.title {
+      height: 350px;
+      width: 100%;
+    }
+
+    .skeleton.content {
+      height: 120px;
+      margin: 1.5rem 0;
+      width: 100%;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
       }
 
-      body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          sans-serif;
-        line-height: 1.6;
-        color: #333;
-        background: #f8fafc;
+      50% {
+        opacity: 0.7;
       }
+    }
 
+    @media (max-width: 768px) {
       .container {
-        max-width: 800px;
-        margin: 0 auto;
+        padding: 15px;
+      }
+
+      .article-header,
+      .article-content,
+      .article-actions {
         padding: 20px;
-      }
-
-      .back-button {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        color: #6366f1;
-        text-decoration: none;
-        margin-bottom: 20px;
-        font-weight: 500;
-      }
-
-      .back-button:hover {
-        text-decoration: underline;
-      }
-
-      .article-header {
-        background: white;
-        border-radius: 12px;
-        padding: 30px;
-        margin-bottom: 20px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      }
-
-      .article-category {
-        display: inline-block;
-        background: #6366f1;
-        color: white;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-bottom: 15px;
       }
 
       .article-title {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #1e293b;
-        margin-bottom: 15px;
-        line-height: 1.2;
-      }
-
-      .article-excerpt {
-        font-size: 1.1rem;
-        color: #64748b;
-        margin-bottom: 20px;
-      }
-
-      .article-meta {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-        padding-top: 20px;
-        border-top: 1px solid #e2e8f0;
-      }
-
-      .meta-left {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-      }
-
-      .meta-right {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        color: #64748b;
-        font-size: 14px;
-      }
-
-      .article-tags {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-      }
-
-      .article-tag {
-        background: #f1f5f9;
-        color: #475569;
-        padding: 4px 10px;
-        border-radius: 15px;
-        font-size: 12px;
-        font-weight: 500;
-      }
-
-      .article-content {
-        background: white;
-        border-radius: 12px;
-        padding: 40px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        margin-bottom: 20px;
-      }
-
-      .article-content h2 {
-        color: #1e293b;
-        margin-top: 30px;
-        margin-bottom: 15px;
         font-size: 1.5rem;
       }
 
-      .article-content h3 {
-        color: #1e293b;
-        margin-top: 25px;
-        margin-bottom: 12px;
-        font-size: 1.2rem;
-      }
-
-      .article-content p {
-        margin-bottom: 15px;
-        color: #374151;
-        font-size: 16px;
-        line-height: 1.7;
-      }
-
-      .article-content ul,
-      .article-content ol {
-        margin-left: 20px;
-        margin-bottom: 15px;
-      }
-
-      .article-content li {
-        margin-bottom: 8px;
-        color: #374151;
-      }
-
-      .article-content code {
-        padding: 2px 6px;
-        border-radius: 4px;
-        font-family: "Monaco", "Menlo", monospace;
-        font-size: 14px;
-      }
-
-      .article-content pre {
-        background: #1e293b;
-        color: #e2e8f0;
-        padding: 20px;
-        border-radius: 8px;
-        overflow-x: auto;
-        margin: 20px 0;
-      }
-
-      .article-actions {
-        background: white;
-        border-radius: 12px;
-        padding: 25px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        margin-bottom: 20px;
+      .article-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
       }
 
       .actions-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      .action-buttons {
-        display: flex;
+        flex-direction: column;
+        align-items: stretch;
         gap: 15px;
       }
 
-      .action-btn {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 16px;
-        border: 1px solid #e2e8f0;
-        border-radius: 8px;
-        background: white;
-        color: #64748b;
-        cursor: pointer;
-        font-size: 14px;
-        transition: all 0.2s ease;
-      }
-
-      .action-btn:hover {
-        border-color: #6366f1;
-        color: #6366f1;
-      }
-
-      .action-btn.upvoted {
-        background: #6366f1;
-        color: white;
-        border-color: #6366f1;
-      }
-
-      .loading-article {
-        text-align: center;
-        padding: 40px;
-        color: #64748b;
-      }
-
-      .error {
-        background: #fee2e2;
-        color: #dc2626;
-        padding: 20px;
-        border-radius: 8px;
-        margin: 20px 0;
-      }
-
-      .skeleton {
-        background: rgba(99, 121, 244, 0.2);
-        border-radius: 4px;
-        height: 20px;
-        margin: 10px 0;
-        animation: pulse 1.5s ease-in-out infinite;
-      }
-
-      .skeleton.title {
-        height: 350px;
-        width: 100%;
-      }
-
-      .skeleton.content {
-        height: 120px;
-        margin: 1.5rem 0;
-        width: 100%;
-      }
-
-      @keyframes pulse {
-        0%,
-        100% {
-          opacity: 1;
-        }
-        50% {
-          opacity: 0.7;
-        }
-      }
-
-      @media (max-width: 768px) {
-        .container {
-          padding: 15px;
-        }
-
-        .article-header,
-        .article-content,
-        .article-actions {
-          padding: 20px;
-        }
-
-        .article-title {
-          font-size: 1.5rem;
-        }
-
-        .article-meta {
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 10px;
-        }
-
-        .actions-row {
-          flex-direction: column;
-          align-items: stretch;
-          gap: 15px;
-        }
-
-        .action-buttons {
-          justify-content: center;
-        }
-      }
-
-      /* Modal Styles */
-      .modal {
-        display: none;
-        position: fixed;
-        z-index: 1000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-      }
-
-      .modal.active {
-        display: flex;
-        align-items: center;
+      .action-buttons {
         justify-content: center;
       }
+    }
 
-      .modal-content {
-        background: white;
-        border-radius: 12px;
-        padding: 0;
-        width: 90%;
-        max-width: 500px;
-        max-height: 80vh;
-        overflow-y: auto;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-      }
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+    }
 
-      .modal-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 20px 30px;
-        border-bottom: 1px solid #e2e8f0;
-      }
+    .modal.active {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-      .modal-header h3 {
-        margin: 0;
-        color: #1e293b;
-      }
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      padding: 0;
+      width: 90%;
+      max-width: 500px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
 
-      .close {
-        font-size: 28px;
-        font-weight: bold;
-        cursor: pointer;
-        color: #64748b;
-        line-height: 1;
-      }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 30px;
+      border-bottom: 1px solid #e2e8f0;
+    }
 
-      .close:hover {
-        color: #dc2626;
-      }
+    .modal-header h3 {
+      margin: 0;
+      color: #1e293b;
+    }
 
-      .form-group {
-        margin-bottom: 20px;
-      }
+    .close {
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      color: #64748b;
+      line-height: 1;
+    }
 
-      .form-group label {
-        display: block;
-        margin-bottom: 5px;
-        font-weight: 500;
-        color: #374151;
-      }
+    .close:hover {
+      color: #dc2626;
+    }
 
-      .form-group input,
-      .form-group select,
-      .form-group textarea {
-        width: 100%;
-        padding: 8px 12px;
-        border: 1px solid #d1d5db;
-        border-radius: 6px;
-        font-size: 14px;
-      }
+    .form-group {
+      margin-bottom: 20px;
+    }
 
-      .form-group textarea {
-        resize: vertical;
-        min-height: 80px;
-      }
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+      color: #374151;
+    }
 
-      #editForm {
-        padding: 30px;
-      }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 14px;
+    }
 
-      .modal-actions {
-        display: flex;
-        gap: 10px;
-        justify-content: flex-end;
-        margin-top: 25px;
-        padding-top: 20px;
-        border-top: 1px solid #e2e8f0;
-      }
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
 
-      .modal-actions button {
-        padding: 8px 20px;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: 500;
-      }
+    #editForm {
+      padding: 30px;
+    }
 
-      .modal-actions button[type="submit"] {
-        background: #6366f1;
-        color: white;
-      }
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 25px;
+      padding-top: 20px;
+      border-top: 1px solid #e2e8f0;
+    }
 
-      .modal-actions button[type="button"] {
-        background: #f8fafc;
-        color: #64748b;
-        border: 1px solid #e2e8f0;
-      }
+    .modal-actions button {
+      padding: 8px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+    }
 
-      /* Toast Notification Styles */
-      .toast {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        padding: 16px 20px;
-        max-width: 400px;
-        z-index: 1001;
-        transform: translateX(100%);
-        transition: transform 0.3s ease;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
+    .modal-actions button[type="submit"] {
+      background: #6366f1;
+      color: white;
+    }
 
-      .toast.show {
-        transform: translateX(0);
-      }
+    .modal-actions button[type="button"] {
+      background: #f8fafc;
+      color: #64748b;
+      border: 1px solid #e2e8f0;
+    }
 
-      .toast.success {
-        border-left: 4px solid #10b981;
-      }
+    /* Toast Notification Styles */
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      padding: 16px 20px;
+      max-width: 400px;
+      z-index: 1001;
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
 
-      .toast.error {
-        border-left: 4px solid #dc2626;
-      }
+    .toast.show {
+      transform: translateX(0);
+    }
 
-      .toast-icon {
-        font-size: 20px;
-        flex-shrink: 0;
-      }
+    .toast.success {
+      border-left: 4px solid #10b981;
+    }
 
-      .toast.success .toast-icon {
-        color: #10b981;
-      }
+    .toast.error {
+      border-left: 4px solid #dc2626;
+    }
 
-      .toast.error .toast-icon {
-        color: #dc2626;
-      }
+    .toast-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+    }
 
-      .toast-content {
-        flex: 1;
-      }
+    .toast.success .toast-icon {
+      color: #10b981;
+    }
 
-      .toast-title {
-        font-weight: 600;
-        color: #1f2937;
-        margin-bottom: 4px;
-      }
+    .toast.error .toast-icon {
+      color: #dc2626;
+    }
 
-      .toast-message {
-        color: #6b7280;
-        font-size: 14px;
-      }
+    .toast-content {
+      flex: 1;
+    }
 
-      .toast-close {
-        cursor: pointer;
-        color: #9ca3af;
-        font-size: 18px;
-        font-weight: bold;
-        margin-left: auto;
-        padding: 0 4px;
-      }
+    .toast-title {
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 4px;
+    }
 
-      .toast-close:hover {
-        color: #374151;
-      }
+    .toast-message {
+      color: #6b7280;
+      font-size: 14px;
+    }
 
-      #articleBody h1 {
-        margin-bottom: 2rem;
-      }
-      #articleBody li {
-        padding: 0.5rem 0;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <a href="/tools/newfold-core" class="back-button">
-        ← Back to Knowledge Base
-      </a>
+    .toast-close {
+      cursor: pointer;
+      color: #9ca3af;
+      font-size: 18px;
+      font-weight: bold;
+      margin-left: auto;
+      padding: 0 4px;
+    }
 
-      <div id="loadingState" class="loading-article">
-        <div class="skeleton title"></div>
-        <div class="skeleton content"></div>
-        <div class="skeleton content"></div>
-        <div class="skeleton content"></div>
-      </div>
-      <div id="user-info"></div>
-      <div id="articleContent" style="display: none">
-        <div class="article-header">
-          <span id="articleCategory" class="article-category"></span>
-          <h1 id="articleTitle" class="article-title"></h1>
-          <p id="articleExcerpt" class="article-excerpt"></p>
+    .toast-close:hover {
+      color: #374151;
+    }
 
-          <div class="article-meta">
-            <div class="meta-left">
-              <span
-                style="font-size: 14px; color: #64748b"
-                id="articleAuthor"
-              ></span>
-              <span>•</span>
-              <span
-                style="font-size: 14px; color: #64748b"
-                id="articleDate"
-              ></span>
-            </div>
-            <div class="meta-right">
-              <span id="articleReadTime"></span>
-              <span>•</span>
-              <span><span id="articleViews"></span> views</span>
-            </div>
+    #articleBody h1 {
+      margin-bottom: 2rem;
+    }
+
+    #articleBody li {
+      padding: 0.5rem 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <a href="/tools/newfold-core" class="back-button">
+      ← Back to Knowledge Base
+    </a>
+
+    <div id="loadingState" class="loading-article">
+      <div class="skeleton title"></div>
+      <div class="skeleton content"></div>
+      <div class="skeleton content"></div>
+      <div class="skeleton content"></div>
+    </div>
+    <div id="user-info" style="margin-bottom: 1rem;"></div>
+    <div id="articleContent" style="display: none">
+      <div class="article-header">
+        <span id="articleCategory" class="article-category"></span>
+        <h1 id="articleTitle" class="article-title"></h1>
+        <p id="articleExcerpt" class="article-excerpt"></p>
+
+        <div class="article-meta">
+          <div class="meta-left">
+            <span style="font-size: 14px; color: #64748b" id="articleAuthor"></span>
+            <span>•</span>
+            <span style="font-size: 14px; color: #64748b" id="articleDate"></span>
           </div>
-          <div style="display: flex; padding: 10px 0; margin-bottom: 1rem">
-            <span style="font-size: 12px; color: #64748b"
-              ><span
-                id="articleUpdatedDate"
-                style="font-size: 14px; color: #64748b"
-              ></span
-            ></span>
-          </div>
-          <div id="articleTags" class="article-tags"></div>
-        </div>
-
-        <div class="article-content">
-          <div id="articleBody"></div>
-        </div>
-
-        <div class="article-actions">
-          <div class="actions-row">
-            <div class="action-buttons">
-              <button id="upvoteBtn" class="action-btn" title="Mark as helpful">
-                <span>👍</span>
-                <span id="upvoteCount">0</span>
-              </button>
-              <button id="helpfulBtn" class="action-btn" title="This helped me">
-                <span>✅</span>
-                <span id="helpfulText">Helpful</span>
-              </button>
-              <button
-                id="suggestEditBtn"
-                class="action-btn"
-                title="Suggest edit"
-              >
-                <span>✏️</span>
-                <span>Suggest Edit</span>
-              </button>
-            </div>
+          <div class="meta-right">
+            <span id="articleReadTime"></span>
+            <span>•</span>
+            <span><span id="articleViews"></span> views</span>
           </div>
         </div>
+        <div style="display: flex; padding: 10px 0; margin-bottom: 1rem">
+          <span style="font-size: 12px; color: #64748b"><span id="articleUpdatedDate"
+              style="font-size: 14px; color: #64748b"></span></span>
+        </div>
+        <div id="articleTags" class="article-tags"></div>
       </div>
 
-      <div id="errorState" class="error" style="display: none">
-        <strong>Error:</strong> <span id="errorMessage"></span>
+      <div class="article-content">
+        <div id="articleBody"></div>
+      </div>
+
+      <div class="article-actions">
+        <div class="actions-row">
+          <div class="action-buttons">
+            <button id="upvoteBtn" class="action-btn" title="Mark as helpful">
+              <span>👍</span>
+              <span id="upvoteCount">0</span>
+            </button>
+            <button id="helpfulBtn" class="action-btn" title="This helped me">
+              <span>✅</span>
+              <span id="helpfulText">Helpful</span>
+            </button>
+            <button id="suggestEditBtn" class="action-btn" title="Suggest edit">
+              <span>✏️</span>
+              <span>Suggest Edit</span>
+            </button>
+          </div>
+          <div id="signInNotice" class="sign-in-notice" style="display: none;">
+            ⚠️ Please <a href="/login">sign in</a> to interact with this article
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Edit Suggestion Modal -->
-    <div id="editModal" class="modal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h3>Suggest Edit</h3>
-          <span id="modalClose" class="close">&times;</span>
-        </div>
-        <form id="editForm">
-          <input type="hidden" id="editArticleId" />
-          <input type="hidden" id="editTitle" />
-
-          <div class="form-group">
-            <label for="editorName">Your Name (optional):</label>
-            <input type="text" id="editorName" placeholder="Enter your name" />
-          </div>
-
-          <div class="form-group">
-            <label for="editType">Type of Edit:</label>
-            <select id="editType" required>
-              <option value="">Select edit type</option>
-              <option value="correction">Correction</option>
-              <option value="addition">Addition</option>
-              <option value="improvement">Improvement</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label for="editSuggestion">Your Suggestion:</label>
-            <textarea
-              id="editSuggestion"
-              rows="4"
-              required
-              placeholder="Describe your suggested changes..."
-            ></textarea>
-          </div>
-
-          <div class="modal-actions">
-            <button type="button" id="cancelEdit">Cancel</button>
-            <button type="submit">Submit Suggestion</button>
-          </div>
-        </form>
-      </div>
+    <div id="errorState" class="error" style="display: none">
+      <strong>Error:</strong> <span id="errorMessage"></span>
     </div>
+  </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="/auth-utils.js"></script>
-    <script>
-      document.addEventListener("DOMContentLoaded", async () => {
-        const toolName = "article";
-        const result = await authUtils.initToolAuth(
-          toolName,
-          "Forbidden Knowledge In One Place",
-          {
-            showUserInfo: true,
-            userInfoContainerId: "user-info",
+  <!-- Edit Suggestion Modal -->
+  <div id="editModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Suggest Edit</h3>
+        <span id="modalClose" class="close">&times;</span>
+      </div>
+      <form id="editForm">
+        <input type="hidden" id="editArticleId" />
+        <input type="hidden" id="editTitle" />
+
+        <div class="form-group">
+          <label for="editorName">Your Name (optional):</label>
+          <input type="text" id="editorName" placeholder="Enter your name" />
+        </div>
+
+        <div class="form-group">
+          <label for="editType">Type of Edit:</label>
+          <select id="editType" required>
+            <option value="">Select edit type</option>
+            <option value="correction">Correction</option>
+            <option value="addition">Addition</option>
+            <option value="improvement">Improvement</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="editSuggestion">Your Suggestion:</label>
+          <textarea id="editSuggestion" rows="4" required placeholder="Describe your suggested changes..."></textarea>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" id="cancelEdit">Cancel</button>
+          <button type="submit">Submit Suggestion</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="/auth-utils.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      const toolName = "article";
+      const result = await authUtils.initToolAuth(
+        toolName,
+        "Forbidden Knowledge In One Place",
+        {
+          showUserInfo: true,
+          userInfoContainerId: "user-info",
+        }
+      );
+
+      if (result.success) {
+
+        class ArticlePage {
+          constructor() {
+            this.articleId = this.getArticleIdFromUrl();
+            this.article = null;
+            this.isAuthenticated = false;
+            this.init();
           }
-        );
+          setAuthenticationState(isAuthenticated) {
+            this.isAuthenticated = isAuthenticated;
 
-        if (result.success) {
-          class ArticlePage {
-            constructor() {
-              this.articleId = this.getArticleIdFromUrl();
-              this.article = null;
-              this.init();
+            if (!isAuthenticated) {
+              // Disable interactive buttons
+              document.getElementById('upvoteBtn').disabled = true;
+              document.getElementById('helpfulBtn').disabled = true;
+              document.getElementById('suggestEditBtn').disabled = true;
+
+              // Show sign-in notice
+              document.getElementById('signInNotice').style.display = 'flex';
+            }
+          }
+
+
+
+          getArticleIdFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get("id");
+          }
+
+          async init() {
+            if (!this.articleId) {
+              this.showError("No article ID provided");
+              return;
             }
 
-            getArticleIdFromUrl() {
-              const params = new URLSearchParams(window.location.search);
-              return params.get("id");
-            }
+            await this.loadArticle();
+            this.bindEvents();
+          }
 
-            async init() {
-              if (!this.articleId) {
-                this.showError("No article ID provided");
-                return;
-              }
-
-              await this.loadArticle();
-              this.bindEvents();
-            }
-
-            async loadArticle() {
-              try {
-                const response = await fetch(
-                  `https://worktoolshubv2.onrender.com/api/knowledge-base/articles/${this.articleId}`
-                );
-
-                if (!response.ok) {
-                  throw new Error(`Article not found (${response.status})`);
-                }
-
-                this.article = await response.json();
-                this.renderArticle();
-              } catch (error) {
-                console.error("Failed to load article:", error);
-                this.showError(
-                  "Failed to load article. Please try again later."
-                );
-              }
-            }
-
-            renderArticle() {
-              // Hide loading, show content
-              document.getElementById("loadingState").style.display = "none";
-              document.getElementById("articleContent").style.display = "block";
-
-              // Update page title
-              document.title = `${this.article.title} - WorkToolsHub Knowledge Base`;
-
-              // Helper to set text safely
-              const setText = (id, value, fallback = "") => {
-                const el = document.getElementById(id);
-                if (el) el.textContent = value ?? fallback;
-              };
-
-              // Populate header fields
-              setText(
-                "articleCategory",
-                this.formatCategory(this.article.category)
-              );
-              setText("articleTitle", this.article.title);
-              setText("articleExcerpt", this.article.excerpt);
-              setText("articleAuthor", this.article.author);
-              setText("articleDate", this.formatDate(this.article.date));
-              if (
-                this.article.updatedAt &&
-                this.article.updatedAt !== this.article.date
-              ) {
-                setText(
-                  "articleUpdatedDate",
-                  `Updated: ${this.formatDate(this.article.updatedAt)}`
-                );
-              }
-              setText("articleReadTime", this.article.readTime, "5 min read");
-              setText(
-                "articleViews",
-                this.article.views?.toLocaleString() || "0"
+          async loadArticle() {
+            try {
+              const response = await fetch(
+                `https://worktoolshubv2.onrender.com/api/knowledge-base/articles/${this.articleId}`
               );
 
-              // Render tags
-              const tagsContainer = document.getElementById("articleTags");
-              if (tagsContainer) {
-                tagsContainer.innerHTML = (this.article.tags || [])
-                  .map((tag) => `<span class="article-tag">${tag}</span>`)
-                  .join("");
+              if (!response.ok) {
+                throw new Error(`Article not found (${response.status})`);
               }
 
-              // Render article body using marked (frontend Markdown -> HTML)
-              const articleBody = document.getElementById("articleBody");
-              if (articleBody) {
-                articleBody.innerHTML =
-                  this.article.contentHtml ||
-                  marked.parse(this.article.content || "");
-              }
-
-              // Action buttons
-              setText("upvoteCount", this.article.upvotes || 0);
-              setText(
-                "helpfulText",
-                `Helped ${this.article.helpfulCount || 0}`
+              this.article = await response.json();
+              this.renderArticle();
+            } catch (error) {
+              console.error("Failed to load article:", error);
+              this.showError(
+                "Failed to load article. Please try again later."
               );
-              this.article.userUpvoted = this.article.userUpvoted || false;
-              // Upvote button state
-              const upvoteBtn = document.getElementById("upvoteBtn");
-              if (upvoteBtn && this.article.userUpvoted) {
-                upvoteBtn.classList.add("upvoted");
-              }
+            }
+          }
+
+          renderArticle() {
+            // Hide loading, show content
+            document.getElementById("loadingState").style.display = "none";
+            document.getElementById("articleContent").style.display = "block";
+
+            // Update page title
+            document.title = `${this.article.title} - WorkToolsHub Knowledge Base`;
+
+            // Helper to set text safely
+            const setText = (id, value, fallback = "") => {
+              const el = document.getElementById(id);
+              if (el) el.textContent = value ?? fallback;
+            };
+
+            // Populate header fields
+            setText(
+              "articleCategory",
+              this.formatCategory(this.article.category)
+            );
+            setText("articleTitle", this.article.title);
+            setText("articleExcerpt", this.article.excerpt);
+            setText("articleAuthor", this.article.author);
+            setText("articleDate", this.formatDate(this.article.date));
+            if (
+              this.article.updatedAt &&
+              this.article.updatedAt !== this.article.date
+            ) {
+              setText(
+                "articleUpdatedDate",
+                `Updated: ${this.formatDate(this.article.updatedAt)}`
+              );
+            }
+            setText("articleReadTime", this.article.readTime, "5 min read");
+            setText(
+              "articleViews",
+              this.article.views?.toLocaleString() || "0"
+            );
+
+            // Render tags
+            const tagsContainer = document.getElementById("articleTags");
+            if (tagsContainer) {
+              tagsContainer.innerHTML = (this.article.tags || [])
+                .map((tag) => `<span class="article-tag">${tag}</span>`)
+                .join("");
             }
 
-            formatContent(content) {
-              // Basic markdown-to-HTML conversion (simplified)
-              return content
-                .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-                .replace(/\*(.*?)\*/g, "<em>$1</em>")
-                .replace(/`(.*?)`/g, "<code>$1</code>")
-                .replace(/\n\n/g, "</p><p>")
-                .replace(/\n/g, "<br>")
-                .replace(/^(.+)$/gm, "<p>$1</p>")
-                .replace(/<p><\/p>/g, "");
+            // Render article body using marked (frontend Markdown -> HTML)
+            const articleBody = document.getElementById("articleBody");
+            if (articleBody) {
+              articleBody.innerHTML =
+                this.article.contentHtml ||
+                marked.parse(this.article.content || "");
             }
 
-            formatCategory(category) {
-              const categoryMap = {
-                technical: "Technical Guides",
-                tutorials: "Tutorials",
-                troubleshooting: "Troubleshooting",
-                "best-practices": "Best Practices",
-                tools: "Tools & Resources",
-              };
-              return categoryMap[category] || category;
+            // Action buttons
+            setText("upvoteCount", this.article.upvotes || 0);
+            setText(
+              "helpfulText",
+              `Helped ${this.article.helpfulCount || 0}`
+            );
+            this.article.userUpvoted = this.article.userUpvoted || false;
+            // Upvote button state
+            const upvoteBtn = document.getElementById("upvoteBtn");
+            if (upvoteBtn && this.article.userUpvoted) {
+              upvoteBtn.classList.add("upvoted");
+            }
+          }
+
+          formatContent(content) {
+            // Basic markdown-to-HTML conversion (simplified)
+            return content
+              .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+              .replace(/\*(.*?)\*/g, "<em>$1</em>")
+              .replace(/`(.*?)`/g, "<code>$1</code>")
+              .replace(/\n\n/g, "</p><p>")
+              .replace(/\n/g, "<br>")
+              .replace(/^(.+)$/gm, "<p>$1</p>")
+              .replace(/<p><\/p>/g, "");
+          }
+
+          formatCategory(category) {
+            const categoryMap = {
+              technical: "Technical Guides",
+              tutorials: "Tutorials",
+              troubleshooting: "Troubleshooting",
+              "best-practices": "Best Practices",
+              tools: "Tools & Resources",
+            };
+            return categoryMap[category] || category;
+          }
+
+          formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            });
+          }
+
+          showToast(type, title, message) {
+            // Remove any existing toast
+            const existingToast = document.querySelector(".toast");
+            if (existingToast) {
+              existingToast.remove();
             }
 
-            formatDate(dateString) {
-              const date = new Date(dateString);
-              return date.toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              });
-            }
+            // Create toast element
+            const toast = document.createElement("div");
+            toast.className = `toast ${type}`;
 
-            showToast(type, title, message) {
-              // Remove any existing toast
-              const existingToast = document.querySelector(".toast");
-              if (existingToast) {
-                existingToast.remove();
-              }
+            const icon = type === "success" ? "✓" : "✕";
 
-              // Create toast element
-              const toast = document.createElement("div");
-              toast.className = `toast ${type}`;
-
-              const icon = type === "success" ? "✓" : "✕";
-
-              toast.innerHTML = `
+            toast.innerHTML = `
         <div class="toast-icon">${icon}</div>
         <div class="toast-content">
             <div class="toast-title">${title}</div>
@@ -843,223 +873,238 @@
         <div class="toast-close">&times;</div>
     `;
 
-              document.body.appendChild(toast);
+            document.body.appendChild(toast);
 
-              // Show toast with animation
-              requestAnimationFrame(() => {
-                toast.classList.add("show");
+            // Show toast with animation
+            requestAnimationFrame(() => {
+              toast.classList.add("show");
+            });
+
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+              this.hideToast(toast);
+            }, 5000);
+
+            // Close button functionality
+            toast
+              .querySelector(".toast-close")
+              .addEventListener("click", () => {
+                this.hideToast(toast);
+              });
+          }
+
+          hideToast(toast) {
+            toast.classList.remove("show");
+            setTimeout(() => {
+              if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+              }
+            }, 300);
+          }
+
+          hideEditModal() {
+            document.getElementById("editModal").classList.remove("active");
+            document.getElementById("editForm").reset();
+          }
+
+          bindEvents() {
+            // Upvote button
+            document
+              .getElementById("upvoteBtn")
+              .addEventListener("click", () => {
+                this.handleUpvote();
               });
 
-              // Auto-hide after 5 seconds
-              setTimeout(() => {
-                this.hideToast(toast);
-              }, 5000);
+            // Helpful button
+            document
+              .getElementById("helpfulBtn")
+              .addEventListener("click", () => {
+                this.handleHelpful();
+              });
 
-              // Close button functionality
-              toast
-                .querySelector(".toast-close")
-                .addEventListener("click", () => {
-                  this.hideToast(toast);
-                });
-            }
+            // Suggest edit button
+            document
+              .getElementById("suggestEditBtn")
+              .addEventListener("click", () => {
+                this.showEditModal();
+              });
 
-            hideToast(toast) {
-              toast.classList.remove("show");
-              setTimeout(() => {
-                if (toast.parentNode) {
-                  toast.parentNode.removeChild(toast);
-                }
-              }, 300);
-            }
+            // Add these modal event handlers:
 
-            hideEditModal() {
-              document.getElementById("editModal").classList.remove("active");
-              document.getElementById("editForm").reset();
-            }
+            // Modal close button
+            document
+              .getElementById("modalClose")
+              .addEventListener("click", () => {
+                this.hideEditModal();
+              });
 
-            bindEvents() {
-              // Upvote button
-              document
-                .getElementById("upvoteBtn")
-                .addEventListener("click", () => {
-                  this.handleUpvote();
-                });
+            // Cancel button
+            document
+              .getElementById("cancelEdit")
+              .addEventListener("click", () => {
+                this.hideEditModal();
+              });
 
-              // Helpful button
-              document
-                .getElementById("helpfulBtn")
-                .addEventListener("click", () => {
-                  this.handleHelpful();
-                });
+            // Form submission
+            document
+              .getElementById("editForm")
+              .addEventListener("submit", (e) => {
+                e.preventDefault(); // Prevent default form submission
 
-              // Suggest edit button
-              document
-                .getElementById("suggestEditBtn")
-                .addEventListener("click", () => {
-                  this.showEditModal();
-                });
+                const formData = {
+                  articleId: document.getElementById("editArticleId").value,
+                  articleTitle: document.getElementById("editTitle").value,
+                  editorName: document.getElementById("editorName").value,
+                  editType: document.getElementById("editType").value,
+                  suggestion: document.getElementById("editSuggestion").value,
+                  timestamp: new Date().toISOString(),
+                };
 
-              // Add these modal event handlers:
+                this.submitEditSuggestion(formData);
+              });
 
-              // Modal close button
-              document
-                .getElementById("modalClose")
-                .addEventListener("click", () => {
+            // Close modal when clicking outside
+            document
+              .getElementById("editModal")
+              .addEventListener("click", (e) => {
+                if (e.target.id === "editModal") {
                   this.hideEditModal();
-                });
-
-              // Cancel button
-              document
-                .getElementById("cancelEdit")
-                .addEventListener("click", () => {
-                  this.hideEditModal();
-                });
-
-              // Form submission
-              document
-                .getElementById("editForm")
-                .addEventListener("submit", (e) => {
-                  e.preventDefault(); // Prevent default form submission
-
-                  const formData = {
-                    articleId: document.getElementById("editArticleId").value,
-                    articleTitle: document.getElementById("editTitle").value,
-                    editorName: document.getElementById("editorName").value,
-                    editType: document.getElementById("editType").value,
-                    suggestion: document.getElementById("editSuggestion").value,
-                    timestamp: new Date().toISOString(),
-                  };
-
-                  this.submitEditSuggestion(formData);
-                });
-
-              // Close modal when clicking outside
-              document
-                .getElementById("editModal")
-                .addEventListener("click", (e) => {
-                  if (e.target.id === "editModal") {
-                    this.hideEditModal();
-                  }
-                });
-            }
-
-            async handleUpvote() {
-              try {
-                const response = await fetch(
-                  `https://worktoolshubv2.onrender.com/api/knowledge-base/articles/${this.articleId}/upvote`,
-                  {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ upvote: !this.article.userUpvoted }),
-                  }
-                );
-
-                if (response.ok) {
-                  const result = await response.json();
-                  console.log("Upvote response:", result); // Debug log
-                  this.article.upvotes = result.upvotes;
-                  this.article.userUpvoted = result.userUpvoted;
-
-                  // Update UI
-                  document.getElementById("upvoteCount").textContent =
-                    result.upvotes;
-                  document
-                    .getElementById("upvoteBtn")
-                    .classList.toggle("upvoted", result.userUpvoted);
-                } else {
-                  console.error("Upvote failed:", response.status);
                 }
-              } catch (error) {
-                console.error("Upvote error:", error);
-              }
+              });
+          }
+
+          async handleUpvote() {
+            if (!this.isAuthenticated) {
+              this.showToast('error', 'Sign In Required', 'Please sign in to interact with this article.');
+              return;
             }
-
-            async handleHelpful() {
-              try {
-                const response = await fetch(
-                  `https://worktoolshubv2.onrender.com/api/knowledge-base/articles/${this.articleId}/helpful`,
-                  {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                  }
-                );
-
-                if (response.ok) {
-                  const result = await response.json();
-                  console.log("Helpful response:", result);
-
-                  // Check if user already marked it
-                  if (result.message) {
-                    this.showToast("error", "Already Marked", result.message);
-                    return;
-                  }
-
-                  this.article.helpfulCount = result.helpfulCount;
-
-                  // Update UI
-                  document.getElementById(
-                    "helpfulText"
-                  ).textContent = `Helped ${result.helpfulCount}`;
-
-                  // Visual feedback
-                  const btn = document.getElementById("helpfulBtn");
-                  btn.style.background = "#10b981";
-                  btn.style.color = "white";
-                  btn.disabled = true; // Disable button after marking
-                  setTimeout(() => {
-                    btn.style.background = "";
-                    btn.style.color = "";
-                  }, 1000);
+            try {
+              const response = await fetch(
+                `https://worktoolshubv2.onrender.com/api/knowledge-base/articles/${this.articleId}/upvote`,
+                {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ upvote: !this.article.userUpvoted }),
                 }
-              } catch (error) {
-                console.error("Helpful error:", error);
-              }
-            }
-            showEditModal() {
-              document.getElementById("editArticleId").value = this.articleId;
-              document.getElementById("editTitle").value = this.article.title;
-              document.getElementById("editModal").classList.add("active");
-            }
-            async submitEditSuggestion(formData) {
-              try {
-                const response = await fetch(
-                  "https://worktoolshubv2.onrender.com/api/knowledge-base/edit-suggestions",
-                  {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(formData),
-                  }
-                );
+              );
 
-                if (response.ok) {
-                  this.showToast(
-                    "success",
-                    "Success!",
-                    "Your edit suggestion has been submitted for review."
-                  );
-                  this.hideEditModal();
-                } else {
-                  throw new Error("Failed to submit suggestion");
-                }
-              } catch (error) {
-                console.error("Edit suggestion error:", error);
-                this.showToast(
-                  "error",
-                  "Error",
-                  "There was an error submitting your suggestion. Please try again."
-                );
-              }
-            }
+              if (response.ok) {
+                const result = await response.json();
+                console.log("Upvote response:", result); // Debug log
+                this.article.upvotes = result.upvotes;
+                this.article.userUpvoted = result.userUpvoted;
 
-            showError(message) {
-              document.getElementById("loadingState").style.display = "block";
-              document.getElementById("errorState").style.display = "block";
-              document.getElementById("errorMessage").textContent = message;
+                // Update UI
+                document.getElementById("upvoteCount").textContent =
+                  result.upvotes;
+                document
+                  .getElementById("upvoteBtn")
+                  .classList.toggle("upvoted", result.userUpvoted);
+              } else {
+                console.error("Upvote failed:", response.status);
+              }
+            } catch (error) {
+              console.error("Upvote error:", error);
             }
           }
-          new ArticlePage();
+
+          async handleHelpful() {
+            if (!this.isAuthenticated) {
+              this.showToast('error', 'Sign In Required', 'Please sign in to interact with this article.');
+              return;
+            }
+            try {
+              const response = await fetch(
+                `https://worktoolshubv2.onrender.com/api/knowledge-base/articles/${this.articleId}/helpful`,
+                {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                }
+              );
+
+              if (response.ok) {
+                const result = await response.json();
+                console.log("Helpful response:", result);
+
+                // Check if user already marked it
+                if (result.message) {
+                  this.showToast("error", "Already Marked", result.message);
+                  return;
+                }
+
+                this.article.helpfulCount = result.helpfulCount;
+
+                // Update UI
+                document.getElementById(
+                  "helpfulText"
+                ).textContent = `Helped ${result.helpfulCount}`;
+
+                // Visual feedback
+                const btn = document.getElementById("helpfulBtn");
+                btn.style.background = "#10b981";
+                btn.style.color = "white";
+                btn.disabled = true; // Disable button after marking
+                setTimeout(() => {
+                  btn.style.background = "";
+                  btn.style.color = "";
+                }, 1000);
+              }
+            } catch (error) {
+              console.error("Helpful error:", error);
+            }
+          }
+          showEditModal() {
+            if (!this.isAuthenticated) {
+              this.showToast('error', 'Sign In Required', 'Please sign in to interact with this article.');
+              return;
+            }
+            document.getElementById("editArticleId").value = this.articleId;
+            document.getElementById("editTitle").value = this.article.title;
+            document.getElementById("editModal").classList.add("active");
+          }
+          async submitEditSuggestion(formData) {
+            try {
+              const response = await fetch(
+                "https://worktoolshubv2.onrender.com/api/knowledge-base/edit-suggestions",
+                {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify(formData),
+                }
+              );
+
+              if (response.ok) {
+                this.showToast(
+                  "success",
+                  "Success!",
+                  "Your edit suggestion has been submitted for review."
+                );
+                this.hideEditModal();
+              } else {
+                throw new Error("Failed to submit suggestion");
+              }
+            } catch (error) {
+              console.error("Edit suggestion error:", error);
+              this.showToast(
+                "error",
+                "Error",
+                "There was an error submitting your suggestion. Please try again."
+              );
+            }
+          }
+
+          showError(message) {
+            document.getElementById("loadingState").style.display = "block";
+            document.getElementById("errorState").style.display = "block";
+            document.getElementById("errorMessage").textContent = message;
+          }
         }
-      });
-    </script>
-  </body>
+        // new ArticlePage();
+        const articlePage = new ArticlePage();
+        articlePage.setAuthenticationState(result.authenticated);
+      }
+    });
+  </script>
+</body>
+
 </html>

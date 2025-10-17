@@ -9,7 +9,7 @@ export const toolCategories = {
     color: "#10b981",
     tools: [
       {
-        name: "OSAD-&-Site-Live-Generator",
+        name: "Technical Support & Site Launch",
         path: "/tools/osad-live-generator",
         internal: true,
       },
