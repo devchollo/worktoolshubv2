@@ -250,15 +250,16 @@ router.get('/articles/:id', async (req, res) => {
     await article.save();
 
     // Convert to plain object and add user's interaction status
-    const articleData = article.toObject();
-    articleData.userUpvoted = article.upvotedBy?.includes(userId) || false;
-    articleData.userMarkedHelpful = article.helpfulBy?.includes(userId) || false;
+const articleData = article.toObject();
+articleData.id = article._id.toString(); // ADD THIS LINE - convert ObjectId to string
+articleData.userUpvoted = article.upvotedBy?.includes(userId) || false;
+articleData.userMarkedHelpful = article.helpfulBy?.includes(userId) || false;
 
-    // Remove internal tracking arrays from response (optional - for cleaner API)
-    delete articleData.upvotedBy;
-    delete articleData.helpfulBy;
+// Remove internal tracking arrays from response (optional - for cleaner API)
+delete articleData.upvotedBy;
+delete articleData.helpfulBy;
 
-    res.json(articleData);
+res.json(articleData);
 
   } catch (error) {
     console.error('Error fetching article:', error);
