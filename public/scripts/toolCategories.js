@@ -73,6 +73,7 @@ export const toolCategories = {
     tools: [
       { name: "Embed Code Generator", path: "/tools/embed-code-generator", internal: true },
       { name: "QR Code Creator", path: "/tools/qr-code-generator", internal: true },
+      { name: "Random Password Generator", path: "/tools/random-pass-gen"},
       { name: "HTML Snippet Tools", path: "/error.html?status=coming-soon", pending: true },
       { name: "CSS Generator", path: "/error.html?status=coming-soon", pending: true },
     ],
@@ -114,7 +115,7 @@ export const toolCategories = {
         path: "/tools/dns-checker",
         internal: true,
       },
-      { name: "Invoice Creator", path: "/error.html?status=coming-soon", pending: true },
+      { name: "Random Password Generator", path: "/tools/random-pass-gen"},
       {
         name: "Report Templates",
         path: "/error.html?status=coming-soon",
