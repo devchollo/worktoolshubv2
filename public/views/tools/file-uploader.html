@@ -544,13 +544,19 @@
 
           bindEvents() {
             this.fileInput.addEventListener('change', (e) => this.handleFiles(e.target.files));
-            this.uploadButton.addEventListener('click', () => this.fileInput.click());
             
+            // Only button click opens file dialog
+            this.uploadButton.addEventListener('click', (e) => {
+              e.stopPropagation();
+              this.fileInput.click();
+            });
+            
+            // Drag and drop events
             this.uploadZone.addEventListener('dragover', (e) => this.handleDragOver(e));
             this.uploadZone.addEventListener('dragleave', (e) => this.handleDragLeave(e));
             this.uploadZone.addEventListener('drop', (e) => this.handleDrop(e));
-            this.uploadZone.addEventListener('click', () => this.fileInput.click());
 
+            // Paste event
             document.addEventListener('paste', (e) => this.handlePaste(e));
           }
 
