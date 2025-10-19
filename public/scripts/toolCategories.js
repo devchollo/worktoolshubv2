@@ -72,10 +72,13 @@ export const toolCategories = {
     color: "#8b5cf6",
     tools: [
       { name: "Embed Code Generator", path: "/tools/embed-code-generator", internal: true },
+      {
+        name: "File Uploader",
+        path: "/tools/file-uploader",
+        internal: true,
+      },
       { name: "QR Code Creator", path: "/tools/qr-code-generator", internal: true },
       { name: "Random Password Generator", path: "/tools/random-pass-gen"},
-      { name: "HTML Snippet Tools", path: "/error.html?status=coming-soon", pending: true },
-      { name: "CSS Generator", path: "/error.html?status=coming-soon", pending: true },
     ],
   },
   "file-tools": {
@@ -85,9 +88,9 @@ export const toolCategories = {
     color: "#f59e0b",
     tools: [
       {
-        name: "Image Compressor",
-        path: "/error.html?status=coming-soon",
-        pending: true,
+        name: "File Uploader",
+        path: "/tools/file-uploader",
+        internal: true,
       },
       { name: "PDF Tools", path: "/error.html?status=coming-soon", pending: true },
       { name: "File Converter", path: "/error.html?status=coming-soon", pending: true },
@@ -117,9 +120,9 @@ export const toolCategories = {
       },
       { name: "Random Password Generator", path: "/tools/random-pass-gen"},
       {
-        name: "Report Templates",
-        path: "/error.html?status=coming-soon",
-        pending: true,
+        name: "File Uploader",
+        path: "/tools/file-uploader",
+        internal: true,
       },
     ],
   },
