@@ -681,10 +681,14 @@
                 ${this.escapeHtml(result.publicUrl)}
               </div>
 
-              <button class="copy-button" onclick="fileUploader.copyURL('${result.fileId}', '${result.publicUrl}')">
+              <button class="copy-button" data-url="${this.escapeHtml(result.publicUrl)}">
                 📋 Copy URL
               </button>
             `;
+
+            // Add event listener to the copy button
+            const copyBtn = card.querySelector('.copy-button');
+            copyBtn.addEventListener('click', (e) => this.copyURL(e));
 
             this.filesContainer.insertBefore(card, this.filesContainer.firstChild);
           }
@@ -698,11 +702,13 @@
             return '📁';
           }
 
-          async copyURL(fileId, url) {
+          async copyURL(event) {
             try {
+              const button = event.currentTarget; // Use currentTarget instead of target
+              const url = button.getAttribute('data-url');
+              
               await navigator.clipboard.writeText(url);
               
-              const button = event.target;
               const originalText = button.innerHTML;
               
               button.innerHTML = '✅ Copied!';
