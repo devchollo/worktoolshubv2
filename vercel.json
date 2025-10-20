@@ -8,8 +8,21 @@
     { "source": "/", "destination": "/views/index.html" },
     { "source": "/(.*)", "destination": "/views/$1" },
 
-
     { "source": "/sitemap.xml", "destination": "/api/sitemap" },
     { "source": "/robots.txt", "destination": "/api/robots" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)\\.(html)$",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+      ]
+    },
+    {
+      "source": "/(.*)\\.(js|css|png|jpg|jpeg|gif|svg|webp|ico|json)$",
+      "headers": [
+        { "key": "Cache-Control", "value": "max-age=0, must-revalidate" }
+      ]
+    }
   ]
 }
