@@ -679,7 +679,7 @@ input:focus-visible,
 .testimonial-name {
   font-size: 1.125rem;
   font-weight: 600;
-  color: var(--text-primary);
+  color: #1e293b;
   margin-bottom: 0.25rem;
 }
 
@@ -691,7 +691,7 @@ input:focus-visible,
 }
 
 .testimonial-message {
-  color: var(--text-secondary);
+  color: #1e293b;
   line-height: 1.6;
   font-size: 0.9375rem;
   margin-bottom: 1rem;
