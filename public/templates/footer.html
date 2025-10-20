@@ -5,7 +5,6 @@
 
   .more-info-section {
     display: flex;
-    /* flex-direction: column; */
     justify-content: space-between;
     align-items: center;
     gap: 1.5rem;
@@ -27,7 +26,6 @@
   /* Contact button style */
   .contact-btn {
     background-color: #007bff;
-    /* example primary colour */
     color: #ffffff;
   }
 
@@ -38,7 +36,6 @@
   /* Report issue button style */
   .report-btn {
     background-color: #6c757d;
-    /* example grey/dark secondary */
     color: #ffffff;
   }
 
@@ -49,7 +46,6 @@
   /* Donate button style */
   .donate-btn {
     background-color: #ffc107;
-    /* example accent/yellow/gold */
     color: #212529;
   }
 
@@ -66,7 +62,6 @@
 
     .footer-btn {
       width: 80%;
-      /* or auto, depending on design */
       text-align: center;
     }
   }
@@ -266,7 +261,7 @@
     <div class="more-info-section">
       <div class="footer-info-header" style="text-align: center">
         <h2 style="font-size: 3rem">Get Involved</h2>
-        <p class="footer-subtext">We’d love your feedback and support.</p>
+        <p class="footer-subtext">We'd love your feedback and support.</p>
       </div>
       <div class="footer-buttons">
         <button type="button" class="footer-btn contact-btn">Contact Us</button>
@@ -292,40 +287,34 @@
   <div class="container">
     <div class="footer-grid">
       <div class="footer-section">
-        <h3>Popular Tools</h3>
-        <a href="/tool/osad-note" class="footer-link">OSAD Note Generator</a>
-        <a href="/tool/escalation-email" class="footer-link"
-          >Escalation Email</a
-        >
-        <a href="/tool/qr-code" class="footer-link">QR Code Generator</a>
-        <a href="/tool/image-compressor" class="footer-link"
-          >Image Compressor</a
-        >
+        <h3>About WorkToolsHub</h3>
+        <p style="color: var(--text-secondary); line-height: 1.6; font-size: 0.875rem;">
+          Free professional tools for developers, designers, and businesses. 
+          Streamline your workflow with our growing collection of utilities.
+        </p>
       </div>
+      
       <div class="footer-section">
-        <h3>Categories</h3>
-        <a href="/category/content-generators" class="footer-link"
-          >Content Tools</a
-        >
-        <a href="/category/email-tools" class="footer-link">Email Generators</a>
-        <a href="/category/code-tools" class="footer-link">Development</a>
-        <a href="/category/business-tools" class="footer-link"
-          >Business Tools</a
-        >
+        <h3>Quick Links</h3>
+        <a href="/" class="footer-link">Home</a>
+        <a href="/tools/knowledge-base" class="footer-link">Newfold Core</a>
+        <a href="#testimonials" class="footer-link">Testimonials</a>
+        <a href="/sitemap.xml" class="footer-link">Sitemap</a>
       </div>
+      
       <div class="footer-section">
-        <h3>Resources</h3>
-        <a href="/api" class="footer-link">API Documentation</a>
-        <a href="/tutorials" class="footer-link">Tutorials</a>
-        <a href="/blog" class="footer-link">Blog</a>
-        <a href="/contact" class="footer-link">Contact</a>
+        <h3>Support</h3>
+        <a href="https://github.com/devchollo/worktoolshubv2/issues" target="_blank" rel="noopener" class="footer-link">Report Bug</a>
+        <a href="https://github.com/devchollo/worktoolshubv2" target="_blank" rel="noopener" class="footer-link">GitHub Repository</a>
+        <a href="mailto:devchollo@gmail.com" class="footer-link">Email Support</a>
+        <button type="button" class="footer-link" style="background: none; border: none; padding: 0.25rem 0; cursor: pointer; text-align: left; width: 100%;">Contact Form</button>
       </div>
+      
       <div class="footer-section">
         <h3>Legal</h3>
         <a href="/privacy" class="footer-link">Privacy Policy</a>
         <a href="/terms" class="footer-link">Terms of Service</a>
-        <a href="/cookies" class="footer-link">Cookie Policy</a>
-        <a href="/gdpr" class="footer-link">GDPR</a>
+        <a href="https://github.com/devchollo/worktoolshubv2/blob/main/LICENSE" target="_blank" rel="noopener" class="footer-link">License (AGPL-3.0)</a>
       </div>
     </div>
     <div class="footer-bottom">
@@ -333,10 +322,12 @@
         &copy; <span id="yearC"></span> WorkToolsHub. All rights reserved. Built
         with ❤️ for professionals.
       </p>
+      <p style="font-size: 0.75rem; margin-top: 0.5rem; opacity: 0.8;">
+        Open Source Project • Powered by Express, MongoDB & OpenAI
+      </p>
     </div>
   </div>
 
-  <!-- Contact Us Modal -->
   <!-- Contact Us Modal -->
   <div id="contactModal" class="contact-modal">
     <div class="contact-modal-content">
@@ -422,4 +413,3 @@
     </div>
   </div>
 </footer>
-

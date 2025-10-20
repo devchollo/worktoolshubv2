@@ -581,29 +581,160 @@
         </div>
       </section>
 
-      <!-- Stats Section -->
-      <section class="stats-section">
-        <div class="container">
-          <div class="stats-grid">
-            <div class="stat-card">
-              <span class="stat-number" id="toolCount">50+</span>
-              <span class="stat-label">Professional Tools</span>
-            </div>
-            <div class="stat-card">
-              <span class="stat-number" id="userCount">10k+</span>
-              <span class="stat-label">Monthly Users</span>
-            </div>
-            <div class="stat-card">
-              <span class="stat-number" id="generatedCount">100k+</span>
-              <span class="stat-label">Files Generated</span>
-            </div>
-            <div class="stat-card">
-              <span class="stat-number">99.9%</span>
-              <span class="stat-label">Uptime</span>
-            </div>
-          </div>
+<!-- Testimonials Section -->
+<section class="testimonials-section">
+  <div class="container">
+    <div class="testimonials-header">
+      <h2>What Our Users Say</h2>
+      <p class="testimonials-subtitle">
+        Join thousands of professionals who trust WorkToolsHub for their daily workflow
+      </p>
+      <div class="testimonials-stats">
+        <div class="stat-item">
+          <span class="stars">★★★★★</span>
+          <span id="avgRating">5.0</span>
+          <span>Average Rating</span>
         </div>
-      </section>
+        <div class="stat-item">
+          <span id="totalTestimonials">0</span>
+          <span>Happy Users</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="testimonial-slider-container">
+      <div class="testimonial-slider">
+        <div class="testimonial-track">
+          <!-- Testimonials will be dynamically loaded here -->
+        </div>
+      </div>
+
+      <div class="slider-controls">
+        <button class="slider-btn" id="prevSlide" aria-label="Previous testimonial">
+          ←
+        </button>
+        <div class="slider-dots">
+          <!-- Dots will be dynamically generated -->
+        </div>
+        <button class="slider-btn" id="nextSlide" aria-label="Next testimonial">
+          →
+        </button>
+      </div>
+    </div>
+
+    <button class="submit-testimonial-btn" id="submitTestimonialBtn">
+      Share Your Experience ✨
+    </button>
+  </div>
+</section>
+
+<!-- Testimonial Submission Modal -->
+<div id="testimonialModal" class="testimonial-modal">
+  <div class="testimonial-modal-content">
+    <div class="modal-header">
+      <h3>Share Your Experience</h3>
+      <button class="modal-close" aria-label="Close modal">&times;</button>
+    </div>
+
+    <form id="testimonialForm" class="testimonial-form" enctype="multipart/form-data">
+      <div class="form-group">
+        <label for="testimonialName">Your Name *</label>
+        <input
+          type="text"
+          id="testimonialName"
+          name="name"
+          required
+          maxlength="100"
+          placeholder="John Doe"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="testimonialEmail">Email Address *</label>
+        <input
+          type="email"
+          id="testimonialEmail"
+          name="email"
+          required
+          maxlength="100"
+          placeholder="john@example.com"
+        />
+        <small style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 0.25rem;">
+          Your email won't be displayed publicly
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label>Rating *</label>
+        <div class="rating-input">
+          <input type="radio" id="star5" name="rating" value="5" required />
+          <label for="star5" title="5 stars">★</label>
+          
+          <input type="radio" id="star4" name="rating" value="4" />
+          <label for="star4" title="4 stars">★</label>
+          
+          <input type="radio" id="star3" name="rating" value="3" />
+          <label for="star3" title="3 stars">★</label>
+          
+          <input type="radio" id="star2" name="rating" value="2" />
+          <label for="star2" title="2 stars">★</label>
+          
+          <input type="radio" id="star1" name="rating" value="1" />
+          <label for="star1" title="1 star">★</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="testimonialMessage">Your Message *</label>
+        <textarea
+          id="testimonialMessage"
+          name="message"
+          required
+          maxlength="500"
+          placeholder="Tell us about your experience with WorkToolsHub..."
+        ></textarea>
+        <div class="char-counter">
+          <span id="charCounter">0</span>/500 characters
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Profile Picture (Optional)</label>
+        <div class="avatar-upload">
+          <img id="avatarPreview" class="avatar-preview" alt="Avatar preview" />
+          <div class="file-input-wrapper">
+            <input
+              type="file"
+              id="avatarInput"
+              name="avatar"
+              accept="image/jpeg,image/jpg,image/png,image/webp"
+            />
+            <label for="avatarInput" class="file-input-label">
+              📷 Choose Image (Max 5MB)
+            </label>
+          </div>
+          <small style="color: var(--text-secondary); font-size: 0.75rem;">
+            If not provided, we'll generate a placeholder based on your name
+          </small>
+        </div>
+      </div>
+
+      <div id="formMessage" class="form-message"></div>
+
+      <button type="submit" class="submit-btn">
+        Submit Testimonial
+      </button>
+
+      <p style="text-align: center; font-size: 0.75rem; color: var(--text-secondary); margin-top: 1rem;">
+        Your testimonial will be reviewed before being published
+      </p>
+    </form>
+  </div>
+</div>
+
+<!-- Add the testimonial script before closing body tag -->
+<script src="../scripts/testimonials.js"></script>
+
     </main>
     <div id="footer"></div>
     <script src="../scripts/layout.js"></script>
