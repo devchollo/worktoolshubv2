@@ -1635,45 +1635,97 @@
 }
         
 
+// async sendPasswordReset(adminId) {
+//   try {
+//     const admin = this.admins.find((a) => a._id === adminId);
+//     if (!admin) {
+//       this.showToast("error", "Admin not found");
+//       return;
+//     }
+
+//     // Confirm action
+//     if (!confirm(`Send password reset email to ${admin.name} (${admin.email})?`)) {
+//       return;
+//     }
+
+//     const headers = this.getAuthHeaders();
+//     if (!headers) return;
+
+//     // Show loading toast
+//     this.showToast("info", "Sending password reset email...");
+
+//     const response = await fetch(`${API_BASE}/admin/send-password-reset`, {
+//       method: "POST",
+//       headers,
+//       body: JSON.stringify({ adminId: adminId }),
+//     });
+
+//     if (response.ok) {
+//       const data = await response.json();
+//       this.showToast("success", `Password reset email sent to ${admin.email}`);
+//     } else if (response.status === 401 || response.status === 403) {
+//       this.handleAuthError("Session expired. Please log in again.");
+//     } else {
+//       const errorData = await response.json();
+//       throw new Error(errorData.error || "Failed to send password reset email");
+//     }
+//   } catch (error) {
+//     console.error("Password reset error:", error);
+//     this.showToast("error", error.message || "Failed to send password reset email");
+//   }
+// }
+
 async sendPasswordReset(adminId) {
+  const admin = this.admins.find((a) => a._id === adminId);
+  if (!admin) {
+    this.showToast("error", "Admin not found");
+    return;
+  }
+
+  const confirmed = confirm(`Send password reset email to ${admin.name} (${admin.email})?`);
+  if (!confirmed) return;
+
+  const headers = this.getAuthHeaders();
+  if (!headers) return;
+
+  this.showToast("info", "Sending password reset email...");
+
   try {
-    const admin = this.admins.find((a) => a._id === adminId);
-    if (!admin) {
-      this.showToast("error", "Admin not found");
-      return;
-    }
-
-    // Confirm action
-    if (!confirm(`Send password reset email to ${admin.name} (${admin.email})?`)) {
-      return;
-    }
-
-    const headers = this.getAuthHeaders();
-    if (!headers) return;
-
-    // Show loading toast
-    this.showToast("info", "Sending password reset email...");
-
     const response = await fetch(`${API_BASE}/admin/send-password-reset`, {
       method: "POST",
       headers,
-      body: JSON.stringify({ adminId: adminId }),
+      body: JSON.stringify({ adminId }),
     });
 
     if (response.ok) {
-      const data = await response.json();
+      // Safely parse JSON or fallback if empty
+      let data = {};
+      try {
+        const text = await response.text();
+        data = text ? JSON.parse(text) : {};
+      } catch (err) {
+        console.warn("Non-JSON or empty response:", err);
+      }
+
       this.showToast("success", `Password reset email sent to ${admin.email}`);
-    } else if (response.status === 401 || response.status === 403) {
+    } else if ([401, 403].includes(response.status)) {
       this.handleAuthError("Session expired. Please log in again.");
     } else {
-      const errorData = await response.json();
-      throw new Error(errorData.error || "Failed to send password reset email");
+      let errorMessage = "Failed to send password reset email";
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.error || errorMessage;
+      } catch (err) {
+        console.warn("Failed to parse error response JSON:", err);
+      }
+      throw new Error(errorMessage);
     }
   } catch (error) {
     console.error("Password reset error:", error);
     this.showToast("error", error.message || "Failed to send password reset email");
   }
 }
+
 
 async handleLogin() {
   const email = document.getElementById("loginEmail").value;
