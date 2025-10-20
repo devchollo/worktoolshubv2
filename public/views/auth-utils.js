@@ -110,7 +110,7 @@ class AuthUtils {
   showUserInfo(containerId) {
     if (!this.user) return;
 
-    const adminRoles = ["Super Admin", "Admin", "Editor"];
+    const adminRoles = ["Super Admin", "Admin", "Editor", "Moderator"];
     const canAccessAdmin = adminRoles.includes(this.user.role);
 
     const container = document.getElementById(containerId);
@@ -152,10 +152,9 @@ class AuthUtils {
     }
   }
 
-  // Initialize authentication for a tool page (BLOCKING - redirects if unauthorized)
   async initToolAuth(toolName, toolDescription = null, options = {}) {
     const {
-      redirectIfUnauthorized = true, // ALWAYS BLOCK NOW - no more read-only mode
+      redirectIfUnauthorized = true, 
       showUserInfo = true,
       userInfoContainerId = "user-info",
       onAuthSuccess = null,
