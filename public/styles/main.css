@@ -866,7 +866,7 @@ input:focus-visible,
 
 .form-group label {
   font-weight: 600;
-  color: var(--text-primary);
+  color: #1e293b;
   margin-bottom: 0.5rem;
   font-size: 0.875rem;
 }

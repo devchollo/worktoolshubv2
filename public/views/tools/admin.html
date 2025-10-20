@@ -866,6 +866,10 @@
             <span>📊</span>
             <span>Statistics</span>
           </div>
+          <div class="nav-item" data-view="testimonials">
+            <span>⭐</span>
+            <span>Testimonials</span>
+          </div>
           <div class="nav-item" data-view="admins">
             <span>👥</span>
             <span>Users</span>
@@ -878,7 +882,7 @@
             class="user-avatar"
             id="userAvatar"
           />
-          <div class="user-info" style="margin-bottom: 1rem;">
+          <div class="user-info" style="margin-bottom: 1rem">
             <h4 id="userName">Total Users</h4>
             <p id="userRole">Administrator</p>
           </div>
@@ -1269,6 +1273,87 @@
               </div>
             </div>
           </div>
+
+          <!-- Testimonials View -->
+          <div class="view-section" id="testimonialsView">
+            <!-- Testimonials Stats -->
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-header">
+                  <div
+                    class="stat-icon"
+                    style="background: #dbeafe; color: #3b82f6"
+                  >
+                    💬
+                  </div>
+                </div>
+                <div class="stat-value" id="totalTestimonials">0</div>
+                <div class="stat-label">Total Testimonials</div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-header">
+                  <div
+                    class="stat-icon"
+                    style="background: #fef3c7; color: #f59e0b"
+                  >
+                    ⭐
+                  </div>
+                </div>
+                <div class="stat-value" id="avgRating">0.0 ★</div>
+                <div class="stat-label">Average Rating</div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-header">
+                  <div
+                    class="stat-icon"
+                    style="background: #dcfce7; color: #22c55e"
+                  >
+                    🌟
+                  </div>
+                </div>
+                <div class="stat-value" id="fiveStars">0</div>
+                <div class="stat-label">5-Star Ratings</div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-header">
+                  <div
+                    class="stat-icon"
+                    style="background: #fee2e2; color: #ef4444"
+                  >
+                    ⚠️
+                  </div>
+                </div>
+                <div class="stat-value" id="belowFiveStars">0</div>
+                <div class="stat-label">Below 5 Stars</div>
+              </div>
+            </div>
+
+            <!-- Testimonials Table -->
+            <div class="section">
+              <div class="section-header">
+                <h2>Pending Testimonials</h2>
+              </div>
+              <div class="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Rating</th>
+                      <th>Message</th>
+                      <th>Date</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="testimonialList">
+                    <!-- Filled dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         </div>
       </main>
     </div>
@@ -1534,7 +1619,7 @@
       </div>
     </div>
 
-  <script>
+    <script>
       const API_BASE = "https://worktoolshubv2.onrender.com/api";
 
       class AdminDashboard {
@@ -1556,11 +1641,11 @@
           this.checkAuth();
           this.bindEvents();
         }
-        
+
         openProfileModal() {
           this.openAdminModal(this.user);
         }
-        
+
         getAuthToken() {
           return localStorage.getItem("adminToken");
         }
@@ -1594,191 +1679,162 @@
 
         // ============ AUTHENTICATION ============
         async checkAuth() {
-  const token = localStorage.getItem("adminToken");
+          const token = localStorage.getItem("adminToken");
 
-  if (!token) {
-    this.showLogin();
-    return;
-  }
+          if (!token) {
+            this.showLogin();
+            return;
+          }
 
-  try {
-    const response = await fetch(`${API_BASE}/admin/verify`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token }),
-    });
+          try {
+            const response = await fetch(`${API_BASE}/admin/verify`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ token }),
+            });
 
-    if (response.ok) {
-      const data = await response.json();
-      this.user = data.user;
+            if (response.ok) {
+              const data = await response.json();
+              this.user = data.user;
 
-      // UPDATED: Block only "User" role, allow all others
-      const blockedRoles = ["User"];
-      if (this.user.role && blockedRoles.includes(this.user.role.trim())) {
-        console.log("Access denied for role:", this.user.role);
-        this.clearAuth();
-        this.showLogin();
-        this.showError("Access denied: Admin privileges required");
-        throw new Error("Unauthorized role");
-      }
+              // UPDATED: Block only "User" role, allow all others
+              const blockedRoles = ["User"];
+              if (
+                this.user.role &&
+                blockedRoles.includes(this.user.role.trim())
+              ) {
+                console.log("Access denied for role:", this.user.role);
+                this.clearAuth();
+                this.showLogin();
+                this.showError("Access denied: Admin privileges required");
+                throw new Error("Unauthorized role");
+              }
 
-      this.showDashboard();
-    } else {
-      this.clearAuth();
-      this.showLogin();
-    }
-  } catch (error) {
-    console.error("Auth verification error:", error);
-    this.clearAuth();
-    this.showLogin();
-  }
-}
-        
+              this.showDashboard();
+            } else {
+              this.clearAuth();
+              this.showLogin();
+            }
+          } catch (error) {
+            console.error("Auth verification error:", error);
+            this.clearAuth();
+            this.showLogin();
+          }
+        }
 
-// async sendPasswordReset(adminId) {
-//   try {
-//     const admin = this.admins.find((a) => a._id === adminId);
-//     if (!admin) {
-//       this.showToast("error", "Admin not found");
-//       return;
-//     }
+        async sendPasswordReset(adminId) {
+          const admin = this.admins.find((a) => a._id === adminId);
+          if (!admin) {
+            this.showToast("error", "Admin not found");
+            return;
+          }
 
-//     // Confirm action
-//     if (!confirm(`Send password reset email to ${admin.name} (${admin.email})?`)) {
-//       return;
-//     }
+          const confirmed = confirm(
+            `Send password reset email to ${admin.name} (${admin.email})?`
+          );
+          if (!confirmed) return;
 
-//     const headers = this.getAuthHeaders();
-//     if (!headers) return;
+          const headers = this.getAuthHeaders();
+          if (!headers) return;
 
-//     // Show loading toast
-//     this.showToast("info", "Sending password reset email...");
+          this.showToast("info", "Sending password reset email...");
 
-//     const response = await fetch(`${API_BASE}/admin/send-password-reset`, {
-//       method: "POST",
-//       headers,
-//       body: JSON.stringify({ adminId: adminId }),
-//     });
+          try {
+            const response = await fetch(
+              `${API_BASE}/admin/send-password-reset`,
+              {
+                method: "POST",
+                headers,
+                body: JSON.stringify({ adminId }),
+              }
+            );
 
-//     if (response.ok) {
-//       const data = await response.json();
-//       this.showToast("success", `Password reset email sent to ${admin.email}`);
-//     } else if (response.status === 401 || response.status === 403) {
-//       this.handleAuthError("Session expired. Please log in again.");
-//     } else {
-//       const errorData = await response.json();
-//       throw new Error(errorData.error || "Failed to send password reset email");
-//     }
-//   } catch (error) {
-//     console.error("Password reset error:", error);
-//     this.showToast("error", error.message || "Failed to send password reset email");
-//   }
-// }
+            if (response.ok) {
+              // Safely parse JSON or fallback if empty
+              let data = {};
+              try {
+                const text = await response.text();
+                data = text ? JSON.parse(text) : {};
+              } catch (err) {
+                console.warn("Non-JSON or empty response:", err);
+              }
 
-async sendPasswordReset(adminId) {
-  const admin = this.admins.find((a) => a._id === adminId);
-  if (!admin) {
-    this.showToast("error", "Admin not found");
-    return;
-  }
+              this.showToast(
+                "success",
+                `Password reset email sent to ${admin.email}`
+              );
+            } else if ([401, 403].includes(response.status)) {
+              this.handleAuthError("Session expired. Please log in again.");
+            } else {
+              let errorMessage = "Failed to send password reset email";
+              try {
+                const errorData = await response.json();
+                errorMessage = errorData.error || errorMessage;
+              } catch (err) {
+                console.warn("Failed to parse error response JSON:", err);
+              }
+              throw new Error(errorMessage);
+            }
+          } catch (error) {
+            console.error("Password reset error:", error);
+            this.showToast(
+              "error",
+              error.message || "Failed to send password reset email"
+            );
+          }
+        }
 
-  const confirmed = confirm(`Send password reset email to ${admin.name} (${admin.email})?`);
-  if (!confirmed) return;
+        async handleLogin() {
+          const email = document.getElementById("loginEmail").value;
+          const password = document.getElementById("loginPassword").value;
 
-  const headers = this.getAuthHeaders();
-  if (!headers) return;
+          const loginBtn = document.getElementById("loginBtn");
+          const loginBtnText = document.getElementById("loginBtnText");
+          const loginSpinner = document.getElementById("loginSpinner");
+          const loginCard = document.querySelector(".login-card");
 
-  this.showToast("info", "Sending password reset email...");
+          loginBtn.disabled = true;
+          loginBtnText.textContent = "Signing in...";
+          loginSpinner.style.display = "inline-block";
+          loginCard.classList.add("loading");
 
-  try {
-    const response = await fetch(`${API_BASE}/admin/send-password-reset`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({ adminId }),
-    });
+          try {
+            const response = await fetch(`${API_BASE}/admin/panel-login`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email, password }),
+            });
 
-    if (response.ok) {
-      // Safely parse JSON or fallback if empty
-      let data = {};
-      try {
-        const text = await response.text();
-        data = text ? JSON.parse(text) : {};
-      } catch (err) {
-        console.warn("Non-JSON or empty response:", err);
-      }
+            const data = await response.json();
 
-      this.showToast("success", `Password reset email sent to ${admin.email}`);
-    } else if ([401, 403].includes(response.status)) {
-      this.handleAuthError("Session expired. Please log in again.");
-    } else {
-      let errorMessage = "Failed to send password reset email";
-      try {
-        const errorData = await response.json();
-        errorMessage = errorData.error || errorMessage;
-      } catch (err) {
-        console.warn("Failed to parse error response JSON:", err);
-      }
-      throw new Error(errorMessage);
-    }
-  } catch (error) {
-    console.error("Password reset error:", error);
-    this.showToast("error", error.message || "Failed to send password reset email");
-  }
-}
+            if (response.ok) {
+              localStorage.setItem("adminToken", data.token);
+              localStorage.setItem("adminUser", JSON.stringify(data.user));
+              this.user = data.user;
 
-
-async handleLogin() {
-  const email = document.getElementById("loginEmail").value;
-  const password = document.getElementById("loginPassword").value;
-
-  const loginBtn = document.getElementById("loginBtn");
-  const loginBtnText = document.getElementById("loginBtnText");
-  const loginSpinner = document.getElementById("loginSpinner");
-  const loginCard = document.querySelector(".login-card");
-
-  loginBtn.disabled = true;
-  loginBtnText.textContent = "Signing in...";
-  loginSpinner.style.display = "inline-block";
-  loginCard.classList.add("loading");
-
-  try {
-    const response = await fetch(`${API_BASE}/admin/panel-login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      localStorage.setItem("adminToken", data.token);
-      localStorage.setItem("adminUser", JSON.stringify(data.user));
-      this.user = data.user;
-
-      loginBtnText.textContent = "Success!";
-      setTimeout(() => {
-        this.showDashboard();
-      }, 500);
-    } else {
-      this.showError(data.error || "Invalid credentials");
-    }
-  } catch (error) {
-    console.error("Login error:", error);
-    this.showError("Login failed. Please try again.");
-  } finally {
-    setTimeout(() => {
-      if (
-        document.getElementById("loginPage").style.display !== "none"
-      ) {
-        loginBtn.disabled = false;
-        loginBtnText.textContent = "Sign In";
-        loginSpinner.style.display = "none";
-        loginCard.classList.remove("loading");
-      }
-    }, 1000);
-  }
-}
-
+              loginBtnText.textContent = "Success!";
+              setTimeout(() => {
+                this.showDashboard();
+              }, 500);
+            } else {
+              this.showError(data.error || "Invalid credentials");
+            }
+          } catch (error) {
+            console.error("Login error:", error);
+            this.showError("Login failed. Please try again.");
+          } finally {
+            setTimeout(() => {
+              if (
+                document.getElementById("loginPage").style.display !== "none"
+              ) {
+                loginBtn.disabled = false;
+                loginBtnText.textContent = "Sign In";
+                loginSpinner.style.display = "none";
+                loginCard.classList.remove("loading");
+              }
+            }, 1000);
+          }
+        }
 
         async handleLogout() {
           try {
@@ -1857,6 +1913,8 @@ async handleLogin() {
             this.loadAdmins();
           } else if (view === "suggestions") {
             this.loadSuggestions();
+          } else if (view === "testimonials") {
+            this.loadTestimonials();
           }
         }
 
@@ -1941,7 +1999,7 @@ async handleLogin() {
               }
             );
             this.articles = await response.json();
-            this.filteredArticles = [...this.articles]; 
+            this.filteredArticles = [...this.articles];
             this.renderArticles();
             this.updateArticleStats();
           } catch (error) {
@@ -1956,13 +2014,16 @@ async handleLogin() {
             if (!headers) return;
 
             const cacheBuster = `?_=${Date.now()}`;
-            const response = await fetch(`${API_BASE}/admin/list${cacheBuster}`, {
-              headers: {
-                ...headers,
-                'Cache-Control': 'no-cache',
-                'Pragma': 'no-cache'
+            const response = await fetch(
+              `${API_BASE}/admin/list${cacheBuster}`,
+              {
+                headers: {
+                  ...headers,
+                  "Cache-Control": "no-cache",
+                  Pragma: "no-cache",
+                },
               }
-            });
+            );
 
             if (response.ok) {
               const data = await response.json();
@@ -1983,7 +2044,7 @@ async handleLogin() {
             this.showToast("error", "Failed to load admins");
           }
         }
-        
+
         async loadAdminStats() {
           try {
             const headers = this.getAuthHeaders();
@@ -2014,7 +2075,7 @@ async handleLogin() {
             console.error("Failed to load admin stats:", error);
           }
         }
-        
+
         async loadStats() {
           this.updateStatsView();
           this.renderTopArticles();
@@ -2147,7 +2208,7 @@ async handleLogin() {
             this.showToast("error", error.message || "Failed to save article");
           }
         }
-        
+
         async editArticle(id) {
           const article = this.articles.find((a) => a._id === id);
           if (article) this.openArticleModal(article);
@@ -2189,10 +2250,10 @@ async handleLogin() {
         }
 
         renderAdmins() {
-  const tbody = document.getElementById("adminsTableBody");
-  tbody.innerHTML = this.admins
-    .map(
-      (admin) => `
+          const tbody = document.getElementById("adminsTableBody");
+          tbody.innerHTML = this.admins
+            .map(
+              (admin) => `
         <tr>
             <td>
                 <div style="display: flex; align-items: center; gap: 0.75rem;">
@@ -2231,104 +2292,105 @@ async handleLogin() {
             </td>
         </tr>
     `
-    )
-    .join("");
-}
-       
-
-async saveAdmin() {
-  const id = document.getElementById("adminId").value;
-  const isCurrentUser = id === this.user.id;
-
-  const name = document.getElementById("adminName").value.trim();
-  const email = document.getElementById("adminEmail").value.trim();
-  const role = document.getElementById("adminRole").value;
-  const password = document.getElementById("adminPassword").value;
-
-  if (!name || !email || !role) {
-    this.showToast("error", "Please fill in all required fields");
-    return;
-  }
-
-  const data = {
-    name,
-    email,
-    role,
-    department: document.getElementById("adminDepartment").value.trim(),
-    phone: document.getElementById("adminPhone").value.trim(),
-    avatar: document.getElementById("adminAvatar").value.trim(),
-  };
-
-  if (id) {
-    data.id = id;
-  }
-
-  // Only include password if it's provided (for edits)
-  if (id && password) {
-    data.password = password;
-  }
-
-  if (id && !isCurrentUser) {
-    data.isActive =
-      document.getElementById("adminStatus").value === "true";
-  }
-
-  try {
-    const headers = this.getAuthHeaders();
-    if (!headers) return;
-
-    let url, method;
-    if (id) {
-      url = `${API_BASE}/admin/edit`;
-      method = "PUT";
-    } else {
-      url = `${API_BASE}/admin/register`;
-      method = "POST";
-    }
-
-    const response = await fetch(url, {
-      method,
-      headers,
-      body: JSON.stringify(data),
-    });
-
-    if (response.ok) {
-      const responseData = await response.json();
-
-      if (isCurrentUser) {
-        this.user = { ...this.user, ...responseData.admin };
-        localStorage.setItem("adminUser", JSON.stringify(this.user));
-
-        document.getElementById("userName").textContent = this.user.name;
-        document.getElementById("userRole").textContent = this.user.role;
-        if (this.user.avatar || this.user.avatarUrl) {
-          document.getElementById("userAvatar").src =
-            this.user.avatar || this.user.avatarUrl;
+            )
+            .join("");
         }
-      }
 
-      this.showToast(
-        "success",
-        `User ${id ? "updated" : "created"} successfully${!id ? ". Setup email sent." : ""}`
-      );
+        async saveAdmin() {
+          const id = document.getElementById("adminId").value;
+          const isCurrentUser = id === this.user.id;
 
-      this.closeAdminModal();
-      await this.loadAdmins();
+          const name = document.getElementById("adminName").value.trim();
+          const email = document.getElementById("adminEmail").value.trim();
+          const role = document.getElementById("adminRole").value;
+          const password = document.getElementById("adminPassword").value;
 
-    } else if (response.status === 401 || response.status === 403) {
-      this.handleAuthError("Session expired. Please log in again.");
-    } else {
-      const errorData = await response.json();
-      throw new Error(
-        errorData.error || errorData.message || "Failed to save user"
-      );
-    }
-  } catch (error) {
-    console.error("Save error:", error);
-    this.showToast("error", error.message || "Failed to save user");
-  }
-}
-        
+          if (!name || !email || !role) {
+            this.showToast("error", "Please fill in all required fields");
+            return;
+          }
+
+          const data = {
+            name,
+            email,
+            role,
+            department: document.getElementById("adminDepartment").value.trim(),
+            phone: document.getElementById("adminPhone").value.trim(),
+            avatar: document.getElementById("adminAvatar").value.trim(),
+          };
+
+          if (id) {
+            data.id = id;
+          }
+
+          // Only include password if it's provided (for edits)
+          if (id && password) {
+            data.password = password;
+          }
+
+          if (id && !isCurrentUser) {
+            data.isActive =
+              document.getElementById("adminStatus").value === "true";
+          }
+
+          try {
+            const headers = this.getAuthHeaders();
+            if (!headers) return;
+
+            let url, method;
+            if (id) {
+              url = `${API_BASE}/admin/edit`;
+              method = "PUT";
+            } else {
+              url = `${API_BASE}/admin/register`;
+              method = "POST";
+            }
+
+            const response = await fetch(url, {
+              method,
+              headers,
+              body: JSON.stringify(data),
+            });
+
+            if (response.ok) {
+              const responseData = await response.json();
+
+              if (isCurrentUser) {
+                this.user = { ...this.user, ...responseData.admin };
+                localStorage.setItem("adminUser", JSON.stringify(this.user));
+
+                document.getElementById("userName").textContent =
+                  this.user.name;
+                document.getElementById("userRole").textContent =
+                  this.user.role;
+                if (this.user.avatar || this.user.avatarUrl) {
+                  document.getElementById("userAvatar").src =
+                    this.user.avatar || this.user.avatarUrl;
+                }
+              }
+
+              this.showToast(
+                "success",
+                `User ${id ? "updated" : "created"} successfully${
+                  !id ? ". Setup email sent." : ""
+                }`
+              );
+
+              this.closeAdminModal();
+              await this.loadAdmins();
+            } else if (response.status === 401 || response.status === 403) {
+              this.handleAuthError("Session expired. Please log in again.");
+            } else {
+              const errorData = await response.json();
+              throw new Error(
+                errorData.error || errorData.message || "Failed to save user"
+              );
+            }
+          } catch (error) {
+            console.error("Save error:", error);
+            this.showToast("error", error.message || "Failed to save user");
+          }
+        }
 
         async editAdmin(id) {
           const admin = this.admins.find((a) => a._id === id);
@@ -2356,10 +2418,9 @@ async saveAdmin() {
 
             if (response.ok) {
               this.showToast("success", "User deleted successfully");
-              
+
               // Force fresh reload from server
               await this.loadAdmins();
-
             } else if (response.status === 401 || response.status === 403) {
               this.handleAuthError("Session expired. Please log in again.");
             } else {
@@ -2371,7 +2432,7 @@ async saveAdmin() {
             this.showToast("error", error.message || "Failed to delete admin");
           }
         }
-        
+
         // ============ MODAL MANAGEMENT ============
         openArticleModal(article = null) {
           this.currentArticle = article;
@@ -2412,7 +2473,7 @@ async saveAdmin() {
           this.renderTags();
           modal.classList.add("active");
         }
-        
+
         closeArticleModal() {
           document.getElementById("articleModal").classList.remove("active");
           this.tags = [];
@@ -2420,52 +2481,51 @@ async saveAdmin() {
         }
 
         openAdminModal(admin = null) {
-  this.currentAdmin = admin;
-  const isCurrentUser = admin && admin.id === this.user.id;
+          this.currentAdmin = admin;
+          const isCurrentUser = admin && admin.id === this.user.id;
 
-  const modal = document.getElementById("adminModal");
-  const form = document.getElementById("adminForm");
-  const passwordField = document.getElementById("adminPassword");
-  const statusGroup = document.getElementById("adminStatusGroup");
+          const modal = document.getElementById("adminModal");
+          const form = document.getElementById("adminForm");
+          const passwordField = document.getElementById("adminPassword");
+          const statusGroup = document.getElementById("adminStatusGroup");
 
-  if (admin) {
-    document.getElementById("adminModalTitle").textContent =
-      isCurrentUser ? "Edit My Profile" : "Edit User";
-    document.getElementById("adminId").value =
-      admin.id || admin._id || "";
-    document.getElementById("adminName").value = admin.name || "";
-    document.getElementById("adminEmail").value = admin.email || "";
-    passwordField.value = "";
-    passwordField.placeholder = "Leave empty to keep current password";
-    passwordField.required = false;
-    passwordField.closest(".form-group").style.display = "block";
-    document.getElementById("adminRole").value = admin.role || "";
-    document.getElementById("adminDepartment").value =
-      admin.department || "";
-    document.getElementById("adminPhone").value = admin.phone || "";
-    document.getElementById("adminAvatar").value =
-      admin.avatar || admin.avatarUrl || "";
+          if (admin) {
+            document.getElementById("adminModalTitle").textContent =
+              isCurrentUser ? "Edit My Profile" : "Edit User";
+            document.getElementById("adminId").value =
+              admin.id || admin._id || "";
+            document.getElementById("adminName").value = admin.name || "";
+            document.getElementById("adminEmail").value = admin.email || "";
+            passwordField.value = "";
+            passwordField.placeholder = "Leave empty to keep current password";
+            passwordField.required = false;
+            passwordField.closest(".form-group").style.display = "block";
+            document.getElementById("adminRole").value = admin.role || "";
+            document.getElementById("adminDepartment").value =
+              admin.department || "";
+            document.getElementById("adminPhone").value = admin.phone || "";
+            document.getElementById("adminAvatar").value =
+              admin.avatar || admin.avatarUrl || "";
 
-    if (isCurrentUser) {
-      statusGroup.style.display = "none";
-    } else {
-      document.getElementById("adminStatus").value = admin.isActive
-        ? "true"
-        : "false";
-      statusGroup.style.display = "block";
-    }
-  } else {
-    document.getElementById("adminModalTitle").textContent = "New User";
-    form.reset();
-    document.getElementById("adminId").value = "";
-    // HIDE password field for new users (they'll get setup email)
-    passwordField.closest(".form-group").style.display = "none";
-    statusGroup.style.display = "none";
-  }
+            if (isCurrentUser) {
+              statusGroup.style.display = "none";
+            } else {
+              document.getElementById("adminStatus").value = admin.isActive
+                ? "true"
+                : "false";
+              statusGroup.style.display = "block";
+            }
+          } else {
+            document.getElementById("adminModalTitle").textContent = "New User";
+            form.reset();
+            document.getElementById("adminId").value = "";
+            // HIDE password field for new users (they'll get setup email)
+            passwordField.closest(".form-group").style.display = "none";
+            statusGroup.style.display = "none";
+          }
 
-  modal.classList.add("active");
-}
-
+          modal.classList.add("active");
+        }
 
         closeAdminModal() {
           document.getElementById("adminModal").classList.remove("active");
@@ -2573,7 +2633,7 @@ async saveAdmin() {
 
         filterArticles(searchTerm) {
           if (!searchTerm.trim()) {
-            this.filteredArticles= [...this.articles];
+            this.filteredArticles = [...this.articles];
           } else {
             const term = searchTerm.toLowerCase();
             this.filteredArticles = this.articles.filter(
@@ -2912,6 +2972,124 @@ async saveAdmin() {
           const words = content.trim().split(/\s+/).length;
           const minutes = Math.ceil(words / wordsPerMinute);
           return `${minutes} min read`;
+        }
+
+        // ======== TESTIMONIALS MANAGEMENT ========
+
+        async loadTestimonials() {
+          try {
+            const headers = this.getAuthHeaders();
+            if (!headers) return;
+
+            // Fetch pending testimonials for review
+            const pendingRes = await fetch(
+              `${API_BASE}/testimonials/admin/pending`,
+              { headers }
+            );
+            const pendingData = await pendingRes.json();
+
+            // Fetch overall testimonials + stats
+            const statsRes = await fetch(`${API_BASE}/testimonials`);
+            const statsData = await statsRes.json();
+
+            this.renderTestimonials(pendingData.testimonials || []);
+            this.renderTestimonialStats(
+              statsData.stats,
+              statsData.testimonials
+            );
+          } catch (error) {
+            console.error("Failed to load testimonials:", error);
+            this.showToast("error", "Failed to load testimonials");
+          }
+        }
+
+        renderTestimonials(testimonials) {
+          const tbody = document.getElementById("testimonialList");
+          if (!tbody) return;
+
+          if (testimonials.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">No pending testimonials</td></tr>`;
+            return;
+          }
+
+          tbody.innerHTML = testimonials
+            .map(
+              (t) => `
+        <tr>
+          <td>${t.name}</td>
+          <td>${t.rating} ★</td>
+          <td>${
+            t.message.length > 60 ? t.message.slice(0, 60) + "..." : t.message
+          }</td>
+          <td>${new Date(t.createdAt).toLocaleDateString()}</td>
+          <td>
+            <button class="btn-secondary" onclick="adminDashboard.approveTestimonial('${
+              t._id
+            }')">Approve</button>
+            <button class="btn-danger" onclick="adminDashboard.rejectTestimonial('${
+              t._id
+            }')">Reject</button>
+          </td>
+        </tr>`
+            )
+            .join("");
+        }
+
+        async approveTestimonial(id) {
+          try {
+            const headers = this.getAuthHeaders();
+            if (!headers) return;
+
+            const response = await fetch(
+              `${API_BASE}/testimonials/admin/${id}/approve`,
+              {
+                method: "PATCH",
+                headers,
+                body: JSON.stringify({ featured: false }),
+              }
+            );
+
+            if (response.ok) {
+              this.showToast("success", "Testimonial approved!");
+              this.loadTestimonials();
+            } else {
+              const err = await response.json();
+              this.showToast("error", err.error || "Approval failed");
+            }
+          } catch (error) {
+            console.error("Approve error:", error);
+            this.showToast("error", "Failed to approve testimonial");
+          }
+        }
+
+        async rejectTestimonial(id) {
+          // Soft reject: keep in DB but remove from pending table
+          this.showToast("info", "Testimonial rejected (kept in DB)");
+          const row = document
+            .querySelector(
+              `button[onclick="adminDashboard.rejectTestimonial('${id}')"]`
+            )
+            ?.closest("tr");
+          if (row) row.remove();
+        }
+
+        renderTestimonialStats(stats, testimonials) {
+          if (!stats) return;
+          document.getElementById("totalTestimonials").textContent =
+            stats.totalCount || 0;
+          document.getElementById("avgRating").textContent = `${
+            stats.averageRating || 0
+          } ★`;
+
+          const fiveStars = (testimonials || []).filter(
+            (t) => t.rating === 5
+          ).length;
+          const belowFive = (testimonials || []).filter(
+            (t) => t.rating < 5
+          ).length;
+
+          document.getElementById("fiveStars").textContent = fiveStars;
+          document.getElementById("belowFiveStars").textContent = belowFive;
         }
 
         showToast(type, message) {
