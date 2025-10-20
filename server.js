@@ -61,7 +61,7 @@ app.use(
       "https://www.worktoolshub.info",
       "https://wthv2.vercel.app",
     ],
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: [
       "Content-Type",
       "Authorization",
