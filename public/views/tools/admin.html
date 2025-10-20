@@ -2966,100 +2966,140 @@
 
         // ============ AUTHENTICATION ============
         async checkAuth() {
-          const token = localStorage.getItem("adminToken");
+  const token = localStorage.getItem("adminToken");
 
-          if (!token) {
-            this.showLogin();
-            return;
-          }
+  if (!token) {
+    this.showLogin();
+    return;
+  }
 
-          try {
-            const response = await fetch(`${API_BASE}/admin/verify`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ token }),
-            });
+  try {
+    const response = await fetch(`${API_BASE}/admin/verify`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token }),
+    });
 
-            if (response.ok) {
-              const data = await response.json();
-              this.user = data.user;
+    if (response.ok) {
+      const data = await response.json();
+      this.user = data.user;
 
-              const allowedRoles = ["Super Admin", "Admin", "Editor"];
-              if (
-                !this.user.role ||
-                !allowedRoles.includes(this.user.role.trim())
-              ) {
-                console.log("Access denied for role:", this.user.role);
-                this.clearAuth();
-                this.showLogin();
-                this.showError("Access denied: Admin privileges required");
-                throw new Error("Unauthorized role");
-              }
+      // UPDATED: Block only "User" role, allow all others
+      const blockedRoles = ["User"];
+      if (this.user.role && blockedRoles.includes(this.user.role.trim())) {
+        console.log("Access denied for role:", this.user.role);
+        this.clearAuth();
+        this.showLogin();
+        this.showError("Access denied: Admin privileges required");
+        throw new Error("Unauthorized role");
+      }
 
-              this.showDashboard();
-            } else {
-              this.clearAuth();
-              this.showLogin();
-            }
-          } catch (error) {
-            console.error("Auth verification error:", error);
-            this.clearAuth();
-            this.showLogin();
-          }
-        }
-
-        async handleLogin() {
-          const email = document.getElementById("loginEmail").value;
-          const password = document.getElementById("loginPassword").value;
-
-          const loginBtn = document.getElementById("loginBtn");
-          const loginBtnText = document.getElementById("loginBtnText");
-          const loginSpinner = document.getElementById("loginSpinner");
-          const loginCard = document.querySelector(".login-card");
-
-          loginBtn.disabled = true;
-          loginBtnText.textContent = "Signing in...";
-          loginSpinner.style.display = "inline-block";
-          loginCard.classList.add("loading");
-
-          try {
-            const response = await fetch(`${API_BASE}/admin/panel-login`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ email, password }),
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-              localStorage.setItem("adminToken", data.token);
-              localStorage.setItem("adminUser", JSON.stringify(data.user));
-              this.user = data.user;
-
-              loginBtnText.textContent = "Success!";
-              setTimeout(() => {
-                this.showDashboard();
-              }, 500);
-            } else {
-              this.showError(data.error || "Invalid credentials");
-            }
-          } catch (error) {
-            console.error("Login error:", error);
-            this.showError("Login failed. Please try again.");
-          } finally {
-            setTimeout(() => {
-              if (
-                document.getElementById("loginPage").style.display !== "none"
-              ) {
-                loginBtn.disabled = false;
-                loginBtnText.textContent = "Sign In";
-                loginSpinner.style.display = "none";
-                loginCard.classList.remove("loading");
-              }
-            }, 1000);
-          }
-        }
+      this.showDashboard();
+    } else {
+      this.clearAuth();
+      this.showLogin();
+    }
+  } catch (error) {
+    console.error("Auth verification error:", error);
+    this.clearAuth();
+    this.showLogin();
+  }
+}
         
+
+async sendPasswordReset(adminId) {
+  try {
+    const admin = this.admins.find((a) => a._id === adminId);
+    if (!admin) {
+      this.showToast("error", "Admin not found");
+      return;
+    }
+
+    // Confirm action
+    if (!confirm(`Send password reset email to ${admin.name} (${admin.email})?`)) {
+      return;
+    }
+
+    const headers = this.getAuthHeaders();
+    if (!headers) return;
+
+    // Show loading toast
+    this.showToast("info", "Sending password reset email...");
+
+    const response = await fetch(`${API_BASE}/admin/send-password-reset`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ adminId: adminId }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      this.showToast("success", `Password reset email sent to ${admin.email}`);
+    } else if (response.status === 401 || response.status === 403) {
+      this.handleAuthError("Session expired. Please log in again.");
+    } else {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to send password reset email");
+    }
+  } catch (error) {
+    console.error("Password reset error:", error);
+    this.showToast("error", error.message || "Failed to send password reset email");
+  }
+}
+
+async handleLogin() {
+  const email = document.getElementById("loginEmail").value;
+  const password = document.getElementById("loginPassword").value;
+
+  const loginBtn = document.getElementById("loginBtn");
+  const loginBtnText = document.getElementById("loginBtnText");
+  const loginSpinner = document.getElementById("loginSpinner");
+  const loginCard = document.querySelector(".login-card");
+
+  loginBtn.disabled = true;
+  loginBtnText.textContent = "Signing in...";
+  loginSpinner.style.display = "inline-block";
+  loginCard.classList.add("loading");
+
+  try {
+    const response = await fetch(`${API_BASE}/admin/panel-login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      localStorage.setItem("adminToken", data.token);
+      localStorage.setItem("adminUser", JSON.stringify(data.user));
+      this.user = data.user;
+
+      loginBtnText.textContent = "Success!";
+      setTimeout(() => {
+        this.showDashboard();
+      }, 500);
+    } else {
+      this.showError(data.error || "Invalid credentials");
+    }
+  } catch (error) {
+    console.error("Login error:", error);
+    this.showError("Login failed. Please try again.");
+  } finally {
+    setTimeout(() => {
+      if (
+        document.getElementById("loginPage").style.display !== "none"
+      ) {
+        loginBtn.disabled = false;
+        loginBtnText.textContent = "Sign In";
+        loginSpinner.style.display = "none";
+        loginCard.classList.remove("loading");
+      }
+    }, 1000);
+  }
+}
+
+
         async handleLogout() {
           try {
             const token = localStorage.getItem("adminToken");
@@ -3468,144 +3508,148 @@
           }
         }
 
-        // ============ ADMIN MANAGEMENT (REFACTORED) ============
         renderAdmins() {
-          const tbody = document.getElementById("adminsTableBody");
-          tbody.innerHTML = this.admins
-            .map(
-              (admin) => `
-                <tr>
-                    <td>
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <img src="${
-                              admin.avatar ||
-                              admin.avatarUrl ||
-                              "https://via.placeholder.com/32"
-                            }" alt="${admin.name}" 
-                                 style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
-                            <strong>${admin.name}</strong>
-                        </div>
-                    </td>
-                    <td>${admin.email}</td>
-                    <td><span class="role-badge">${admin.role}</span></td>
-                    <td><span class="status-badge ${
-                      admin.isActive ? "active" : "inactive"
-                    }">${admin.isActive ? "Active" : "Inactive"}</span></td>
-                    <td>${
-                      admin.lastLogin
-                        ? new Date(admin.lastLogin).toLocaleDateString()
-                        : "Never"
-                    }</td>
-                    <td>
-                        <div class="action-buttons">
-                            <button class="btn-icon btn-edit" onclick="adminDashboard.editAdmin('${
-                              admin._id
-                            }')">✏️</button>
-                            <button class="btn-icon btn-delete" onclick="adminDashboard.deleteAdmin('${
-                              admin._id
-                            }')">🗑️</button>
-                        </div>
-                    </td>
-                </tr>
-            `
-            )
-            .join("");
+  const tbody = document.getElementById("adminsTableBody");
+  tbody.innerHTML = this.admins
+    .map(
+      (admin) => `
+        <tr>
+            <td>
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <img src="${
+                      admin.avatar ||
+                      admin.avatarUrl ||
+                      "https://via.placeholder.com/32"
+                    }" alt="${admin.name}" 
+                         style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
+                    <strong>${admin.name}</strong>
+                </div>
+            </td>
+            <td>${admin.email}</td>
+            <td><span class="role-badge">${admin.role}</span></td>
+            <td><span class="status-badge ${
+              admin.isActive ? "active" : "inactive"
+            }">${admin.isActive ? "Active" : "Inactive"}</span></td>
+            <td>${
+              admin.lastLogin
+                ? new Date(admin.lastLogin).toLocaleDateString()
+                : "Never"
+            }</td>
+            <td>
+                <div class="action-buttons">
+                    <button class="btn-icon btn-edit" onclick="adminDashboard.editAdmin('${
+                      admin._id
+                    }')" title="Edit User">✏️</button>
+                    <button class="btn-icon" onclick="adminDashboard.sendPasswordReset('${
+                      admin._id
+                    }')" 
+                            style="background: #f59e0b; color: white;" title="Send Password Reset">🔑</button>
+                    <button class="btn-icon btn-delete" onclick="adminDashboard.deleteAdmin('${
+                      admin._id
+                    }')" title="Delete User">🗑️</button>
+                </div>
+            </td>
+        </tr>
+    `
+    )
+    .join("");
+}
+       
+
+async saveAdmin() {
+  const id = document.getElementById("adminId").value;
+  const isCurrentUser = id === this.user.id;
+
+  const name = document.getElementById("adminName").value.trim();
+  const email = document.getElementById("adminEmail").value.trim();
+  const role = document.getElementById("adminRole").value;
+  const password = document.getElementById("adminPassword").value;
+
+  if (!name || !email || !role) {
+    this.showToast("error", "Please fill in all required fields");
+    return;
+  }
+
+  const data = {
+    name,
+    email,
+    role,
+    department: document.getElementById("adminDepartment").value.trim(),
+    phone: document.getElementById("adminPhone").value.trim(),
+    avatar: document.getElementById("adminAvatar").value.trim(),
+  };
+
+  if (id) {
+    data.id = id;
+  }
+
+  // Only include password if it's provided (for edits)
+  if (id && password) {
+    data.password = password;
+  }
+
+  if (id && !isCurrentUser) {
+    data.isActive =
+      document.getElementById("adminStatus").value === "true";
+  }
+
+  try {
+    const headers = this.getAuthHeaders();
+    if (!headers) return;
+
+    let url, method;
+    if (id) {
+      url = `${API_BASE}/admin/edit`;
+      method = "PUT";
+    } else {
+      url = `${API_BASE}/admin/register`;
+      method = "POST";
+    }
+
+    const response = await fetch(url, {
+      method,
+      headers,
+      body: JSON.stringify(data),
+    });
+
+    if (response.ok) {
+      const responseData = await response.json();
+
+      if (isCurrentUser) {
+        this.user = { ...this.user, ...responseData.admin };
+        localStorage.setItem("adminUser", JSON.stringify(this.user));
+
+        document.getElementById("userName").textContent = this.user.name;
+        document.getElementById("userRole").textContent = this.user.role;
+        if (this.user.avatar || this.user.avatarUrl) {
+          document.getElementById("userAvatar").src =
+            this.user.avatar || this.user.avatarUrl;
         }
+      }
 
-        async saveAdmin() {
-          const id = document.getElementById("adminId").value;
-          const isCurrentUser = id === this.user.id;
+      this.showToast(
+        "success",
+        `User ${id ? "updated" : "created"} successfully${!id ? ". Setup email sent." : ""}`
+      );
 
-          const name = document.getElementById("adminName").value.trim();
-          const email = document.getElementById("adminEmail").value.trim();
-          const role = document.getElementById("adminRole").value;
-          const password = document.getElementById("adminPassword").value;
+      this.closeAdminModal();
+      await this.loadAdmins();
 
-          if (!name || !email || !role) {
-            this.showToast("error", "Please fill in all required fields");
-            return;
-          }
-
-          const data = {
-            name,
-            email,
-            role,
-            department: document.getElementById("adminDepartment").value.trim(),
-            phone: document.getElementById("adminPhone").value.trim(),
-            avatar: document.getElementById("adminAvatar").value.trim(),
-          };
-
-          if (id) {
-            data.id = id;
-          }
-
-          if (!id || password) {
-            data.password = password;
-          }
-
-          if (id && !isCurrentUser) {
-            data.isActive =
-              document.getElementById("adminStatus").value === "true";
-          }
-
-          try {
-            const headers = this.getAuthHeaders();
-            if (!headers) return;
-
-            let url, method;
-            if (id) {
-              url = `${API_BASE}/admin/edit`;
-              method = "PUT";
-            } else {
-              url = `${API_BASE}/admin/register`;
-              method = "POST";
-            }
-
-            const response = await fetch(url, {
-              method,
-              headers,
-              body: JSON.stringify(data),
-            });
-
-            if (response.ok) {
-              const responseData = await response.json();
-              
-              if (isCurrentUser) {
-                this.user = { ...this.user, ...responseData.admin };
-                localStorage.setItem("adminUser", JSON.stringify(this.user));
-
-                document.getElementById("userName").textContent = this.user.name;
-                document.getElementById("userRole").textContent = this.user.role;
-                if (this.user.avatar || this.user.avatarUrl) {
-                  document.getElementById("userAvatar").src =
-                    this.user.avatar || this.user.avatarUrl;
-                }
-              }
-
-              this.showToast(
-                "success",
-                `User ${id ? "updated" : "created"} successfully`
-              );
-              
-              this.closeAdminModal();
-
-              // Force fresh reload from server
-              await this.loadAdmins();
-
-            } else if (response.status === 401 || response.status === 403) {
-              this.handleAuthError("Session expired. Please log in again.");
-            } else {
-              const errorData = await response.json();
-              throw new Error(
-                errorData.error || errorData.message || "Failed to save user"
-              );
-            }
-          } catch (error) {
-            console.error("Save error:", error);
-            this.showToast("error", error.message || "Failed to save user");
-          }
-        }
+    } else if (response.status === 401 || response.status === 403) {
+      this.handleAuthError("Session expired. Please log in again.");
+    } else {
+      const errorData = await response.json();
+      throw new Error(
+        errorData.error || errorData.message || "Failed to save user"
+      );
+    }
+  } catch (error) {
+    console.error("Save error:", error);
+    this.showToast("error", error.message || "Failed to save user");
+  }
+}
         
+
         async editAdmin(id) {
           const admin = this.admins.find((a) => a._id === id);
           if (admin) this.openAdminModal(admin);
@@ -3696,50 +3740,53 @@
         }
 
         openAdminModal(admin = null) {
-          this.currentAdmin = admin;
-          const isCurrentUser = admin && admin.id === this.user.id;
+  this.currentAdmin = admin;
+  const isCurrentUser = admin && admin.id === this.user.id;
 
-          const modal = document.getElementById("adminModal");
-          const form = document.getElementById("adminForm");
-          const passwordField = document.getElementById("adminPassword");
-          const statusGroup = document.getElementById("adminStatusGroup");
+  const modal = document.getElementById("adminModal");
+  const form = document.getElementById("adminForm");
+  const passwordField = document.getElementById("adminPassword");
+  const statusGroup = document.getElementById("adminStatusGroup");
 
-          if (admin) {
-            document.getElementById("adminModalTitle").textContent =
-              isCurrentUser ? "Edit My Profile" : "Edit User";
-            document.getElementById("adminId").value =
-              admin.id || admin._id || "";
-            document.getElementById("adminName").value = admin.name || "";
-            document.getElementById("adminEmail").value = admin.email || "";
-            passwordField.value = "";
-            passwordField.placeholder = "Leave empty to keep current password";
-            passwordField.required = false;
-            document.getElementById("adminRole").value = admin.role || "";
-            document.getElementById("adminDepartment").value =
-              admin.department || "";
-            document.getElementById("adminPhone").value = admin.phone || "";
-            document.getElementById("adminAvatar").value =
-              admin.avatar || admin.avatarUrl || "";
+  if (admin) {
+    document.getElementById("adminModalTitle").textContent =
+      isCurrentUser ? "Edit My Profile" : "Edit User";
+    document.getElementById("adminId").value =
+      admin.id || admin._id || "";
+    document.getElementById("adminName").value = admin.name || "";
+    document.getElementById("adminEmail").value = admin.email || "";
+    passwordField.value = "";
+    passwordField.placeholder = "Leave empty to keep current password";
+    passwordField.required = false;
+    passwordField.closest(".form-group").style.display = "block";
+    document.getElementById("adminRole").value = admin.role || "";
+    document.getElementById("adminDepartment").value =
+      admin.department || "";
+    document.getElementById("adminPhone").value = admin.phone || "";
+    document.getElementById("adminAvatar").value =
+      admin.avatar || admin.avatarUrl || "";
 
-            if (isCurrentUser) {
-              statusGroup.style.display = "none";
-            } else {
-              document.getElementById("adminStatus").value = admin.isActive
-                ? "true"
-                : "false";
-              statusGroup.style.display = "block";
-            }
-          } else {
-            document.getElementById("adminModalTitle").textContent = "New User";
-            form.reset();
-            document.getElementById("adminId").value = "";
-            passwordField.closest(".form-group").style.display = "none";
-            statusGroup.style.display = "none";
-          }
+    if (isCurrentUser) {
+      statusGroup.style.display = "none";
+    } else {
+      document.getElementById("adminStatus").value = admin.isActive
+        ? "true"
+        : "false";
+      statusGroup.style.display = "block";
+    }
+  } else {
+    document.getElementById("adminModalTitle").textContent = "New User";
+    form.reset();
+    document.getElementById("adminId").value = "";
+    // HIDE password field for new users (they'll get setup email)
+    passwordField.closest(".form-group").style.display = "none";
+    statusGroup.style.display = "none";
+  }
 
-          modal.classList.add("active");
-        }
-        
+  modal.classList.add("active");
+}
+
+
         closeAdminModal() {
           document.getElementById("adminModal").classList.remove("active");
           this.currentAdmin = null;

@@ -445,6 +445,88 @@ app.post("/api/admin/setup-password", authLimiter, async (req, res) => {
   }
 });
 
+// Send password reset email
+app.post("/api/admin/send-password-reset", authenticateAdmin, async (req, res) => {
+  try {
+    const { adminId } = req.body;
+
+    if (!adminId) {
+      return res.status(400).json({ error: "Admin ID is required" });
+    }
+
+    const targetAdmin = await Admin.findById(adminId);
+    if (!targetAdmin) {
+      return res.status(404).json({ error: "Admin not found" });
+    }
+
+    // Role hierarchy check
+    const roleHierarchy = {
+      "Super Admin": 4,
+      "Admin": 3,
+      "Editor": 2,
+      "Moderator": 2,
+      "User": 1,
+    };
+
+    const currentUserLevel = roleHierarchy[req.admin.role] || 0;
+    const targetUserLevel = roleHierarchy[targetAdmin.role] || 0;
+
+    // Prevent lower-level users from resetting higher-level users' passwords
+    if (currentUserLevel < targetUserLevel) {
+      return res.status(403).json({
+        error: "Insufficient privileges to reset this user's password",
+      });
+    }
+
+    // Generate new setup token
+    const setupToken = crypto.randomBytes(32).toString('hex');
+    
+    targetAdmin.passwordSetupToken = setupToken;
+    targetAdmin.passwordSetupExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
+    targetAdmin.isPasswordSet = false;
+
+    await targetAdmin.save();
+
+    // Send setup email
+    try {
+      await sendAccountSetupEmail(
+        targetAdmin.email,
+        targetAdmin.name,
+        setupToken,
+        targetAdmin.role
+      );
+      
+      console.log(`Password reset email sent to ${targetAdmin.email}`);
+      
+      res.json({
+        message: "Password reset email sent successfully",
+        email: targetAdmin.email,
+      });
+    } catch (emailError) {
+      console.error('Failed to send password reset email:', emailError);
+      
+      // Rollback the token changes if email fails
+      targetAdmin.passwordSetupToken = null;
+      targetAdmin.passwordSetupExpires = null;
+      await targetAdmin.save();
+      
+      return res.status(500).json({
+        error: "Failed to send password reset email",
+        details: emailError.message
+      });
+    }
+
+  } catch (error) {
+    console.error("Password reset error:", error);
+    
+    if (error.name === "CastError") {
+      return res.status(400).json({ error: "Invalid admin ID" });
+    }
+    
+    res.status(500).json({ error: "Failed to send password reset email" });
+  }
+});
+
 app.post("/api/admin/panel-login", authLimiter, async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -478,11 +560,12 @@ app.post("/api/admin/panel-login", authLimiter, async (req, res) => {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
-    // BLOCK USERS HERE - only for admin panel
+    // UPDATED: Block only "User" role from admin panel
     const allowedRoles = ["Super Admin", "Admin", "Moderator", "Editor"];
     if (!allowedRoles.includes(admin.role)) {
       return res.status(403).json({
         error: "Access denied: Admin privileges required",
+        message: "User accounts cannot access the admin panel"
       });
     }
 
@@ -753,17 +836,6 @@ app.put("/api/admin/edit", authenticateAdmin, async (req, res) => {
       }
     }
 
-    // Update fields if provided
-    // if (name) admin.name = name;
-    // if (email) admin.email = email.toLowerCase();
-    // if (avatar) admin.avatar = avatar;
-    // if (role && !isEditingSelf) admin.role = role; // Only allow role change by others
-    // if (typeof isActive === "boolean" && !isEditingSelf)
-    //   admin.isActive = isActive;
-    // if (department !== undefined) admin.department = department;
-    // if (phone !== undefined) admin.phone = phone;
-    // if (permissions) admin.permissions = permissions;
-
     const allowedSelfFields = ['name', 'avatar', 'department', 'phone', 'permissions'];
     const allowedAdminFields = [...allowedSelfFields, 'role', 'isActive', 'email'];
     const fieldsToUse = isEditingSelf ? allowedSelfFields : allowedAdminFields;
@@ -862,42 +934,6 @@ app.delete("/api/admin/delete", authenticateAdmin, async (req, res) => {
   }
 });
 
-// List all admins
-// app.get("/api/admin/list", authenticateAdmin, async (req, res) => {
-//   try {
-//     const { page = 1, limit = 10, role, isActive, search } = req.query;
-
-//     // Build filter
-//     const filter = {};
-//     if (role) filter.role = role;
-//     if (isActive !== undefined) filter.isActive = isActive === "true";
-//     if (search) {
-//       filter.$or = [
-//         { name: { $regex: search, $options: "i" } },
-//         { email: { $regex: search, $options: "i" } },
-//         { department: { $regex: search, $options: "i" } },
-//       ];
-//     }
-
-//     const admins = await Admin.find(filter)
-//       .sort({ createdAt: -1 })
-//       .limit(limit * 1)
-//       .skip((page - 1) * limit)
-//       .exec();
-
-//     const total = await Admin.countDocuments(filter);
-
-//     res.json({
-//       admins,
-//       total,
-//       page: parseInt(page),
-//       pages: Math.ceil(total / limit),
-//     });
-//   } catch (error) {
-//     console.error("Admin list error:", error);
-//     res.status(500).json({ error: "Failed to fetch admins" });
-//   }
-// });
 
 app.get("/api/admin/list", authenticateAdmin, async (req, res) => {
   try {
