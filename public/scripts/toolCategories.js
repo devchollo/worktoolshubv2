@@ -92,9 +92,11 @@ export const toolCategories = {
         path: "/tools/file-uploader",
         internal: true,
       },
-      { name: "PDF Tools", path: "/error.html?status=coming-soon", pending: true },
-      { name: "File Converter", path: "/error.html?status=coming-soon", pending: true },
-      { name: "Batch Processor", path: "/error.html?status=coming-soon", pending: true },
+       {
+      name: "PDF Combiner",
+      path: "/tools/pdf-combiner",
+      internal: true,
+    },
     ],
   },
   "business-tools": {
@@ -116,7 +118,6 @@ export const toolCategories = {
       {
         name: "DNS Propagation Checker",
         path: "/tools/dns-checker",
-        internal: true,
       },
       { name: "Random Password Generator", path: "/tools/random-pass-gen"},
       {
@@ -124,6 +125,11 @@ export const toolCategories = {
         path: "/tools/file-uploader",
         internal: true,
       },
+       {
+      name: "PDF Combiner",
+      path: "/tools/pdf-combiner",
+      internal: true,
+    },
     ],
   },
   "design-tools": {
