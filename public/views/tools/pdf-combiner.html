@@ -903,7 +903,7 @@
               console.error('Combine error:', error);
               this.showStatus(`Failed to combine PDFs: ${error.message}`, 'error');
             } finally {
-              this.combineBtn.classList.remove('loading');
+              this.combineBtn.classList.remove('loadingv2');
               this.combineBtn.disabled = false;
             }
           }
