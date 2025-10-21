@@ -429,20 +429,20 @@
 
     <script src="../scripts/layout.js"></script>
     <script type="module" src="../scripts/main.js" defer></script>
-    <script src="/auth-utils.js"></script>
+    <!-- <script src="/auth-utils.js"></script> -->
     <script src="../scripts/footer.js"></script>
 
     <script>
       document.addEventListener("DOMContentLoaded", async () => {
-        const toolName = "dns-propagation-checker";
-        const result = await authUtils.initToolAuth(
-          toolName,
-          "Check DNS propagation",
-          {
-            showUserInfo: true,
-            userInfoContainerId: "user-info",
-          }
-        );
+        // const toolName = "dns-propagation-checker";
+        // const result = await authUtils.initToolAuth(
+        //   toolName,
+        //   "Check DNS propagation",
+        //   {
+        //     showUserInfo: true,
+        //     userInfoContainerId: "user-info",
+        //   }
+        // );
 
         if (result.success) {
           initializeTool();
