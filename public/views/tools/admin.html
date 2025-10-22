@@ -1915,6 +1915,8 @@
             articles: "Articles Management",
             stats: "Statistics & Analytics",
             admins: "User Management",
+            testimonials: "Testimonials Management",  
+  suggestions: "Edit Suggestions" 
           };
           document.getElementById("pageTitle").textContent =
             titles[view] || view;
@@ -3037,55 +3039,71 @@
           }</td>
           <td>${new Date(t.createdAt).toLocaleDateString()}</td>
           <td>
-            <button class="btn-secondary" onclick="adminDashboard.approveTestimonial('${
-              t._id
-            }')">Approve</button>
-            <button class="btn-danger" onclick="adminDashboard.rejectTestimonial('${
-              t._id
-            }')">Reject</button>
-          </td>
+  <div style="display: flex; gap: 0.5rem; align-items: center;">
+    <label style="font-size: 0.875rem;">
+      <input type="checkbox" id="featured-${t._id}"> Featured
+    </label>
+    <button class="btn-secondary" onclick="adminDashboard.approveTestimonial('${t._id}')">Approve</button>
+    <button class="btn-danger" onclick="adminDashboard.rejectTestimonial('${t._id}')">Reject</button>
+  </div>
+</td>
         </tr>`
             )
             .join("");
         }
 
         async approveTestimonial(id) {
-          try {
-            const headers = this.getAuthHeaders();
-            if (!headers) return;
+  try {
+    const headers = this.getAuthHeaders();
+    if (!headers) return;
+    
+    // Check if user wants to feature it
+    const featuredCheckbox = document.getElementById(`featured-${id}`);
+    const featured = featuredCheckbox ? featuredCheckbox.checked : false;
 
-            const response = await fetch(
-              `${API_BASE}/testimonials/admin/${id}/approve`,
-              {
-                method: "PATCH",
-                headers,
-                body: JSON.stringify({ featured: false }),
-              }
-            );
+    const response = await fetch(`${API_BASE}/testimonials/admin/${id}/approve`, {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify({ featured })
+    });
 
-            if (response.ok) {
-              this.showToast("success", "Testimonial approved!");
-              this.loadTestimonials();
-            } else {
-              const err = await response.json();
-              this.showToast("error", err.error || "Approval failed");
-            }
-          } catch (error) {
-            console.error("Approve error:", error);
-            this.showToast("error", "Failed to approve testimonial");
-          }
-        }
+    if (response.ok) {
+      this.showToast('success', `Testimonial approved${featured ? ' and featured' : ''}!`);
+      this.loadTestimonials();
+    } else {
+      const err = await response.json();
+      this.showToast('error', err.error || 'Approval failed');
+    }
+  } catch (error) {
+    console.error('Approve error:', error);
+    this.showToast('error', 'Failed to approve testimonial');
+  }
+}
 
         async rejectTestimonial(id) {
-          // Soft reject: keep in DB but remove from pending table
-          this.showToast("info", "Testimonial rejected (kept in DB)");
-          const row = document
-            .querySelector(
-              `button[onclick="adminDashboard.rejectTestimonial('${id}')"]`
-            )
-            ?.closest("tr");
-          if (row) row.remove();
-        }
+  if (!confirm('Are you sure you want to delete this testimonial?')) return;
+  
+  try {
+    const headers = this.getAuthHeaders();
+    if (!headers) return;
+
+    const response = await fetch(`${API_BASE}/testimonials/admin/${id}`, {
+      method: 'DELETE',
+      headers
+    });
+
+    if (response.ok) {
+      this.showToast('success', 'Testimonial deleted');
+      this.loadTestimonials();
+    } else {
+      const err = await response.json();
+      this.showToast('error', err.error || 'Delete failed');
+    }
+  } catch (error) {
+    console.error('Delete error:', error);
+    this.showToast('error', 'Failed to delete testimonial');
+  }
+}
 
         renderTestimonialStats(stats, testimonials) {
           if (!stats) return;
