@@ -28,6 +28,7 @@ const dnsRoutes = require('./routes/dnsRoutes');
 const contactRoutes = require("./routes/contactRoutes");
 const testimonialRoutes = require("./routes/testimonialRoutes");
 const pdfRoutes = require('./routes/pdfRoutes');
+const metaRoutes = require('./routes/metaRoutes');
 
 // Import Admin model
 const Admin = require("./models/Admin");
@@ -264,6 +265,7 @@ app.use('/api/dns', dnsRoutes);
 app.use("/api/contact", generalLimiter, contactRoutes);
 app.use("/api/testimonials", testimonialRoutes);
 app.use("/api", pdfRoutes);
+app.use('/api/meta', metaRoutes);
 
 
 // Test MongoDB connection
