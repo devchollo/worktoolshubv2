@@ -22,7 +22,6 @@ export const toolCategories = {
       {
         name: "Meta Tag Generator",
         path: "/tools/meta-tag-generator",
-        pending: true,
       },
       {
         name: "Blog Post Outlines",
