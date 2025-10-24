@@ -117,7 +117,7 @@ export const toolCategories = {
       {
         name: "DNS Propagation Checker",
         path: "/tools/dns-checker",
-        internal: true,
+        internal: false,
       },
       { name: "Random Password Generator", path: "/tools/random-pass-gen"},
       {

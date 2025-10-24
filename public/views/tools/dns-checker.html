@@ -434,19 +434,7 @@
 
     <script>
       document.addEventListener("DOMContentLoaded", async () => {
-        const toolName = "dns-propagation-checker";
-        const result = await authUtils.initToolAuth(
-          toolName,
-          "Check DNS propagation",
-          {
-            showUserInfo: true,
-            userInfoContainerId: "user-info",
-          }
-        );
-
-        if (result.success) {
-          initializeTool();
-        }
+        initializeTool();
       });
 
       function initializeTool() {
