@@ -1126,6 +1126,255 @@ app.get("/robots.txt", (req, res) => {
   res.redirect(301, "/api/robots.txt");
 });
 
+
+router.post('/generate-description', async (req, res) => {
+  try {
+    const { pageDescription, keywords, pageTitle } = req.body;
+
+    // Validate required fields
+    if (!pageDescription || !pageDescription.trim()) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        message: 'Page description is required'
+      });
+    }
+
+    if (!keywords || !keywords.trim()) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        message: 'Target keywords are required'
+      });
+    }
+
+    // Sanitize inputs
+    const sanitizedData = Validator.sanitizeData({
+      pageDescription,
+      keywords,
+      pageTitle: pageTitle || ''
+    });
+
+    // Validate input lengths
+    if (sanitizedData.pageDescription.length > 2000) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        message: 'Page description is too long (max 2000 characters)'
+      });
+    }
+
+    if (sanitizedData.keywords.length > 500) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        message: 'Keywords list is too long (max 500 characters)'
+      });
+    }
+
+    console.log('🤖 Generating meta description with AI...');
+
+    // Generate description using AI
+    const description = await metaService.generateMetaDescription(
+      sanitizedData.pageDescription,
+      sanitizedData.keywords,
+      sanitizedData.pageTitle
+    );
+
+    console.log(`✅ Generated meta description: ${description.length} characters`);
+
+    res.json({
+      success: true,
+      description: description,
+      characterCount: description.length,
+      isOptimal: description.length >= 150 && description.length <= 160
+    });
+
+  } catch (error) {
+    console.error('Meta description generation error:', error);
+
+    if (error.message.includes('OpenAI API error')) {
+      return res.status(502).json({
+        error: 'AI service unavailable',
+        message: 'The AI service is temporarily unavailable. Please try again later.'
+      });
+    }
+
+    if (error.message.includes('API key')) {
+      return res.status(503).json({
+        error: 'Service unavailable',
+        message: 'Meta description generation service is not configured.'
+      });
+    }
+
+    res.status(500).json({
+      error: 'Generation failed',
+      message: 'Failed to generate meta description. Please try again.'
+    });
+  }
+});
+
+// POST /api/meta/validate - Validate meta tags
+router.post('/validate', async (req, res) => {
+  try {
+    const { pageTitle, metaDescription, keywords, imageUrl } = req.body;
+    
+    const validation = {
+      isValid: true,
+      warnings: [],
+      errors: [],
+      suggestions: []
+    };
+
+    // Validate title
+    if (pageTitle) {
+      const titleLength = pageTitle.length;
+      
+      if (titleLength < 30) {
+        validation.warnings.push('Title is too short (minimum 30 characters recommended)');
+        validation.isValid = false;
+      } else if (titleLength > 60) {
+        validation.warnings.push('Title is too long (60 characters recommended for optimal display)');
+      }
+
+      if (!keywords || !keywords.split(',').some(keyword => 
+        pageTitle.toLowerCase().includes(keyword.trim().toLowerCase())
+      )) {
+        validation.suggestions.push('Consider including your primary keyword in the title');
+      }
+    } else {
+      validation.errors.push('Page title is required');
+      validation.isValid = false;
+    }
+
+    // Validate meta description
+    if (metaDescription) {
+      const descLength = metaDescription.length;
+      
+      if (descLength < 120) {
+        validation.warnings.push('Meta description is too short (minimum 120 characters recommended)');
+      } else if (descLength > 160) {
+        validation.errors.push('Meta description exceeds 160 characters and will be truncated');
+        validation.isValid = false;
+      }
+
+      if (keywords) {
+        const keywordList = keywords.split(',').map(k => k.trim().toLowerCase());
+        const hasKeyword = keywordList.some(keyword => 
+          metaDescription.toLowerCase().includes(keyword)
+        );
+        
+        if (!hasKeyword) {
+          validation.suggestions.push('Include at least one target keyword in the meta description');
+        }
+      }
+    } else {
+      validation.errors.push('Meta description is required');
+      validation.isValid = false;
+    }
+
+    // Validate image URL
+    if (imageUrl) {
+      try {
+        new URL(imageUrl);
+        
+        // Check if it's HTTPS
+        if (!imageUrl.startsWith('https://')) {
+          validation.warnings.push('Image URL should use HTTPS for better security');
+        }
+      } catch (error) {
+        validation.errors.push('Invalid image URL format');
+        validation.isValid = false;
+      }
+    } else {
+      validation.suggestions.push('Adding an image improves social media sharing appearance');
+    }
+
+    // Validate keywords
+    if (keywords) {
+      const keywordCount = keywords.split(',').length;
+      
+      if (keywordCount < 3) {
+        validation.suggestions.push('Consider adding more target keywords (3-5 recommended)');
+      } else if (keywordCount > 10) {
+        validation.warnings.push('Too many keywords may dilute SEO focus (5-7 recommended)');
+      }
+    }
+
+    res.json({
+      success: true,
+      validation
+    });
+
+  } catch (error) {
+    console.error('Validation error:', error);
+    res.status(500).json({
+      error: 'Validation failed',
+      message: 'An error occurred during validation'
+    });
+  }
+});
+
+// GET /api/meta/best-practices - Get SEO best practices
+router.get('/best-practices', (req, res) => {
+  res.json({
+    success: true,
+    bestPractices: {
+      title: {
+        minLength: 30,
+        maxLength: 60,
+        optimal: '50-60 characters',
+        tips: [
+          'Include primary keyword near the beginning',
+          'Make it unique for each page',
+          'Include brand name if appropriate',
+          'Write for humans, not just search engines',
+          'Avoid keyword stuffing'
+        ]
+      },
+      metaDescription: {
+        minLength: 120,
+        maxLength: 160,
+        optimal: '150-160 characters',
+        tips: [
+          'Include primary and secondary keywords naturally',
+          'Write compelling copy that encourages clicks',
+          'Include a call-to-action',
+          'Accurately describe page content',
+          'Make it unique for each page'
+        ]
+      },
+      openGraph: {
+        imageSize: '1200x630px',
+        imageFormat: 'JPG or PNG',
+        tips: [
+          'Use high-quality images',
+          'Ensure text is readable in thumbnail size',
+          'Keep file size under 1MB',
+          'Use consistent branding',
+          'Test with Facebook Sharing Debugger'
+        ]
+      },
+      twitter: {
+        imageSize: '1200x600px',
+        imageFormat: 'JPG or PNG',
+        tips: [
+          'Use summary_large_image card type for best visibility',
+          'Ensure images look good in both mobile and desktop',
+          'Test with Twitter Card Validator',
+          'Keep descriptions concise',
+          'Use engaging visuals'
+        ]
+      },
+      general: [
+        'Use unique meta tags for every page',
+        'Keep important keywords at the beginning',
+        'Avoid duplicate content across pages',
+        'Update meta tags when page content changes',
+        'Monitor performance in Google Search Console',
+        'Test social media previews before publishing',
+        'Use structured data when appropriate'
+      ]
+    }
+  });
+});
+
 // Health check endpoint
 app.get("/api/health", async (req, res) => {
   const dbStatus =

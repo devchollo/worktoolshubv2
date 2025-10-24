@@ -20,8 +20,8 @@ export const toolCategories = {
       },
       { name: "Alt Text Generator", path: "/tools/alt-text", pending: true },
       {
-        name: "Meta Description Tool",
-        path: "/error.html?status=coming-soon",
+        name: "Meta Tag Generator",
+        path: "/tools/meta-tag-generator",
         pending: true,
       },
       {
