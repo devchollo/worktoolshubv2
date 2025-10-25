@@ -1331,11 +1331,11 @@ const server = app.listen(PORT, async () => {
     }
   }
 
-   setInterval(() => {
-     fetch("https://worktoolshubv2.onrender.com")
-       .then(() => console.log("Pinged self to stay awake 🟢"))
-       .catch((err) => console.error("Ping failed:", err));
-   }, 30 * 1000);
+   // setInterval(() => {
+   //   fetch("https://worktoolshubv2.onrender.com")
+   //     .then(() => console.log("Pinged self to stay awake 🟢"))
+   //     .catch((err) => console.error("Ping failed:", err));
+   // }, 30 * 1000);
 
 
 });
