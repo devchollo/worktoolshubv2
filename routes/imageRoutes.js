@@ -59,7 +59,7 @@ class ImageGenerationService {
           sampleCount: Math.min(numImages, 4),
           aspectRatio: aspectRatio,
           negativePrompt: "blurry, low quality, distorted, ugly",
-          safetySetting: "block_some",
+          safetySetting: "block_low_and_above",
           personGeneration: "allow_adult"
         }
       };
