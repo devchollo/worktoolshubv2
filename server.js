@@ -29,6 +29,7 @@ const contactRoutes = require("./routes/contactRoutes");
 const testimonialRoutes = require("./routes/testimonialRoutes");
 const pdfRoutes = require('./routes/pdfRoutes');
 const metaRoutes = require('./routes/metaRoutes');
+const imageRoutes = require('./routes/imageRoutes');
 
 // Import Admin model
 const Admin = require("./models/Admin");
@@ -266,7 +267,7 @@ app.use("/api/contact", generalLimiter, contactRoutes);
 app.use("/api/testimonials", testimonialRoutes);
 app.use("/api", pdfRoutes);
 app.use('/api/meta', metaRoutes);
-
+app.use('/api/images', imageRoutes);
 
 // Test MongoDB connection
 app.get("/api/test-db", async (req, res) => {

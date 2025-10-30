@@ -139,9 +139,8 @@ export const toolCategories = {
     color: "#ec4899",
     tools: [
       {
-        name: "Logo Placeholder",
-        path: "/error.html?status=coming-soon",
-        pending: true,
+        name: "AI Image Generator - Create Logos and Images for Free",
+        path: "/tools/ai-image-generator",
       },
       { name: "Color Palette", path: "/error.html?status=coming-soon", pending: true },
       { name: "Icon Generator", path: "/error.html?status=coming-soon", pending: true },
