@@ -639,6 +639,7 @@
 
             this.selectedStyle = 'photorealistic';
             this.selectedSize = '1024x1024';
+            this.currentPrompt = ''; // Store current prompt for upscaling
             this.history = this.loadHistory();
 
             this.init();
@@ -702,7 +703,7 @@
               return;
             }
 
-            
+            this.currentPrompt = prompt; // Store for upscaling
             this.generateBtn.disabled = true;
             this.showStatus('Generating your images... This may take 10-30 seconds', 'info');
 
@@ -728,14 +729,13 @@
               const result = await response.json();
               
               this.displayImages(result.images, prompt);
-              this.saveToHistory(result.images, prompt);
+              this.saveToHistory(prompt);
               this.showStatus(`Successfully generated ${result.images.length} image(s)!`, 'success');
 
             } catch (error) {
               console.error('Generation error:', error);
               this.showStatus(`Failed to generate images: ${error.message}`, 'error');
             } finally {
-              
               this.generateBtn.disabled = false;
             }
           }
@@ -762,7 +762,7 @@
                   <button class="action-btn download-btn" data-url="${this.escapeHtml(imageData.url)}" data-prompt="${this.escapeHtml(prompt)}">
                     💾 Download
                   </button>
-                  <button class="action-btn upscale-btn" data-url="${this.escapeHtml(imageData.url)}">
+                  <button class="action-btn upscale-btn" data-prompt="${this.escapeHtml(prompt)}" data-style="${this.escapeHtml(this.selectedStyle)}">
                     🔍 Upscale
                   </button>
                 </div>
@@ -775,7 +775,9 @@
 
               // Upscale button
               card.querySelector('.upscale-btn').addEventListener('click', (e) => {
-                this.upscaleImage(e.currentTarget.dataset.url);
+                const prompt = e.currentTarget.dataset.prompt;
+                const style = e.currentTarget.dataset.style;
+                this.upscaleImage(prompt, style);
               });
 
               this.generatedImages.appendChild(card);
@@ -803,8 +805,8 @@
             }
           }
 
-          async upscaleImage(url) {
-            this.showStatus('Upscaling image... This may take a moment', 'info');
+          async upscaleImage(prompt, style) {
+            this.showStatus('Upscaling image (regenerating at higher quality)... This may take 10-30 seconds', 'info');
             
             try {
               const response = await fetch('https://worktoolshubv2.onrender.com/api/images/upscale', {
@@ -812,43 +814,66 @@
                 headers: {
                   'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ imageUrl: url }),
+                body: JSON.stringify({ 
+                  prompt: prompt,
+                  style: style
+                }),
               });
 
               if (!response.ok) {
-                throw new Error('Upscaling failed');
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Upscaling failed');
               }
 
               const result = await response.json();
               
               // Open upscaled image in new tab
-              window.open(result.upscaledUrl, '_blank');
-              this.showStatus('Image upscaled successfully!', 'success');
+              const newWindow = window.open('', '_blank');
+              newWindow.document.write(`
+                <html>
+                  <head><title>Upscaled Image</title></head>
+                  <body style="margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#000;">
+                    <img src="${result.upscaledUrl}" style="max-width:100%;max-height:100vh;" />
+                  </body>
+                </html>
+              `);
+              
+              this.showStatus('Image upscaled successfully! Opening in new tab...', 'success');
 
             } catch (error) {
               console.error('Upscale error:', error);
-              this.showStatus('Upscaling feature coming soon!', 'info');
+              this.showStatus(`Upscale failed: ${error.message}`, 'error');
             }
           }
 
-          saveToHistory(images, prompt) {
+          saveToHistory(prompt) {
+            // Only store prompts, not images (to save space)
             const historyItem = {
-              images: images,
               prompt: prompt,
-              timestamp: Date.now(),
               style: this.selectedStyle,
-              size: this.selectedSize
+              size: this.selectedSize,
+              timestamp: Date.now()
             };
 
             this.history.unshift(historyItem);
             
-            // Keep only last 20 items
-            if (this.history.length > 20) {
-              this.history = this.history.slice(0, 20);
+            // Keep only last 10 items
+            if (this.history.length > 10) {
+              this.history = this.history.slice(0, 10);
             }
 
-            localStorage.setItem('ai_image_history', JSON.stringify(this.history));
-            this.renderHistory();
+            try {
+              localStorage.setItem('ai_image_history', JSON.stringify(this.history));
+            } catch (e) {
+              console.warn('History storage full, clearing old items');
+              localStorage.removeItem('ai_image_history');
+              this.history = [historyItem];
+              try {
+                localStorage.setItem('ai_image_history', JSON.stringify(this.history));
+              } catch (e2) {
+                console.error('Could not save history');
+              }
+            }
           }
 
           loadHistory() {
@@ -871,16 +896,31 @@
             this.historyGrid.innerHTML = '';
 
             this.history.slice(0, 12).forEach((item) => {
-              const firstImage = item.images[0];
-              
               const historyItem = document.createElement('div');
               historyItem.className = 'history-item';
+              historyItem.style.cssText = 'cursor:pointer;padding:1rem;background:var(--surface-color);border-radius:8px;border:1px solid var(--border-color);';
               historyItem.innerHTML = `
-                <img src="${this.escapeHtml(firstImage.url)}" alt="${this.escapeHtml(item.prompt)}" />
+                <div style="font-size:0.875rem;color:var(--text-primary);margin-bottom:0.5rem;">
+                  ${this.escapeHtml(item.prompt.substring(0, 50))}${item.prompt.length > 50 ? '...' : ''}
+                </div>
+                <div style="font-size:0.75rem;color:var(--text-secondary);">
+                  ${item.style} • ${item.size}
+                </div>
               `;
 
               historyItem.addEventListener('click', () => {
-                this.displayImages(item.images, item.prompt);
+                this.promptInput.value = item.prompt;
+                this.selectedStyle = item.style;
+                this.selectedSize = item.size;
+                
+                // Update UI selections
+                document.querySelectorAll('.style-option').forEach(o => {
+                  o.classList.toggle('selected', o.dataset.style === item.style);
+                });
+                document.querySelectorAll('.size-option').forEach(o => {
+                  o.classList.toggle('selected', o.dataset.size === item.size);
+                });
+                
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               });
 
