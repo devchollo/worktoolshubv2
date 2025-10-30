@@ -6,31 +6,27 @@ const { Validator } = require('../utils/validation');
 class ImageGenerationService {
   constructor() {
     this.apiKey = process.env.GEMINI_API_KEY;
-    this.model = 'imagen-3.0-generate-001';
+    // Use Imagen 4.0 (better quality) or fallback to 3.0
+    this.model = 'imagen-4.0-generate-preview-06-06'; // or 'imagen-3.0-generate-002'
     this.baseUrl = `https://generativelanguage.googleapis.com/v1beta/models/${this.model}:predict`;
   }
 
   sanitizePrompt(prompt) {
     if (!prompt) return '';
-    
     let cleaned = String(prompt).trim();
     cleaned = cleaned.replace(/ignore previous instructions/gi, '[filtered]');
     cleaned = cleaned.replace(/system:|assistant:|user:/gi, '[filtered]');
-    cleaned = cleaned.substring(0, 2000);
-    
-    return cleaned;
+    return cleaned.substring(0, 480); // Imagen has 480 token input limit
   }
 
   enhancePrompt(prompt, style) {
     const styleEnhancements = {
-      photorealistic: 'photorealistic, high detail, professional photography, 8k resolution, sharp focus',
-      artistic: 'artistic style, creative composition, vibrant colors, expressive, beautiful artwork',
-      minimalist: 'minimalist design, clean lines, simple composition, modern, elegant',
-      abstract: 'abstract art, geometric shapes, creative patterns, artistic expression, contemporary'
+      photorealistic: 'photorealistic, high detail, professional photography, sharp focus',
+      artistic: 'artistic style, creative composition, vibrant colors, expressive',
+      minimalist: 'minimalist design, clean lines, simple, modern, elegant',
+      abstract: 'abstract art, geometric shapes, creative patterns, contemporary'
     };
-
-    const enhancement = styleEnhancements[style] || styleEnhancements.photorealistic;
-    return `${prompt}, ${enhancement}`;
+    return `${prompt}, ${styleEnhancements[style] || styleEnhancements.photorealistic}`;
   }
 
   getAspectRatio(size) {
@@ -51,28 +47,24 @@ class ImageGenerationService {
     const enhancedPrompt = this.enhancePrompt(safePrompt, style);
     const aspectRatio = this.getAspectRatio(size);
 
-    console.log(`🎨 Generating ${numImages} image(s) with Gemini Imagen 3...`);
+    console.log(`🎨 Generating ${numImages} image(s) with Imagen...`);
     console.log(`📝 Prompt: ${enhancedPrompt.substring(0, 100)}...`);
-    console.log(`📐 Aspect Ratio: ${aspectRatio}`);
 
     try {
-      // Correct request body for Imagen 3
       const requestBody = {
-        instances: [
-          {
-            prompt: enhancedPrompt
-          }
-        ],
+        instances: [{
+          prompt: enhancedPrompt
+        }],
         parameters: {
           sampleCount: Math.min(numImages, 4),
           aspectRatio: aspectRatio,
-          negativePrompt: "blurry, low quality, distorted",
+          negativePrompt: "blurry, low quality, distorted, ugly",
           safetySetting: "block_some",
           personGeneration: "allow_adult"
         }
       };
 
-      console.log('📤 Sending request to Gemini Imagen API...');
+      console.log('📤 Sending request...');
 
       const response = await fetch(
         `${this.baseUrl}?key=${this.apiKey}`,
@@ -84,62 +76,31 @@ class ImageGenerationService {
       );
 
       const responseText = await response.text();
-      console.log(`📥 API Response Status: ${response.status}`);
+      console.log(`📥 Status: ${response.status}`);
 
       if (!response.ok) {
-        console.error('❌ API Error:', responseText.substring(0, 500));
-        
+        console.error('❌ Error:', responseText.substring(0, 300));
         let errorData;
         try {
           errorData = JSON.parse(responseText);
         } catch (e) {
           errorData = { message: responseText };
         }
-
-        const errorMessage = errorData.error?.message || 
-                           errorData.message || 
-                           `API error: ${response.status}`;
-        
-        throw new Error(errorMessage);
+        throw new Error(errorData.error?.message || `API error: ${response.status}`);
       }
 
-      let data;
-      try {
-        data = JSON.parse(responseText);
-      } catch (e) {
-        console.error('❌ Parse error:', responseText.substring(0, 200));
-        throw new Error('Invalid response from API');
-      }
+      const data = JSON.parse(responseText);
+      console.log('✅ Response received');
 
-      console.log('✅ Parsed response');
-      console.log('📊 Response structure:', Object.keys(data).join(', '));
-
-      // Parse Imagen 3 response - try multiple possible structures
+      // Parse Imagen response
       const images = [];
-
-      // Try predictions array
+      
       if (data.predictions && Array.isArray(data.predictions)) {
         for (const prediction of data.predictions) {
+          // Try different possible field names
           const imageData = prediction.bytesBase64Encoded || 
                           prediction.image || 
-                          prediction.mimeType?.data;
-          
-          if (imageData) {
-            images.push({
-              url: `data:image/png;base64,${imageData}`,
-              mimeType: prediction.mimeType?.mimeType || 'image/png',
-              index: images.length
-            });
-          }
-        }
-      }
-
-      // Try generatedImages array (alternative structure)
-      if (images.length === 0 && data.generatedImages && Array.isArray(data.generatedImages)) {
-        for (const img of data.generatedImages) {
-          const imageData = img.bytesBase64Encoded || 
-                          img.generatedImage || 
-                          img.image;
+                          prediction.generatedImage;
           
           if (imageData) {
             images.push({
@@ -152,24 +113,20 @@ class ImageGenerationService {
       }
 
       if (images.length === 0) {
-        console.error('❌ No images found. Response:', JSON.stringify(data).substring(0, 300));
-        throw new Error('No images were generated by the API');
+        console.error('❌ No images found in response');
+        throw new Error('No images generated');
       }
 
-      console.log(`✅ Successfully generated ${images.length} image(s)`);
+      console.log(`✅ Generated ${images.length} image(s)`);
       return images;
 
     } catch (error) {
-      console.error('❌ Generation error:', error.message);
-
-      if (error.message.includes('API key')) {
-        throw new Error('Invalid or missing API key');
-      } else if (error.message.includes('not found') || error.message.includes('not supported')) {
-        throw new Error('Imagen model is not available with your API key. You may need to request access or use a different API.');
-      } else if (error.message.includes('quota') || error.message.includes('RESOURCE_EXHAUSTED')) {
-        throw new Error('API quota exceeded. Please try again later.');
-      } else if (error.message.includes('safety') || error.message.includes('blocked')) {
-        throw new Error('Content blocked by safety filters. Please try a different prompt.');
+      console.error('❌ Error:', error.message);
+      
+      if (error.message.includes('quota')) {
+        throw new Error('API quota exceeded');
+      } else if (error.message.includes('safety')) {
+        throw new Error('Content blocked by safety filters');
       } else {
         throw new Error(`Generation failed: ${error.message}`);
       }
@@ -183,48 +140,29 @@ router.post('/generate', async (req, res) => {
   try {
     const { prompt, style = 'photorealistic', size = '1024x1024', numImages = 1 } = req.body;
 
-    console.log('📸 Image generation request received');
-
     if (!prompt || !prompt.trim()) {
-      return res.status(400).json({
-        error: 'Validation failed',
-        message: 'Prompt is required'
-      });
+      return res.status(400).json({ error: 'Prompt required' });
     }
 
     const sanitizedPrompt = Validator.sanitizeInput(prompt);
 
-    if (sanitizedPrompt.length < 3 || sanitizedPrompt.length > 2000) {
-      return res.status(400).json({
-        error: 'Validation failed',
-        message: 'Prompt must be between 3 and 2000 characters'
-      });
+    if (sanitizedPrompt.length < 3 || sanitizedPrompt.length > 480) {
+      return res.status(400).json({ error: 'Prompt must be 3-480 characters' });
     }
 
     const validStyles = ['photorealistic', 'artistic', 'minimalist', 'abstract'];
     if (!validStyles.includes(style)) {
-      return res.status(400).json({
-        error: 'Validation failed',
-        message: 'Invalid style'
-      });
+      return res.status(400).json({ error: 'Invalid style' });
     }
 
     const validSizes = ['1024x1024', '1024x1792', '1792x1024'];
     if (!validSizes.includes(size)) {
-      return res.status(400).json({
-        error: 'Validation failed',
-        message: 'Invalid size'
-      });
+      return res.status(400).json({ error: 'Invalid size' });
     }
 
     const safeNumImages = Math.min(Math.max(parseInt(numImages) || 1, 1), 4);
 
-    const images = await imageService.generateImages(
-      sanitizedPrompt,
-      style,
-      size,
-      safeNumImages
-    );
+    const images = await imageService.generateImages(sanitizedPrompt, style, size, safeNumImages);
 
     res.json({
       success: true,
@@ -238,60 +176,24 @@ router.post('/generate', async (req, res) => {
   } catch (error) {
     console.error('❌ Endpoint error:', error.message);
 
-    if (error.message.includes('not available with your API key')) {
-      return res.status(503).json({
-        error: 'Service unavailable',
-        message: 'Gemini Imagen API is not available. It may require special access or be in limited beta. Consider using an alternative image generation service.'
-      });
-    }
-
-    if (error.message.includes('API key')) {
-      return res.status(503).json({
-        error: 'Service unavailable',
-        message: 'Image generation service is not configured properly.'
-      });
-    }
-
     if (error.message.includes('quota')) {
-      return res.status(429).json({
-        error: 'Rate limit exceeded',
-        message: 'Too many requests. Please try again later.'
-      });
+      return res.status(429).json({ error: 'Rate limit exceeded', message: 'Too many requests' });
     }
 
-    if (error.message.includes('safety') || error.message.includes('blocked')) {
-      return res.status(400).json({
-        error: 'Content policy violation',
-        message: 'Your prompt was blocked. Please try a different prompt.'
-      });
+    if (error.message.includes('safety')) {
+      return res.status(400).json({ error: 'Content blocked', message: 'Try a different prompt' });
     }
 
-    res.status(500).json({
-      error: 'Generation failed',
-      message: error.message || 'Failed to generate images.'
-    });
+    res.status(500).json({ error: 'Generation failed', message: error.message });
   }
 });
 
-router.post('/upscale', async (req, res) => {
-  res.status(501).json({
-    error: 'Not implemented',
-    message: 'Image upscaling feature is coming soon!'
-  });
-});
-
 router.get('/health', (req, res) => {
-  const isConfigured = !!process.env.GEMINI_API_KEY;
-  
   res.json({
-    status: isConfigured ? 'OK' : 'Misconfigured',
+    status: process.env.GEMINI_API_KEY ? 'OK' : 'Misconfigured',
     service: 'AI Image Generation',
-    model: 'Gemini Imagen 3.0',
-    timestamp: new Date().toISOString(),
-    geminiApi: isConfigured ? 'Configured' : 'Not configured',
-    supportedStyles: ['photorealistic', 'artistic', 'minimalist', 'abstract'],
-    supportedSizes: ['1024x1024', '1024x1792', '1792x1024'],
-    maxImages: 4
+    model: 'Imagen 4.0 Preview',
+    geminiApi: process.env.GEMINI_API_KEY ? 'Configured' : 'Not configured'
   });
 });
 
