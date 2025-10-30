@@ -6,8 +6,7 @@ const { Validator } = require('../utils/validation');
 class ImageGenerationService {
   constructor() {
     this.apiKey = process.env.GEMINI_API_KEY;
-    // Use Imagen 4.0 (better quality) or fallback to 3.0
-    this.model = 'imagen-4.0-generate-preview-06-06'; // or 'imagen-3.0-generate-002'
+    this.model = 'imagen-4.0-generate-preview-06-06';
     this.baseUrl = `https://generativelanguage.googleapis.com/v1beta/models/${this.model}:predict`;
   }
 
@@ -16,7 +15,7 @@ class ImageGenerationService {
     let cleaned = String(prompt).trim();
     cleaned = cleaned.replace(/ignore previous instructions/gi, '[filtered]');
     cleaned = cleaned.replace(/system:|assistant:|user:/gi, '[filtered]');
-    return cleaned.substring(0, 480); // Imagen has 480 token input limit
+    return cleaned.substring(0, 480);
   }
 
   enhancePrompt(prompt, style) {
@@ -91,12 +90,10 @@ class ImageGenerationService {
       const data = JSON.parse(responseText);
       console.log('✅ Response received');
 
-      // Parse Imagen response
       const images = [];
       
       if (data.predictions && Array.isArray(data.predictions)) {
         for (const prediction of data.predictions) {
-          // Try different possible field names
           const imageData = prediction.bytesBase64Encoded || 
                           prediction.image || 
                           prediction.generatedImage;
@@ -129,6 +126,84 @@ class ImageGenerationService {
       } else {
         throw new Error(`Generation failed: ${error.message}`);
       }
+    }
+  }
+
+  async upscaleImage(imageUrl) {
+    if (!this.apiKey) {
+      throw new Error('Gemini API key not configured');
+    }
+
+    console.log('🔍 Upscaling image...');
+
+    try {
+      let base64Image;
+      if (imageUrl.startsWith('data:image')) {
+        base64Image = imageUrl.split(',')[1];
+      } else {
+        throw new Error('Invalid image format');
+      }
+
+      const upscaleUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict`;
+
+      const requestBody = {
+        instances: [{
+          image: {
+            bytesBase64Encoded: base64Image
+          },
+          prompt: "upscale, enhance quality, high resolution"
+        }],
+        parameters: {
+          sampleCount: 1,
+          mode: "upscale",
+          upscaleFactor: 2,
+          safetySetting: "block_low_and_above"
+        }
+      };
+
+      const response = await fetch(
+        `${upscaleUrl}?key=${this.apiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(requestBody)
+        }
+      );
+
+      const responseText = await response.text();
+      console.log(`📥 Upscale status: ${response.status}`);
+
+      if (!response.ok) {
+        console.error('❌ Upscale error:', responseText.substring(0, 300));
+        let errorData;
+        try {
+          errorData = JSON.parse(responseText);
+        } catch (e) {
+          errorData = { message: responseText };
+        }
+        throw new Error(errorData.error?.message || `Upscale failed: ${response.status}`);
+      }
+
+      const data = JSON.parse(responseText);
+
+      if (data.predictions && data.predictions[0]) {
+        const imageData = data.predictions[0].bytesBase64Encoded || 
+                        data.predictions[0].image;
+        
+        if (imageData) {
+          console.log('✅ Image upscaled');
+          return {
+            url: `data:image/png;base64,${imageData}`,
+            mimeType: 'image/png'
+          };
+        }
+      }
+
+      throw new Error('No upscaled image in response');
+
+    } catch (error) {
+      console.error('❌ Upscale error:', error.message);
+      throw new Error(`Upscale failed: ${error.message}`);
     }
   }
 }
@@ -184,6 +259,49 @@ router.post('/generate', async (req, res) => {
     }
 
     res.status(500).json({ error: 'Generation failed', message: error.message });
+  }
+});
+
+router.post('/upscale', async (req, res) => {
+  try {
+    const { imageUrl } = req.body;
+
+    if (!imageUrl) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        message: 'Image URL is required'
+      });
+    }
+
+    if (!imageUrl.startsWith('data:image')) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        message: 'Invalid image format'
+      });
+    }
+
+    const upscaledImage = await imageService.upscaleImage(imageUrl);
+
+    res.json({
+      success: true,
+      upscaledUrl: upscaledImage.url,
+      mimeType: upscaledImage.mimeType
+    });
+
+  } catch (error) {
+    console.error('❌ Upscale endpoint error:', error.message);
+
+    if (error.message.includes('quota')) {
+      return res.status(429).json({
+        error: 'Rate limit exceeded',
+        message: 'Too many requests'
+      });
+    }
+
+    res.status(500).json({
+      error: 'Upscale failed',
+      message: error.message
+    });
   }
 });
 
