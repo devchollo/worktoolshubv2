@@ -129,74 +129,7 @@ class ImageGenerationService {
     }
   }
 
-  async upscaleImage(prompt, style = 'photorealistic') {
-    // Upscale by regenerating at higher resolution with enhanced prompt
-    if (!this.apiKey) {
-      throw new Error('Gemini API key not configured');
-    }
 
-    console.log('🔍 Upscaling image by regenerating at higher resolution...');
-
-    try {
-      const enhancedPrompt = `${prompt}, ultra high resolution, 8k, extremely detailed, sharp, crisp, professional quality, enhanced details`;
-      
-      const requestBody = {
-        instances: [{
-          prompt: enhancedPrompt
-        }],
-        parameters: {
-          sampleCount: 1,
-          aspectRatio: "1:1", // Generate at same ratio
-          safetySetting: "block_low_and_above",
-          personGeneration: "allow_adult"
-        }
-      };
-
-      const response = await fetch(
-        `${this.baseUrl}?key=${this.apiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(requestBody)
-        }
-      );
-
-      const responseText = await response.text();
-      console.log(`📥 Upscale status: ${response.status}`);
-
-      if (!response.ok) {
-        console.error('❌ Upscale error:', responseText.substring(0, 300));
-        let errorData;
-        try {
-          errorData = JSON.parse(responseText);
-        } catch (e) {
-          errorData = { message: responseText };
-        }
-        throw new Error(errorData.error?.message || `Upscale failed: ${response.status}`);
-      }
-
-      const data = JSON.parse(responseText);
-
-      if (data.predictions && data.predictions[0]) {
-        const imageData = data.predictions[0].bytesBase64Encoded || 
-                        data.predictions[0].image;
-        
-        if (imageData) {
-          console.log('✅ Image upscaled');
-          return {
-            url: `data:image/png;base64,${imageData}`,
-            mimeType: 'image/png'
-          };
-        }
-      }
-
-      throw new Error('No upscaled image in response');
-
-    } catch (error) {
-      console.error('❌ Upscale error:', error.message);
-      throw new Error(`Upscale failed: ${error.message}`);
-    }
-  }
 }
 
 const imageService = new ImageGenerationService();
@@ -253,44 +186,6 @@ router.post('/generate', async (req, res) => {
   }
 });
 
-router.post('/upscale', async (req, res) => {
-  try {
-    const { prompt, style = 'photorealistic' } = req.body;
-
-    if (!prompt || !prompt.trim()) {
-      return res.status(400).json({
-        error: 'Validation failed',
-        message: 'Original prompt is required for upscaling'
-      });
-    }
-
-    const sanitizedPrompt = Validator.sanitizeInput(prompt);
-
-    const upscaledImage = await imageService.upscaleImage(sanitizedPrompt, style);
-
-    res.json({
-      success: true,
-      upscaledUrl: upscaledImage.url,
-      mimeType: upscaledImage.mimeType,
-      message: 'Image regenerated at higher quality'
-    });
-
-  } catch (error) {
-    console.error('❌ Upscale endpoint error:', error.message);
-
-    if (error.message.includes('quota')) {
-      return res.status(429).json({
-        error: 'Rate limit exceeded',
-        message: 'Too many requests'
-      });
-    }
-
-    res.status(500).json({
-      error: 'Upscale failed',
-      message: error.message
-    });
-  }
-});
 
 router.get('/health', (req, res) => {
   res.json({
