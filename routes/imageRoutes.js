@@ -64,7 +64,7 @@ class ImageGenerationService {
   try {
     // ✅ Correct endpoint for Imagen 3
     this.model = 'imagen-3.0';
-    this.baseUrl = `https://generativelanguage.googleapis.com/v1beta/models/${this.model}:generateContent`;
+    this.baseUrl = `https://generativelanguage.googleapis.com/v1/models/${this.model}:generateContent`;
 
     // ✅ Correct body format for Gemini Imagen 3
     const requestBody = {
