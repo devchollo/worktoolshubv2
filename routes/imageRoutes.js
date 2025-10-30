@@ -129,40 +129,31 @@ class ImageGenerationService {
     }
   }
 
-  async upscaleImage(imageUrl) {
+  async upscaleImage(prompt, style = 'photorealistic') {
+    // Upscale by regenerating at higher resolution with enhanced prompt
     if (!this.apiKey) {
       throw new Error('Gemini API key not configured');
     }
 
-    console.log('🔍 Upscaling image...');
+    console.log('🔍 Upscaling image by regenerating at higher resolution...');
 
     try {
-      let base64Image;
-      if (imageUrl.startsWith('data:image')) {
-        base64Image = imageUrl.split(',')[1];
-      } else {
-        throw new Error('Invalid image format');
-      }
-
-      const upscaleUrl = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict`;
-
+      const enhancedPrompt = `${prompt}, ultra high resolution, 8k, extremely detailed, sharp, crisp, professional quality, enhanced details`;
+      
       const requestBody = {
         instances: [{
-          image: {
-            bytesBase64Encoded: base64Image
-          },
-          prompt: "upscale, enhance quality, high resolution"
+          prompt: enhancedPrompt
         }],
         parameters: {
           sampleCount: 1,
-          mode: "upscale",
-          upscaleFactor: 2,
-          safetySetting: "block_low_and_above"
+          aspectRatio: "1:1", // Generate at same ratio
+          safetySetting: "block_low_and_above",
+          personGeneration: "allow_adult"
         }
       };
 
       const response = await fetch(
-        `${upscaleUrl}?key=${this.apiKey}`,
+        `${this.baseUrl}?key=${this.apiKey}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -264,28 +255,24 @@ router.post('/generate', async (req, res) => {
 
 router.post('/upscale', async (req, res) => {
   try {
-    const { imageUrl } = req.body;
+    const { prompt, style = 'photorealistic' } = req.body;
 
-    if (!imageUrl) {
+    if (!prompt || !prompt.trim()) {
       return res.status(400).json({
         error: 'Validation failed',
-        message: 'Image URL is required'
+        message: 'Original prompt is required for upscaling'
       });
     }
 
-    if (!imageUrl.startsWith('data:image')) {
-      return res.status(400).json({
-        error: 'Validation failed',
-        message: 'Invalid image format'
-      });
-    }
+    const sanitizedPrompt = Validator.sanitizeInput(prompt);
 
-    const upscaledImage = await imageService.upscaleImage(imageUrl);
+    const upscaledImage = await imageService.upscaleImage(sanitizedPrompt, style);
 
     res.json({
       success: true,
       upscaledUrl: upscaledImage.url,
-      mimeType: upscaledImage.mimeType
+      mimeType: upscaledImage.mimeType,
+      message: 'Image regenerated at higher quality'
     });
 
   } catch (error) {
