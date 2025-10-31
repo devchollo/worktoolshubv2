@@ -1,10 +1,8 @@
 // =============================
 // Theme Management
 // =============================
-console.log("📦 ThemeManager file loaded"); 
 export class ThemeManager {
   constructor() {
-    console.log("ThemeManager ctor — document.readyState:", document.readyState);
     this.theme =
       localStorage.getItem("theme") ||
       (window.matchMedia("(prefers-color-scheme: dark)").matches
@@ -27,7 +25,7 @@ export class ThemeManager {
     const icon = document.getElementById("themeIcon");
     const text = document.getElementById("themeText");
 
-    if (!icon || !text) return; // ✅ prevents crashes
+    if (!icon || !text) return;
 
     if (this.theme === "dark") {
       icon.textContent = "☀️";
@@ -48,13 +46,9 @@ export class ThemeManager {
 
   bindEvents() {
     const toggleBtn = document.getElementById("themeToggle");
-    console.log("🔍 themeToggle exists?", document.getElementById("themeToggle"));
-
     if (toggleBtn) {
       toggleBtn.addEventListener("click", () => this.toggle());
     }
-
-    // Auto-adjust if system preference changes (only if no manual choice stored)
     window
       .matchMedia("(prefers-color-scheme: dark)")
       .addEventListener("change", (e) => {

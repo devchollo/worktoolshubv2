@@ -1,9 +1,6 @@
 // main.js
 import { ThemeManager } from "./themeManager.js";
-import { toolCategories } from "./toolCategories.js";
 import { CategoryRenderer } from "./categoryRenderer.js";
-import { Analytics } from "./analytics.js";
-import { PerformanceMonitor } from "./performanceMonitor.js";
 
 function initThemeManager() {
   const btn = document.getElementById("themeToggle");
@@ -21,35 +18,4 @@ document.addEventListener("DOMContentLoaded", () => {
   initThemeManager();
 
   window.categoryRenderer = new CategoryRenderer();
-  
-  // Initialize analytics and performance monitoring
-  window.analytics = new Analytics();
-  window.performanceMonitor = new PerformanceMonitor();
-
-
-  
-
-  // Add a small delay to ensure everything is rendered, then test
-  setTimeout(() => {
-    const testLink = document.querySelector('a[data-internal="true"]');
-    if (testLink) {
-      console.log("Internal link details:", {
-        href: testLink.getAttribute('href'),
-        hasDataInternal: testLink.hasAttribute('data-internal'),
-        dataInternalValue: testLink.getAttribute('data-internal'),
-        textContent: testLink.textContent
-      });
-    }
-  }, 1000);
 });
-
-
-// service worker
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker
-      .register("/service-worker.js")
-      .then(() => console.log("✅ Service Worker registered"))
-      .catch(err => console.error("❌ Service Worker failed:", err));
-  });
-}
