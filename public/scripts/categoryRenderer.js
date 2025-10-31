@@ -106,6 +106,11 @@ export class CategoryRenderer {
             : ""
         }
         ${
+              tool.public
+                ? '<span style="background: #2563eb; color: #ffffffff; font-size: 10px; padding: 2px 6px; border-radius: 12px; font-weight: 500;">Public</span>'
+                : ""
+            }
+        ${
           tool.pending
             ? '<span style="background: #10b981; color: #05422fff; font-size: 10px; padding: 2px 6px; border-radius: 12px; font-weight: 500;">Coming Soon</span>'
             : ""
@@ -173,7 +178,13 @@ export class CategoryRenderer {
               tool.internal
                 ? '<span style="background: #fbbf24; color: #92400e; font-size: 10px; padding: 2px 6px; border-radius: 12px; font-weight: 500;">Internal</span>'
                 : ""
-            } ${
+            }
+            ${
+              tool.public
+                ? '<span style="background: #2563eb; color: #ffffffff; font-size: 10px; padding: 2px 6px; border-radius: 12px; font-weight: 500;">Public</span>'
+                : ""
+            }
+            ${
           tool.pending
             ? '<span style="background: #10b981; color: #05422fff; font-size: 10px; padding: 2px 6px; border-radius: 12px; font-weight: 500;">Coming Soon</span>'
             : ""
@@ -315,6 +326,7 @@ export class CategoryRenderer {
             name: tool.name,
             path: tool.path,
             internal: tool.internal || false,
+            public: tool.public || false,
             pending: tool.pending || false,
             categoryName: category.name,
             categoryIcon: category.icon,

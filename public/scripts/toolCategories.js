@@ -1,5 +1,5 @@
 // =============================
-// Tool Categories Data
+// Tool Categories Data (Reorganized)
 // =============================
 export const toolCategories = {
   "note-generators": {
@@ -17,11 +17,6 @@ export const toolCategories = {
         name: "Offline-Mods-Notes-&-Email-Generator",
         path: "/tools/offline-mods-note-email-generator",
         internal: true,
-      },
-      { name: "Alt Text Generator", path: "/tools/alt-text", pending: true },
-      {
-        name: "Meta Tag Generator",
-        path: "/tools/meta-tag-generator",
       },
       {
         name: "Blog Post Outlines",
@@ -61,7 +56,11 @@ export const toolCategories = {
         path: "/tools/osad-live-generator",
         internal: true,
       },
-      { name: "Follow-up Templates", path: "/error.html?status=coming-soon", pending: true },
+      {
+        name: "Follow-up Templates",
+        path: "/error.html?status=coming-soon",
+        pending: true,
+      },
     ],
   },
   "code-tools": {
@@ -70,14 +69,21 @@ export const toolCategories = {
     description: "Embed codes and development utilities",
     color: "#8b5cf6",
     tools: [
-      { name: "Embed Code Generator", path: "/tools/embed-code-generator", internal: true },
       {
-        name: "File Uploader",
-        path: "/tools/file-uploader",
+        name: "Embed Code Generator",
+        path: "/tools/embed-code-generator",
         internal: true,
       },
-      { name: "QR Code Creator", path: "/tools/qr-code-generator", internal: true },
-      { name: "Random Password Generator", path: "/tools/random-pass-gen"},
+      {
+        name: "QR Code Creator",
+        path: "/tools/qr-code-generator",
+        internal: true,
+      },
+      {
+        name: "DNS Propagation Checker",
+        path: "/tools/dns-checker",
+        public: true,
+      },
     ],
   },
   "file-tools": {
@@ -91,11 +97,11 @@ export const toolCategories = {
         path: "/tools/file-uploader",
         internal: true,
       },
-       {
-      name: "PDF Combiner",
-      path: "/tools/pdf-combiner",
-      internal: true,
-    },
+      {
+        name: "PDF Combiner",
+        path: "/tools/pdf-combiner",
+        internal: true,
+      },
     ],
   },
   "business-tools": {
@@ -115,21 +121,15 @@ export const toolCategories = {
         internal: true,
       },
       {
-        name: "DNS Propagation Checker",
-        path: "/tools/dns-checker",
-        internal: false,
+        name: "Meta Tag Generator",
+        path: "/tools/meta-tag-generator",
+        public: true,
       },
-      { name: "Random Password Generator", path: "/tools/random-pass-gen"},
       {
-        name: "File Uploader",
-        path: "/tools/file-uploader",
-        internal: true,
+        name: "Random Password Generator",
+        path: "/tools/random-pass-gen",
+        public: true,
       },
-       {
-      name: "PDF Combiner",
-      path: "/tools/pdf-combiner",
-      internal: true,
-    },
     ],
   },
   "design-tools": {
@@ -141,9 +141,23 @@ export const toolCategories = {
       {
         name: "AI Image Generator - Create Logos and Images for Free",
         path: "/tools/ai-image-generator",
+        public: true,
       },
-      { name: "Color Palette", path: "/error.html?status=coming-soon", pending: true },
-      { name: "Icon Generator", path: "/error.html?status=coming-soon", pending: true },
+      {
+        name: "Alt Text Generator",
+        path: "/tools/alt-text",
+        pending: true,
+      },
+      {
+        name: "Color Palette",
+        path: "/error.html?status=coming-soon",
+        pending: true,
+      },
+      {
+        name: "Icon Generator",
+        path: "/error.html?status=coming-soon",
+        pending: true,
+      },
       {
         name: "Social Media Templates",
         path: "/error.html?status=coming-soon",
