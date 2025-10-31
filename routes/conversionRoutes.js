@@ -1,9 +1,8 @@
-// routes/conversionRoutes.js
+// routes/conversionRoutes.js - UPDATED FOR DIRECT DOWNLOADS
 const express = require('express');
 const multer = require('multer');
 const router = express.Router();
 const fileConversionService = require('../services/fileConversionService');
-const fileUploadService = require('../services/fileUploadService');
 
 // Configure multer for file uploads
 const upload = multer({
@@ -81,7 +80,7 @@ router.get('/capabilities', async (req, res) => {
   }
 });
 
-// Convert single file
+// Convert single file - RETURNS FILE DIRECTLY
 router.post('/convert', upload.single('file'), async (req, res) => {
   try {
     if (!req.file) {
@@ -150,20 +149,109 @@ router.post('/convert', upload.single('file'), async (req, res) => {
       options
     );
 
-    // Create a file object for upload
-    const convertedFile = {
-      buffer: converted.buffer,
-      originalname: req.file.originalname.replace(/\.[^/.]+$/, `.${targetFormat}`),
-      mimetype: getMimeType(targetFormat),
-      size: converted.size
-    };
+    // Generate output filename
+    const outputFilename = req.file.originalname.replace(/\.[^/.]+$/, `.${targetFormat}`);
 
-    // Upload converted file to Backblaze
-    const uploadResult = await fileUploadService.uploadFile(
-      convertedFile,
-      convertedFile.originalname
+    // Set headers for file download
+    res.setHeader('Content-Type', getMimeType(targetFormat));
+    res.setHeader('Content-Disposition', `attachment; filename="${outputFilename}"`);
+    res.setHeader('Content-Length', converted.size);
+    res.setHeader('X-Original-Size', req.file.size);
+    res.setHeader('X-Converted-Size', converted.size);
+    res.setHeader('X-Compression-Ratio', ((1 - converted.size / req.file.size) * 100).toFixed(2));
+    
+    // Send the converted file buffer
+    res.send(converted.buffer);
+
+  } catch (error) {
+    console.error('File conversion error:', error);
+    
+    if (error.message.includes('Unsupported') || error.message.includes('not supported')) {
+      return res.status(400).json({
+        error: 'Invalid conversion',
+        message: error.message
+      });
+    }
+    
+    if (error.message.includes('FFmpeg') || error.message.includes('LibreOffice')) {
+      return res.status(503).json({
+        error: 'Service unavailable',
+        message: error.message
+      });
+    }
+    
+    res.status(500).json({
+      error: 'Conversion failed',
+      message: error.message || 'Failed to convert file'
+    });
+  }
+});
+
+// Convert single file with preview - RETURNS JSON WITH BASE64
+router.post('/convert-preview', upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        error: 'No file uploaded',
+        message: 'Please upload a file to convert'
+      });
+    }
+
+    const { targetFormat, quality, width, height, fit, bitrate, sampleRate, videoBitrate, audioBitrate, resolution, fps } = req.body;
+
+    if (!targetFormat) {
+      return res.status(400).json({
+        error: 'Target format is required',
+        message: 'Please specify the target format'
+      });
+    }
+
+    const sourceFormat = req.file.originalname.split('.').pop().toLowerCase();
+
+    if (!fileConversionService.isConversionSupported(sourceFormat, targetFormat)) {
+      return res.status(400).json({
+        error: 'Conversion not supported',
+        message: `Cannot convert from ${sourceFormat} to ${targetFormat}`
+      });
+    }
+
+    const fileType = fileConversionService.detectFileType(sourceFormat);
+    const options = {};
+
+    if (fileType === 'image') {
+      options.quality = parseInt(quality) || 90;
+      if (width || height) {
+        options.resize = {
+          width: width ? parseInt(width) : null,
+          height: height ? parseInt(height) : null,
+          fit: fit || 'inside'
+        };
+      }
+    }
+
+    if (fileType === 'audio') {
+      options.bitrate = bitrate || '192k';
+      options.sampleRate = sampleRate ? parseInt(sampleRate) : 44100;
+      options.channels = 2;
+    }
+
+    if (fileType === 'video') {
+      options.videoBitrate = videoBitrate || '1000k';
+      options.audioBitrate = audioBitrate || '128k';
+      if (resolution) options.resolution = resolution;
+      if (fps) options.fps = parseInt(fps);
+    }
+
+    const converted = await fileConversionService.convert(
+      req.file.buffer,
+      sourceFormat,
+      targetFormat,
+      options
     );
 
+    const outputFilename = req.file.originalname.replace(/\.[^/.]+$/, `.${targetFormat}`);
+
+    // Return JSON with base64 encoded file
     res.json({
       success: true,
       originalFile: {
@@ -173,11 +261,12 @@ router.post('/convert', upload.single('file'), async (req, res) => {
         type: fileType
       },
       convertedFile: {
-        name: convertedFile.originalname,
+        name: outputFilename,
         format: targetFormat,
         size: converted.size,
-        url: uploadResult.publicUrl,
-        type: fileType
+        type: fileType,
+        data: converted.buffer.toString('base64'),
+        mimeType: getMimeType(targetFormat)
       },
       metadata: converted.metadata,
       compressionRatio: ((1 - converted.size / req.file.size) * 100).toFixed(2)
@@ -232,7 +321,6 @@ router.post('/convert-batch', upload.array('files', 10), async (req, res) => {
       try {
         const sourceFormat = file.originalname.split('.').pop().toLowerCase();
 
-        // Check if conversion is supported
         if (!fileConversionService.isConversionSupported(sourceFormat, targetFormat)) {
           results.push({
             success: false,
@@ -242,7 +330,6 @@ router.post('/convert-batch', upload.array('files', 10), async (req, res) => {
           continue;
         }
 
-        // Build options
         const fileType = fileConversionService.detectFileType(sourceFormat);
         const options = {};
 
@@ -262,7 +349,6 @@ router.post('/convert-batch', upload.array('files', 10), async (req, res) => {
           options.sampleRate = sampleRate ? parseInt(sampleRate) : 44100;
         }
 
-        // Convert the file
         const converted = await fileConversionService.convert(
           file.buffer,
           sourceFormat,
@@ -270,19 +356,7 @@ router.post('/convert-batch', upload.array('files', 10), async (req, res) => {
           options
         );
 
-        // Create a file object for upload
-        const convertedFile = {
-          buffer: converted.buffer,
-          originalname: file.originalname.replace(/\.[^/.]+$/, `.${targetFormat}`),
-          mimetype: getMimeType(targetFormat),
-          size: converted.size
-        };
-
-        // Upload to Backblaze
-        const uploadResult = await fileUploadService.uploadFile(
-          convertedFile,
-          convertedFile.originalname
-        );
+        const outputFilename = file.originalname.replace(/\.[^/.]+$/, `.${targetFormat}`);
 
         results.push({
           success: true,
@@ -292,10 +366,10 @@ router.post('/convert-batch', upload.array('files', 10), async (req, res) => {
             size: file.size
           },
           convertedFile: {
-            name: convertedFile.originalname,
+            name: outputFilename,
             format: targetFormat,
             size: converted.size,
-            url: uploadResult.publicUrl
+            data: converted.buffer.toString('base64')
           },
           metadata: converted.metadata,
           compressionRatio: ((1 - converted.size / file.size) * 100).toFixed(2)
@@ -344,29 +418,18 @@ router.post('/optimize', upload.single('file'), async (req, res) => {
       { quality }
     );
 
-    // Create a file object for upload
-    const optimizedFile = {
-      buffer: optimized.buffer,
-      originalname: `optimized_${req.file.originalname}`,
-      mimetype: req.file.mimetype,
-      size: optimized.optimizedSize
-    };
+    const outputFilename = `optimized_${req.file.originalname}`;
 
-    // Upload to Backblaze
-    const uploadResult = await fileUploadService.uploadFile(
-      optimizedFile,
-      optimizedFile.originalname
-    );
-
-    res.json({
-      success: true,
-      originalSize: optimized.originalSize,
-      optimizedSize: optimized.optimizedSize,
-      compressionRatio: optimized.compressionRatio,
-      savedBytes: optimized.originalSize - optimized.optimizedSize,
-      url: uploadResult.publicUrl,
-      fileName: optimizedFile.originalname
-    });
+    // Set headers for file download
+    res.setHeader('Content-Type', getMimeType(format));
+    res.setHeader('Content-Disposition', `attachment; filename="${outputFilename}"`);
+    res.setHeader('Content-Length', optimized.optimizedSize);
+    res.setHeader('X-Original-Size', optimized.originalSize);
+    res.setHeader('X-Optimized-Size', optimized.optimizedSize);
+    res.setHeader('X-Compression-Ratio', optimized.compressionRatio);
+    
+    // Send the optimized file buffer
+    res.send(optimized.buffer);
 
   } catch (error) {
     console.error('Image optimization error:', error);

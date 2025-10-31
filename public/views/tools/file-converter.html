@@ -900,116 +900,144 @@
       }
 
       async handleConversion() {
-        if (!this.currentFile) {
-          this.showStatus('Please select a file first', 'error');
-          return;
-        }
+  if (!this.currentFile) {
+    this.showStatus('Please select a file first', 'error');
+    return;
+  }
 
-        this.showStatus('Converting file...', 'info');
-        this.convertButton.disabled = true;
+  this.showStatus('Converting file...', 'info');
+  this.convertButton.disabled = true;
 
-        const formData = new FormData();
-        formData.append('file', this.currentFile);
-        formData.append('targetFormat', this.selectedFormat);
+  const formData = new FormData();
+  formData.append('file', this.currentFile);
+  formData.append('targetFormat', this.selectedFormat);
 
-        // Add type-specific options
-        if (this.currentFileType === 'image') {
-          formData.append('quality', document.getElementById('qualitySlider')?.value || 90);
-          const width = document.getElementById('widthInput')?.value;
-          const height = document.getElementById('heightInput')?.value;
-          if (width) formData.append('width', width);
-          if (height) formData.append('height', height);
-        } else if (this.currentFileType === 'audio') {
-          formData.append('bitrate', document.getElementById('bitrateSelect')?.value || '192k');
-          formData.append('sampleRate', document.getElementById('sampleRateSelect')?.value || '44100');
-        } else if (this.currentFileType === 'video') {
-          formData.append('videoBitrate', document.getElementById('videoBitrateSelect')?.value || '1000k');
-          formData.append('audioBitrate', '128k');
-          const resolution = document.getElementById('resolutionSelect')?.value;
-          if (resolution) formData.append('resolution', resolution);
-        }
+  // Add type-specific options
+  if (this.currentFileType === 'image') {
+    formData.append('quality', document.getElementById('qualitySlider')?.value || 90);
+    const width = document.getElementById('widthInput')?.value;
+    const height = document.getElementById('heightInput')?.value;
+    if (width) formData.append('width', width);
+    if (height) formData.append('height', height);
+  } else if (this.currentFileType === 'audio') {
+    formData.append('bitrate', document.getElementById('bitrateSelect')?.value || '192k');
+    formData.append('sampleRate', document.getElementById('sampleRateSelect')?.value || '44100');
+  } else if (this.currentFileType === 'video') {
+    formData.append('videoBitrate', document.getElementById('videoBitrateSelect')?.value || '1000k');
+    formData.append('audioBitrate', '128k');
+    const resolution = document.getElementById('resolutionSelect')?.value;
+    if (resolution) formData.append('resolution', resolution);
+  }
 
-        try {
-          const response = await fetch('https://worktoolshubv2.onrender.com/api/convert/convert', {
-            method: 'POST',
-            body: formData
-          });
+  try {
+    const response = await fetch('https://worktoolshubv2.onrender.com/api/convert/convert', {
+      method: 'POST',
+      body: formData
+    });
 
-          if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Conversion failed');
-          }
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'Conversion failed' }));
+      throw new Error(errorData.message || 'Conversion failed');
+    }
 
-          const result = await response.json();
-          this.displayResult(result);
-          this.showStatus('File converted successfully!', 'success');
-        } catch (error) {
-          console.error('Conversion error:', error);
-          this.showStatus(error.message || 'Failed to convert file', 'error');
-        } finally {
-          this.convertButton.disabled = false;
-        }
+    // Get file info from headers
+    const originalSize = response.headers.get('X-Original-Size');
+    const convertedSize = response.headers.get('X-Converted-Size');
+    const compressionRatio = response.headers.get('X-Compression-Ratio');
+    
+    // Get filename from Content-Disposition header
+    const contentDisposition = response.headers.get('Content-Disposition');
+    let filename = `converted.${this.selectedFormat}`;
+    if (contentDisposition) {
+      const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+      if (filenameMatch) {
+        filename = filenameMatch[1];
       }
+    }
 
-      displayResult(result) {
-        const originalSize = (result.originalFile.size / 1024).toFixed(2);
-        const convertedSize = (result.convertedFile.size / 1024).toFixed(2);
-        
-        const resultHtml = `
-          <div class="result-card">
-            <div class="result-header">
-              <h3 style="color: var(--blue-900); font-size: 1.25rem; margin: 0;">
-                ✅ Conversion Complete
-              </h3>
-            </div>
+    // Get the file blob
+    const blob = await response.blob();
+    
+    // Create download link and trigger download
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
 
-            <div class="result-stats">
-              <div class="stat-card">
-                <div class="stat-label">File Type</div>
-                <div class="stat-value">${this.escapeHtml(result.originalFile.type.toUpperCase())}</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-label">Original Format</div>
-                <div class="stat-value">${this.escapeHtml(result.originalFile.format.toUpperCase())}</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-label">New Format</div>
-                <div class="stat-value">${this.escapeHtml(result.convertedFile.format.toUpperCase())}</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-label">Original Size</div>
-                <div class="stat-value">${originalSize} KB</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-label">New Size</div>
-                <div class="stat-value">${convertedSize} KB</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-label">Size Change</div>
-                <div class="stat-value">${result.compressionRatio}%</div>
-              </div>
-            </div>
+    // Display success message with stats
+    this.displayDownloadStats({
+      originalSize: parseInt(originalSize) || this.currentFile.size,
+      convertedSize: parseInt(convertedSize) || blob.size,
+      compressionRatio: compressionRatio || '0',
+      filename: filename,
+      format: this.selectedFormat
+    });
 
-            ${result.metadata ? `
-            <div style="padding: 1rem; background: var(--blue-50); border-radius: 12px; margin-bottom: 1rem;">
-              <p style="font-size: 0.875rem; color: var(--blue-700); margin: 0;">
-                ${this.formatMetadata(result.metadata)}
-              </p>
-            </div>
-            ` : ''}
+    this.showStatus('File converted and downloaded successfully!', 'success');
+    
+  } catch (error) {
+    console.error('Conversion error:', error);
+    this.showStatus(error.message || 'Failed to convert file', 'error');
+  } finally {
+    this.convertButton.disabled = false;
+  }
+}
 
-            <a href="${this.escapeHtml(result.convertedFile.url)}" 
-               download="${this.escapeHtml(result.convertedFile.name)}"
-               class="download-button">
-              ⬇️ Download ${result.convertedFile.format.toUpperCase()}
-            </a>
-          </div>
-        `;
+displayDownloadStats(stats) {
+  const originalSizeKB = (stats.originalSize / 1024).toFixed(2);
+  const convertedSizeKB = (stats.convertedSize / 1024).toFixed(2);
+  
+  const resultHtml = `
+    <div class="result-card">
+      <div class="result-header">
+        <h3 style="color: var(--blue-900); font-size: 1.25rem; margin: 0;">
+          ✅ File Downloaded Successfully
+        </h3>
+      </div>
 
-        this.resultsContent.innerHTML = resultHtml;
-        this.resultsSection.classList.add('show');
-      }
+      <div class="result-stats">
+        <div class="stat-card">
+          <div class="stat-label">Filename</div>
+          <div class="stat-value" style="font-size: 1rem;">${this.escapeHtml(stats.filename)}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Format</div>
+          <div class="stat-value">${this.escapeHtml(stats.format.toUpperCase())}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Original Size</div>
+          <div class="stat-value">${originalSizeKB} KB</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">New Size</div>
+          <div class="stat-value">${convertedSizeKB} KB</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Size Change</div>
+          <div class="stat-value">${stats.compressionRatio}%</div>
+        </div>
+      </div>
 
+      <div style="padding: 1rem; background: #d1fae5; border: 2px solid #a7f3d0; border-radius: 12px; margin-top: 1rem; text-align: center;">
+        <p style="margin: 0; color: #065f46; font-weight: 600;">
+          📥 Your file has been downloaded to your default downloads folder
+        </p>
+      </div>
+
+      <button class="action-button" onclick="window.fileConverter.currentFile = null; window.fileConverter.previewContainer.classList.remove('show'); window.fileConverter.convertButton.disabled = true; window.fileConverter.resultsSection.classList.remove('show');" style="margin-top: 1rem;">
+        🔄 Convert Another File
+      </button>
+    </div>
+  `;
+
+  this.resultsContent.innerHTML = resultHtml;
+  this.resultsSection.classList.add('show');
+}
+      
       formatMetadata(metadata) {
         if (!metadata) return '';
         
