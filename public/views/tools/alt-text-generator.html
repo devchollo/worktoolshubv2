@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Generate AI-powered alt text for images. Improve accessibility and SEO with descriptive alt text for web images." />
+  <meta name="keywords" content="alt text generator, image accessibility, SEO, AI alt text, screen reader" />
+  <link rel="icon" type="image/x-icon" href="https://www.worktoolshub.info/assets/icon-192.png" />
+  <title>AI Alt Text Generator - Free Accessibility Tool | WorkToolsHub</title>
+  <link rel="stylesheet" href="../styles/main.css" />
+  <link rel="stylesheet" href="../styles/tools.css" />
+  
+  <style>
+    :root {
+      --purple-50: #faf5ff;
+      --purple-100: #f3e8ff;
+      --purple-200: #e9d5ff;
+      --purple-300: #d8b4fe;
+      --purple-400: #c084fc;
+      --purple-500: #a855f7;
+      --purple-600: #9333ea;
+      --purple-700: #7e22ce;
+      --purple-800: #6b21a8;
+      --purple-900: #581c87;
+    }
+
+    .tool-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin: 2rem 0;
+    }
+
+    .upload-card {
+      background: linear-gradient(135deg, var(--purple-50) 0%, var(--purple-100) 100%);
+      border: 3px dashed var(--purple-400);
+      border-radius: 20px;
+      padding: 3rem 2rem;
+      text-align: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      min-height: 400px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .upload-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(168, 85, 247, 0.1) 0%, transparent 70%);
+      animation: pulse 3s ease-in-out infinite;
+    }
+
+    .upload-card:hover {
+      border-color: var(--purple-600);
+      background: linear-gradient(135deg, var(--purple-100) 0%, var(--purple-200) 100%);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(147, 51, 234, 0.2);
+    }
+
+    .upload-card.drag-over {
+      border-color: var(--purple-600);
+      border-style: solid;
+      background: linear-gradient(135deg, var(--purple-200) 0%, var(--purple-300) 100%);
+      transform: scale(1.02);
+    }
+
+    .upload-icon-wrapper {
+      position: relative;
+      z-index: 2;
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 1.5rem;
+    }
+
+    .upload-icon {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, var(--purple-500), var(--purple-600));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      color: white;
+      transition: transform 0.3s ease;
+      box-shadow: 0 8px 16px rgba(168, 85, 247, 0.3);
+    }
+
+    .upload-card:hover .upload-icon {
+      transform: scale(1.1) rotate(5deg);
+    }
+
+    .upload-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--purple-900);
+      margin-bottom: 0.75rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .upload-subtitle {
+      color: var(--purple-700);
+      font-size: 1rem;
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+      position: relative;
+      z-index: 2;
+    }
+
+    .or-divider {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 1.5rem 0;
+      color: var(--purple-600);
+      font-weight: 600;
+      position: relative;
+      z-index: 2;
+    }
+
+    .or-divider::before,
+    .or-divider::after {
+      content: '';
+      flex: 1;
+      height: 2px;
+      background: linear-gradient(to right, transparent, var(--purple-300), transparent);
+    }
+
+    .url-input-wrapper {
+      width: 100%;
+      position: relative;
+      z-index: 2;
+    }
+
+    .url-input {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      border: 2px solid var(--purple-300);
+      border-radius: 12px;
+      font-size: 1rem;
+      transition: all 0.2s ease;
+      background: white;
+    }
+
+    .url-input:focus {
+      outline: none;
+      border-color: var(--purple-600);
+      box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.1);
+    }
+
+    .primary-button {
+      background: linear-gradient(135deg, var(--purple-500), var(--purple-600));
+      color: white;
+      border: none;
+      padding: 1rem 2.5rem;
+      border-radius: 50px;
+      font-size: 1.125rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      z-index: 2;
+      box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+      margin-top: 1rem;
+    }
+
+    .primary-button:hover:not(:disabled) {
+      background: linear-gradient(135deg, var(--purple-600), var(--purple-700));
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(168, 85, 247, 0.4);
+    }
+
+    .primary-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .options-panel {
+      background: white;
+      border: 2px solid var(--purple-200);
+      border-radius: 20px;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .option-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .option-label {
+      font-weight: 600;
+      color: var(--purple-900);
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .option-description {
+      font-size: 0.875rem;
+      color: var(--purple-600);
+      margin-bottom: 0.5rem;
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .radio-option {
+      flex: 1;
+      min-width: 100px;
+      padding: 0.75rem 1rem;
+      border: 2px solid var(--purple-200);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+      background: white;
+    }
+
+    .radio-option:hover {
+      border-color: var(--purple-400);
+      background: var(--purple-50);
+    }
+
+    .radio-option.selected {
+      border-color: var(--purple-600);
+      background: linear-gradient(135deg, var(--purple-500), var(--purple-600));
+      color: white;
+      font-weight: 600;
+    }
+
+    .checkbox-option {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem;
+      border: 2px solid var(--purple-200);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: white;
+    }
+
+    .checkbox-option:hover {
+      border-color: var(--purple-400);
+      background: var(--purple-50);
+    }
+
+    .checkbox-option input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+
+    .results-container {
+      margin-top: 3rem;
+      display: none;
+    }
+
+    .results-container.show {
+      display: block;
+      animation: slideUp 0.5s ease;
+    }
+
+    .result-card {
+      background: white;
+      border: 2px solid var(--purple-200);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 2px solid var(--purple-100);
+    }
+
+    .result-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--purple-900);
+    }
+
+    .image-preview {
+      width: 100%;
+      max-height: 400px;
+      object-fit: contain;
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+      border: 2px solid var(--purple-100);
+    }
+
+    .alt-text-display {
+      background: var(--purple-50);
+      border: 2px solid var(--purple-200);
+      border-radius: 12px;
+      padding: 1.5rem;
+      font-size: 1rem;
+      line-height: 1.6;
+      color: var(--purple-900);
+      margin-bottom: 1rem;
+    }
+
+    .copy-button {
+      background: linear-gradient(135deg, var(--purple-500), var(--purple-600));
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 50px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .copy-button:hover {
+      background: linear-gradient(135deg, var(--purple-600), var(--purple-700));
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+    }
+
+    .copy-button.copied {
+      background: #10b981;
+    }
+
+    .status-message {
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      margin-top: 1.5rem;
+      text-align: center;
+      font-weight: 600;
+      display: none;
+    }
+
+    .status-message.success {
+      background: #d1fae5;
+      border: 2px solid #a7f3d0;
+      color: #065f46;
+      display: block;
+    }
+
+    .status-message.error {
+      background: #fee2e2;
+      border: 2px solid #fecaca;
+      color: #dc2626;
+      display: block;
+    }
+
+    .status-message.info {
+      background: var(--purple-100);
+      border: 2px solid var(--purple-300);
+      color: var(--purple-900);
+      display: block;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-top: 3px solid white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 0.5; }
+      50% { transform: scale(1.1); opacity: 0.8; }
+    }
+
+    @media (max-width: 968px) {
+      .tool-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .radio-group {
+        flex-direction: column;
+      }
+
+      .radio-option {
+        min-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="header"></div>
+  <div id="bread"></div>
+
+  <main>
+    <section class="tool-container">
+      <div class="tool-header">
+        <h1>🎨 AI Alt Text Generator</h1>
+        <p class="subtitle">
+          Generate descriptive alt text for images using AI. Improve accessibility and SEO effortlessly.
+        </p>
+      </div>
+
+      <div class="tool-layout">
+        <div class="upload-card" id="uploadZone">
+          <div class="upload-icon-wrapper">
+            <div class="upload-icon">🖼️</div>
+          </div>
+          
+          <div style="position: relative; z-index: 2; width: 100%;">
+            <h3 class="upload-title">Upload Image</h3>
+            <p class="upload-subtitle">
+              Drop your image here or click to browse
+            </p>
+
+            <button class="primary-button" id="uploadButton">
+              Choose Image
+            </button>
+
+            <div class="or-divider">OR</div>
+
+            <div class="url-input-wrapper">
+              <input 
+                type="url" 
+                class="url-input" 
+                id="imageUrl" 
+                placeholder="Paste image URL here..."
+              />
+            </div>
+
+            <button class="primary-button" id="urlButton" style="margin-top: 1rem;">
+              Generate from URL
+            </button>
+          </div>
+        </div>
+
+        <div class="options-panel">
+          <h3 style="color: var(--purple-900); margin-bottom: 0.5rem;">⚙️ Options</h3>
+          
+          <div class="option-group">
+            <label class="option-label">Tone</label>
+            <p class="option-description">Choose the writing style for alt text</p>
+            <div class="radio-group" id="toneGroup">
+              <div class="radio-option selected" data-value="descriptive">Descriptive</div>
+              <div class="radio-option" data-value="concise">Concise</div>
+              <div class="radio-option" data-value="technical">Technical</div>
+            </div>
+          </div>
+
+          <div class="option-group">
+            <label class="option-label">Max Length</label>
+            <p class="option-description">Maximum characters for alt text</p>
+            <div class="radio-group" id="lengthGroup">
+              <div class="radio-option" data-value="75">75 chars</div>
+              <div class="radio-option selected" data-value="125">125 chars</div>
+              <div class="radio-option" data-value="200">200 chars</div>
+            </div>
+          </div>
+
+          <div class="option-group">
+            <label class="option-label">Context (Optional)</label>
+            <p class="option-description">Provide context about where this image will be used</p>
+            <textarea 
+              id="contextInput" 
+              class="form-textarea" 
+              rows="3" 
+              placeholder="E.g., This image will be used in a blog post about web accessibility..."
+            ></textarea>
+          </div>
+
+          <div class="option-group">
+            <label class="checkbox-option">
+              <input type="checkbox" id="includeDetails" checked />
+              <span>Include colors, emotions, and actions</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <input type="file" id="fileInput" accept="image/jpeg,image/jpg,image/png,image/webp,image/gif" style="display: none;" />
+
+      <div class="status-message" id="statusMessage"></div>
+
+      <div class="results-container" id="resultsContainer">
+        <div id="resultsContent"></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="footer"></div>
+
+  <script src="../scripts/layout.js"></script>
+  <script type="module" src="../scripts/main.js" defer></script>
+  <script src="../scripts/footer.js"></script>
+
+  <script>
+    class AltTextGenerator {
+      constructor() {
+        this.uploadZone = document.getElementById('uploadZone');
+        this.fileInput = document.getElementById('fileInput');
+        this.uploadButton = document.getElementById('uploadButton');
+        this.urlButton = document.getElementById('urlButton');
+        this.imageUrl = document.getElementById('imageUrl');
+        this.statusMessage = document.getElementById('statusMessage');
+        this.resultsContainer = document.getElementById('resultsContainer');
+        this.resultsContent = document.getElementById('resultsContent');
+
+        this.selectedTone = 'descriptive';
+        this.selectedLength = 125;
+
+        this.init();
+      }
+
+      init() {
+        this.bindEvents();
+        this.initializeOptions();
+      }
+
+      bindEvents() {
+        // File upload events
+        this.uploadButton.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.fileInput.click();
+        });
+
+        this.fileInput.addEventListener('change', (e) => {
+          if (e.target.files.length > 0) {
+            this.handleFileUpload(e.target.files[0]);
+          }
+        });
+
+        // URL generation
+        this.urlButton.addEventListener('click', () => this.handleUrlGeneration());
+        this.imageUrl.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') this.handleUrlGeneration();
+        });
+
+        // Drag and drop
+        this.uploadZone.addEventListener('dragover', (e) => this.handleDragOver(e));
+        this.uploadZone.addEventListener('dragleave', (e) => this.handleDragLeave(e));
+        this.uploadZone.addEventListener('drop', (e) => this.handleDrop(e));
+      }
+
+      initializeOptions() {
+        // Tone selection
+        document.querySelectorAll('#toneGroup .radio-option').forEach(option => {
+          option.addEventListener('click', () => {
+            document.querySelectorAll('#toneGroup .radio-option').forEach(o => o.classList.remove('selected'));
+            option.classList.add('selected');
+            this.selectedTone = option.dataset.value;
+          });
+        });
+
+        // Length selection
+        document.querySelectorAll('#lengthGroup .radio-option').forEach(option => {
+          option.addEventListener('click', () => {
+            document.querySelectorAll('#lengthGroup .radio-option').forEach(o => o.classList.remove('selected'));
+            option.classList.add('selected');
+            this.selectedLength = parseInt(option.dataset.value);
+          });
+        });
+      }
+
+      handleDragOver(e) {
+        e.preventDefault();
+        this.uploadZone.classList.add('drag-over');
+      }
+
+      handleDragLeave(e) {
+        e.preventDefault();
+        if (!this.uploadZone.contains(e.relatedTarget)) {
+          this.uploadZone.classList.remove('drag-over');
+        }
+      }
+
+      handleDrop(e) {
+        e.preventDefault();
+        this.uploadZone.classList.remove('drag-over');
+        const files = Array.from(e.dataTransfer.files);
+        if (files.length > 0 && files[0].type.startsWith('image/')) {
+          this.handleFileUpload(files[0]);
+        } else {
+          this.showStatus('Please drop a valid image file', 'error');
+        }
+      }
+
+      async handleFileUpload(file) {
+        this.showStatus('Uploading and generating alt text...', 'info');
+        
+        const formData = new FormData();
+        formData.append('image', file);
+        formData.append('tone', this.selectedTone);
+        formData.append('maxLength', this.selectedLength);
+        formData.append('context', document.getElementById('contextInput').value);
+        formData.append('includeDetails', document.getElementById('includeDetails').checked);
+
+        try {
+          const response = await fetch('https://worktoolshubv2.onrender.com/api/alt-text/generate-from-upload', {
+            method: 'POST',
+            body: formData
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to generate alt text');
+          }
+
+          const result = await response.json();
+          this.displayResult(result);
+          this.showStatus('Alt text generated successfully!', 'success');
+        } catch (error) {
+          console.error('Upload error:', error);
+          this.showStatus(error.message || 'Failed to generate alt text', 'error');
+        }
+      }
+
+      async handleUrlGeneration() {
+        const url = this.imageUrl.value.trim();
+        
+        if (!url) {
+          this.showStatus('Please enter an image URL', 'error');
+          return;
+        }
+
+        this.showStatus('Generating alt text from URL...', 'info');
+
+        try {
+          const response = await fetch('https://worktoolshubv2.onrender.com/api/alt-text/generate-from-url', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              imageUrl: url,
+              tone: this.selectedTone,
+              maxLength: this.selectedLength,
+              context: document.getElementById('contextInput').value,
+              includeDetails: document.getElementById('includeDetails').checked
+            })
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to generate alt text');
+          }
+
+          const result = await response.json();
+          this.displayResult(result);
+          this.showStatus('Alt text generated successfully!', 'success');
+        } catch (error) {
+          console.error('URL generation error:', error);
+          this.showStatus(error.message || 'Failed to generate alt text', 'error');
+        }
+      }
+
+      displayResult(result) {
+        const resultHtml = `
+          <div class="result-card">
+            <div class="result-header">
+              <h3 class="result-title">Generated Alt Text</h3>
+            </div>
+
+            <img src="${this.escapeHtml(result.imageUrl)}" alt="Preview" class="image-preview" />
+
+            <div class="alt-text-display">
+              ${this.escapeHtml(result.altText)}
+            </div>
+
+            <button class="copy-button" data-text="${this.escapeHtml(result.altText)}">
+              📋 Copy Alt Text
+            </button>
+
+            <div style="margin-top: 1rem; padding-top: 1rem; border-top: 2px solid var(--purple-100);">
+              <p style="font-size: 0.875rem; color: var(--purple-600);">
+                <strong>Character count:</strong> ${result.altText.length} characters
+                ${result.fileName ? `<br><strong>File:</strong> ${this.escapeHtml(result.fileName)}` : ''}
+              </p>
+            </div>
+          </div>
+        `;
+
+        this.resultsContent.innerHTML = resultHtml;
+        this.resultsContainer.classList.add('show');
+
+        // Bind copy button
+        const copyBtn = this.resultsContent.querySelector('.copy-button');
+        copyBtn.addEventListener('click', (e) => this.copyText(e));
+      }
+
+      async copyText(event) {
+        const button = event.currentTarget;
+        const text = button.dataset.text;
+        
+        try {
+          await navigator.clipboard.writeText(text);
+          
+          const originalHtml = button.innerHTML;
+          button.innerHTML = '✅ Copied!';
+          button.classList.add('copied');
+          
+          setTimeout(() => {
+            button.innerHTML = originalHtml;
+            button.classList.remove('copied');
+          }, 2000);
+        } catch (err) {
+          console.error('Copy failed:', err);
+          this.showStatus('Failed to copy text', 'error');
+        }
+      }
+
+      showStatus(message, type) {
+        this.statusMessage.textContent = message;
+        this.statusMessage.className = `status-message ${type}`;
+
+        if (type === 'success' || type === 'info') {
+          setTimeout(() => {
+            this.statusMessage.classList.remove('success', 'info');
+          }, 5000);
+        }
+      }
+
+      escapeHtml(unsafe) {
+        return unsafe
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      window.altTextGenerator = new AltTextGenerator();
+    });
+  </script>
+</body>
+</html>

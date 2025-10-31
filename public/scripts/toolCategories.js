@@ -102,6 +102,11 @@ export const toolCategories = {
         path: "/tools/pdf-combiner",
         internal: true,
       },
+      {
+        name: "File Converter",
+        path: "/tools/file-converter",
+        public: true,
+      },
     ],
   },
   "business-tools": {
@@ -145,8 +150,8 @@ export const toolCategories = {
       },
       {
         name: "Alt Text Generator",
-        path: "/tools/alt-text",
-        pending: true,
+        path: "/tools/alt-text-generator",
+        public: true,
       },
       {
         name: "Color Palette",

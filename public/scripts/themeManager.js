@@ -40,8 +40,6 @@ export class ThemeManager {
     this.theme = this.theme === "light" ? "dark" : "light";
     localStorage.setItem("theme", this.theme);
     this.applyTheme();
-
-    console.log("🎨 Theme toggled:", this.theme);
   }
 
   bindEvents() {

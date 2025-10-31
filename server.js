@@ -30,6 +30,8 @@ const testimonialRoutes = require("./routes/testimonialRoutes");
 const pdfRoutes = require('./routes/pdfRoutes');
 const metaRoutes = require('./routes/metaRoutes');
 const imageRoutes = require('./routes/imageRoutes');
+const altTextRoutes = require('./routes/altTextRoutes');
+const conversionRoutes = require('./routes/conversionRoutes');
 
 // Import Admin model
 const Admin = require("./models/Admin");
@@ -268,6 +270,10 @@ app.use("/api/testimonials", testimonialRoutes);
 app.use("/api", pdfRoutes);
 app.use('/api/meta', metaRoutes);
 app.use('/api/images', imageRoutes);
+
+
+app.use('/api/alt-text', altTextRoutes);
+app.use('/api/convert', conversionRoutes);
 
 // Test MongoDB connection
 app.get("/api/test-db", async (req, res) => {
