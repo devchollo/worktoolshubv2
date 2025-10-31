@@ -9,18 +9,24 @@ const fileUploadService = require('../services/fileUploadService');
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 50 * 1024 * 1024, // 50MB limit
+    fileSize: 100 * 1024 * 1024, // 100MB limit
   },
   fileFilter: (req, file, cb) => {
     const allowedTypes = [
-      'image/jpeg',
-      'image/jpg',
-      'image/png',
-      'image/webp',
-      'image/gif',
-      'image/bmp',
-      'image/tiff',
-      'image/svg+xml'
+      // Images
+      'image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif',
+      'image/bmp', 'image/tiff', 'image/svg+xml', 'image/x-icon',
+      // Audio
+      'audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/ogg', 'audio/flac',
+      'audio/m4a', 'audio/aac', 'audio/x-m4a', 'audio/opus',
+      // Video
+      'video/mp4', 'video/avi', 'video/quicktime', 'video/x-matroska',
+      'video/x-flv', 'video/x-ms-wmv', 'video/webm', 'video/mpeg',
+      // Documents
+      'application/pdf', 'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'text/plain', 'text/html', 'text/markdown', 'application/rtf',
+      'application/vnd.oasis.opendocument.text'
     ];
     
     if (allowedTypes.includes(file.mimetype)) {
@@ -46,6 +52,35 @@ router.get('/supported-formats', (req, res) => {
   }
 });
 
+// Check system capabilities
+router.get('/capabilities', async (req, res) => {
+  try {
+    const ffmpegAvailable = await fileConversionService.checkFFmpegAvailability();
+    const libreOfficeAvailable = await fileConversionService.checkLibreOfficeAvailability();
+
+    res.json({
+      success: true,
+      capabilities: {
+        images: true,
+        audio: ffmpegAvailable,
+        video: ffmpegAvailable,
+        documents: {
+          basic: true,
+          advanced: libreOfficeAvailable
+        }
+      },
+      message: !ffmpegAvailable ? 
+        'FFmpeg not available - audio/video conversions disabled' : 
+        'All conversion features available'
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: 'Failed to check capabilities',
+      message: error.message
+    });
+  }
+});
+
 // Convert single file
 router.post('/convert', upload.single('file'), async (req, res) => {
   try {
@@ -56,7 +91,7 @@ router.post('/convert', upload.single('file'), async (req, res) => {
       });
     }
 
-    const { targetFormat, quality, width, height, fit } = req.body;
+    const { targetFormat, quality, width, height, fit, bitrate, sampleRate, videoBitrate, audioBitrate, resolution, fps } = req.body;
 
     if (!targetFormat) {
       return res.status(400).json({
@@ -76,18 +111,39 @@ router.post('/convert', upload.single('file'), async (req, res) => {
       });
     }
 
-    // Build conversion options
-    const options = {
-      quality: parseInt(quality) || 90,
-      resize: (width || height) ? {
-        width: width ? parseInt(width) : null,
-        height: height ? parseInt(height) : null,
-        fit: fit || 'inside'
-      } : null
-    };
+    // Build conversion options based on file type
+    const fileType = fileConversionService.detectFileType(sourceFormat);
+    const options = {};
+
+    // Image options
+    if (fileType === 'image') {
+      options.quality = parseInt(quality) || 90;
+      if (width || height) {
+        options.resize = {
+          width: width ? parseInt(width) : null,
+          height: height ? parseInt(height) : null,
+          fit: fit || 'inside'
+        };
+      }
+    }
+
+    // Audio options
+    if (fileType === 'audio') {
+      options.bitrate = bitrate || '192k';
+      options.sampleRate = sampleRate ? parseInt(sampleRate) : 44100;
+      options.channels = 2;
+    }
+
+    // Video options
+    if (fileType === 'video') {
+      options.videoBitrate = videoBitrate || '1000k';
+      options.audioBitrate = audioBitrate || '128k';
+      if (resolution) options.resolution = resolution;
+      if (fps) options.fps = parseInt(fps);
+    }
 
     // Convert the file
-    const converted = await fileConversionService.convertImage(
+    const converted = await fileConversionService.convert(
       req.file.buffer,
       sourceFormat,
       targetFormat,
@@ -98,7 +154,7 @@ router.post('/convert', upload.single('file'), async (req, res) => {
     const convertedFile = {
       buffer: converted.buffer,
       originalname: req.file.originalname.replace(/\.[^/.]+$/, `.${targetFormat}`),
-      mimetype: `image/${targetFormat}`,
+      mimetype: getMimeType(targetFormat),
       size: converted.size
     };
 
@@ -113,13 +169,15 @@ router.post('/convert', upload.single('file'), async (req, res) => {
       originalFile: {
         name: req.file.originalname,
         format: sourceFormat,
-        size: req.file.size
+        size: req.file.size,
+        type: fileType
       },
       convertedFile: {
         name: convertedFile.originalname,
         format: targetFormat,
         size: converted.size,
-        url: uploadResult.publicUrl
+        url: uploadResult.publicUrl,
+        type: fileType
       },
       metadata: converted.metadata,
       compressionRatio: ((1 - converted.size / req.file.size) * 100).toFixed(2)
@@ -128,9 +186,16 @@ router.post('/convert', upload.single('file'), async (req, res) => {
   } catch (error) {
     console.error('File conversion error:', error);
     
-    if (error.message.includes('Unsupported')) {
+    if (error.message.includes('Unsupported') || error.message.includes('not supported')) {
       return res.status(400).json({
         error: 'Invalid conversion',
+        message: error.message
+      });
+    }
+    
+    if (error.message.includes('FFmpeg') || error.message.includes('LibreOffice')) {
+      return res.status(503).json({
+        error: 'Service unavailable',
         message: error.message
       });
     }
@@ -152,7 +217,7 @@ router.post('/convert-batch', upload.array('files', 10), async (req, res) => {
       });
     }
 
-    const { targetFormat, quality, width, height, fit } = req.body;
+    const { targetFormat, quality, width, height, fit, bitrate, sampleRate } = req.body;
 
     if (!targetFormat) {
       return res.status(400).json({
@@ -160,15 +225,6 @@ router.post('/convert-batch', upload.array('files', 10), async (req, res) => {
         message: 'Please specify the target format'
       });
     }
-
-    const options = {
-      quality: parseInt(quality) || 90,
-      resize: (width || height) ? {
-        width: width ? parseInt(width) : null,
-        height: height ? parseInt(height) : null,
-        fit: fit || 'inside'
-      } : null
-    };
 
     const results = [];
 
@@ -186,8 +242,28 @@ router.post('/convert-batch', upload.array('files', 10), async (req, res) => {
           continue;
         }
 
+        // Build options
+        const fileType = fileConversionService.detectFileType(sourceFormat);
+        const options = {};
+
+        if (fileType === 'image') {
+          options.quality = parseInt(quality) || 90;
+          if (width || height) {
+            options.resize = {
+              width: width ? parseInt(width) : null,
+              height: height ? parseInt(height) : null,
+              fit: fit || 'inside'
+            };
+          }
+        }
+
+        if (fileType === 'audio') {
+          options.bitrate = bitrate || '192k';
+          options.sampleRate = sampleRate ? parseInt(sampleRate) : 44100;
+        }
+
         // Convert the file
-        const converted = await fileConversionService.convertImage(
+        const converted = await fileConversionService.convert(
           file.buffer,
           sourceFormat,
           targetFormat,
@@ -198,7 +274,7 @@ router.post('/convert-batch', upload.array('files', 10), async (req, res) => {
         const convertedFile = {
           buffer: converted.buffer,
           originalname: file.originalname.replace(/\.[^/.]+$/, `.${targetFormat}`),
-          mimetype: `image/${targetFormat}`,
+          mimetype: getMimeType(targetFormat),
           size: converted.size
         };
 
@@ -300,5 +376,49 @@ router.post('/optimize', upload.single('file'), async (req, res) => {
     });
   }
 });
+
+// Helper function to get MIME type from format
+function getMimeType(format) {
+  const mimeTypes = {
+    // Images
+    'jpg': 'image/jpeg',
+    'jpeg': 'image/jpeg',
+    'png': 'image/png',
+    'webp': 'image/webp',
+    'gif': 'image/gif',
+    'bmp': 'image/bmp',
+    'tiff': 'image/tiff',
+    'ico': 'image/x-icon',
+    'avif': 'image/avif',
+    'svg': 'image/svg+xml',
+    // Audio
+    'mp3': 'audio/mpeg',
+    'wav': 'audio/wav',
+    'ogg': 'audio/ogg',
+    'flac': 'audio/flac',
+    'm4a': 'audio/m4a',
+    'aac': 'audio/aac',
+    'opus': 'audio/opus',
+    // Video
+    'mp4': 'video/mp4',
+    'avi': 'video/avi',
+    'mov': 'video/quicktime',
+    'mkv': 'video/x-matroska',
+    'webm': 'video/webm',
+    'flv': 'video/x-flv',
+    'wmv': 'video/x-ms-wmv',
+    'mpeg': 'video/mpeg',
+    // Documents
+    'pdf': 'application/pdf',
+    'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'doc': 'application/msword',
+    'txt': 'text/plain',
+    'html': 'text/html',
+    'md': 'text/markdown',
+    'rtf': 'application/rtf'
+  };
+
+  return mimeTypes[format.toLowerCase()] || 'application/octet-stream';
+}
 
 module.exports = router;
