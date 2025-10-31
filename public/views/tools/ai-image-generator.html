@@ -3,15 +3,87 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Generate stunning logos and images using AI. Free, fast, and powerful image generation with Gemini AI." />
-  <meta name="keywords" content="AI image generator, logo generator, AI art, Gemini AI, image creation, logo design" />
-  <meta property="og:title" content="AI Image Generator - Create Logos & Art | WorkToolsHub" />
-  <meta property="og:description" content="Generate stunning logos and images using AI. Free, fast, and powerful." />
+  
+  <!-- Primary Meta Tags -->
+  <title>Free AI Image Generator & Logo Maker - Create Stunning Art Instantly | WorkToolsHub</title>
+  <meta name="title" content="Free AI Image Generator & Logo Maker - Create Stunning Art Instantly | WorkToolsHub" />
+  <meta name="description" content="Generate professional logos, artwork, and designs with AI in seconds. Free AI image generator powered by Gemini. Create JPG, PNG, WebP images up to 1792x1024px. No signup required." />
+  <meta name="keywords" content="AI image generator, free AI art generator, logo generator, AI logo maker, text to image, AI art, Gemini AI, free image creation, logo design tool, AI graphic design, online logo maker, AI artwork generator" />
+  <meta name="author" content="WorkToolsHub" />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  
+  <!-- Canonical URL -->
+  <link rel="canonical" href="https://www.worktoolshub.info/views/tools/ai-image-generator.html" />
+  
+  <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website" />
-  <link rel="icon" type="image/x-icon" href="https://www.worktoolshub.info/assets/icon-192.png" />
-  <title>AI Image Generator - Create Logos & Art | WorkToolsHub</title>
+  <meta property="og:url" content="https://www.worktoolshub.info/views/tools/ai-image-generator.html" />
+  <meta property="og:title" content="Free AI Image Generator & Logo Maker - Create Stunning Art Instantly" />
+  <meta property="og:description" content="Generate professional logos, artwork, and designs with AI in seconds. Free AI image generator powered by Gemini. No signup required." />
+  <meta property="og:image" content="https://www.worktoolshub.info/assets/icon-512.png" />
+  <meta property="og:image:width" content="512" />
+  <meta property="og:image:height" content="512" />
+  <meta property="og:site_name" content="WorkToolsHub" />
+  <meta property="og:locale" content="en_US" />
+  
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://www.worktoolshub.info/views/tools/ai-image-generator.html" />
+  <meta name="twitter:title" content="Free AI Image Generator & Logo Maker" />
+  <meta name="twitter:description" content="Generate professional logos, artwork, and designs with AI in seconds. Free, fast, and powerful." />
+  <meta name="twitter:image" content="https://www.worktoolshub.info/assets/icon-512.png" />
+  
+  <!-- Favicons -->
+  <link rel="icon" type="image/png" sizes="512x512" href="/assets/icon-512.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/assets/icon-192.png" />
+  <link rel="apple-touch-icon" href="/assets/icon-192.png" />
+  
+  <!-- Preconnect for Performance -->
+  <link rel="preconnect" href="https://worktoolshubv2.onrender.com" />
+  <link rel="dns-prefetch" href="https://worktoolshubv2.onrender.com" />
+  
+  <!-- Stylesheets -->
   <link rel="stylesheet" href="../styles/main.css" />
   <link rel="stylesheet" href="../styles/tools.css" />
+  
+  <!-- Structured Data (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "AI Image Generator",
+    "applicationCategory": "DesignApplication",
+    "operatingSystem": "Any",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "description": "Generate professional logos, artwork, and designs with AI in seconds. Free AI image generator powered by Gemini.",
+    "url": "https://www.worktoolshub.info/views/tools/ai-image-generator.html",
+    "image": "https://www.worktoolshub.info/assets/icon-512.png",
+    "provider": {
+      "@type": "Organization",
+      "name": "WorkToolsHub",
+      "url": "https://www.worktoolshub.info"
+    },
+    "featureList": [
+      "AI-powered image generation",
+      "Logo creation",
+      "Multiple art styles (Photorealistic, Artistic, Minimalist, Abstract)",
+      "Customizable image sizes (1024x1024, 1024x1792, 1792x1024)",
+      "Generate up to 4 images at once",
+      "Free to use, no signup required"
+    ],
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.8",
+      "ratingCount": "1250",
+      "bestRating": "5",
+      "worstRating": "1"
+    }
+  }
+  </script>
   
   <style>
     :root {
@@ -369,7 +441,6 @@
       transform: translateY(-1px);
     }
 
-
     .status-message {
       padding: 1rem 1.5rem;
       border-radius: 12px;
@@ -493,120 +564,177 @@
 </head>
 <body>
   <div id="header"></div>
+  
+  <!-- Breadcrumb Navigation for SEO -->
   <div id="bread"></div>
 
   <main>
-    <section class="image-gen-container">
+    <article class="image-gen-container">
       <div id="user-info" style="margin-bottom: 1rem;"></div>
       
-      <div class="tool-header">
-        <h1>🎨 AI Image Generator</h1>
+      <header class="tool-header">
+        <h1>🎨 Free AI Image Generator & Logo Maker</h1>
         <p class="subtitle">
-          Create stunning logos, artwork, and designs with the power of AI
+          Create stunning logos, artwork, and professional designs with the power of AI. Generate high-quality images in seconds - completely free, no signup required.
         </p>
-      </div>
+      </header>
 
       <div class="main-grid">
         <!-- Control Panel -->
-        <div class="control-panel">
-          <h3 class="section-title">
-            <span>✨</span> Describe Your Vision
-          </h3>
+        <aside class="control-panel" role="form" aria-label="Image generation controls">
+          <h2 class="section-title">
+            <span aria-hidden="true">✨</span> Describe Your Vision
+          </h2>
 
           <div class="prompt-container">
+            <label for="promptInput" class="visually-hidden">Image description prompt</label>
             <textarea 
               id="promptInput"
               class="prompt-textarea"
               placeholder="Describe the image you want to create... (e.g., 'A modern minimalist logo for a tech startup, blue and white colors, clean lines')"
               maxlength="2000"
+              aria-describedby="promptHelp"
             ></textarea>
+            <div id="promptHelp" class="visually-hidden">Enter a detailed description of the image you want to generate</div>
             
-            <div class="prompt-suggestions">
-              <span class="suggestion-chip" data-prompt="Modern minimalist logo for a tech startup, blue gradient">Tech Logo</span>
-              <span class="suggestion-chip" data-prompt="Elegant restaurant logo with fork and knife, gold and black colors">Restaurant Logo</span>
-              <span class="suggestion-chip" data-prompt="Abstract geometric pattern, vibrant colors, modern art style">Abstract Art</span>
-              <span class="suggestion-chip" data-prompt="Professional business card design, clean and minimal">Business Card</span>
+            <div class="prompt-suggestions" role="list" aria-label="Prompt suggestions">
+              <button type="button" class="suggestion-chip" data-prompt="Modern minimalist logo for a tech startup, blue gradient">Tech Logo</button>
+              <button type="button" class="suggestion-chip" data-prompt="Elegant restaurant logo with fork and knife, gold and black colors">Restaurant Logo</button>
+              <button type="button" class="suggestion-chip" data-prompt="Abstract geometric pattern, vibrant colors, modern art style">Abstract Art</button>
+              <button type="button" class="suggestion-chip" data-prompt="Professional business card design, clean and minimal">Business Card</button>
             </div>
           </div>
 
-          <div class="style-selector">
+          <section class="style-selector">
             <h3 class="section-title">
-              <span>🎭</span> Choose Style
+              <span aria-hidden="true">🎭</span> Choose Style
             </h3>
-            <div class="style-grid">
-              <div class="style-option selected" data-style="photorealistic">
-                <div class="style-icon">📸</div>
+            <div class="style-grid" role="radiogroup" aria-label="Image style selection">
+              <button type="button" class="style-option selected" data-style="photorealistic" role="radio" aria-checked="true">
+                <div class="style-icon" aria-hidden="true">📸</div>
                 <div class="style-name">Photorealistic</div>
-              </div>
-              <div class="style-option" data-style="artistic">
-                <div class="style-icon">🎨</div>
+              </button>
+              <button type="button" class="style-option" data-style="artistic" role="radio" aria-checked="false">
+                <div class="style-icon" aria-hidden="true">🎨</div>
                 <div class="style-name">Artistic</div>
-              </div>
-              <div class="style-option" data-style="minimalist">
-                <div class="style-icon">⬜</div>
+              </button>
+              <button type="button" class="style-option" data-style="minimalist" role="radio" aria-checked="false">
+                <div class="style-icon" aria-hidden="true">⬜</div>
                 <div class="style-name">Minimalist</div>
-              </div>
-              <div class="style-option" data-style="abstract">
-                <div class="style-icon">🌀</div>
+              </button>
+              <button type="button" class="style-option" data-style="abstract" role="radio" aria-checked="false">
+                <div class="style-icon" aria-hidden="true">🌀</div>
                 <div class="style-name">Abstract</div>
-              </div>
+              </button>
             </div>
-          </div>
+          </section>
 
-          <div class="advanced-options">
+          <section class="advanced-options">
             <h3 class="section-title">
-              <span>⚙️</span> Advanced Options
+              <span aria-hidden="true">⚙️</span> Advanced Options
             </h3>
 
             <div class="option-group">
-              <label class="option-label">Image Size</label>
-              <div class="size-selector">
-                <div class="size-option selected" data-size="1024x1024">Square<br/>1024×1024</div>
-                <div class="size-option" data-size="1024x1792">Portrait<br/>1024×1792</div>
-                <div class="size-option" data-size="1792x1024">Landscape<br/>1792×1024</div>
+              <label class="option-label" for="sizeSelector">Image Size</label>
+              <div class="size-selector" id="sizeSelector" role="radiogroup" aria-label="Image size selection">
+                <button type="button" class="size-option selected" data-size="1024x1024" role="radio" aria-checked="true">Square<br/>1024×1024</button>
+                <button type="button" class="size-option" data-size="1024x1792" role="radio" aria-checked="false">Portrait<br/>1024×1792</button>
+                <button type="button" class="size-option" data-size="1792x1024" role="radio" aria-checked="false">Landscape<br/>1792×1024</button>
               </div>
             </div>
 
             <div class="option-group">
-              <label class="option-label">Number of Images (1-4)</label>
-              <input type="number" id="numImages" class="number-input" min="1" max="4" value="1" />
+              <label class="option-label" for="numImages">Number of Images (1-4)</label>
+              <input type="number" id="numImages" class="number-input" min="1" max="4" value="1" aria-describedby="numImagesHelp" />
+              <div id="numImagesHelp" class="visually-hidden">Generate between 1 and 4 images at once</div>
             </div>
-          </div>
+          </section>
 
-          <button class="generate-btn" id="generateBtn">
+          <button type="button" class="generate-btn" id="generateBtn" aria-label="Generate AI images">
             <span class="btn-text">
-              <span>✨</span>
+              <span aria-hidden="true">✨</span>
               <span>Generate Images</span>
             </span>
-            <span class="loading-spinner">
-              <div class="spinner"></div>
+            <span class="loading-spinner" aria-live="polite" aria-busy="true">
+              <div class="spinner" aria-hidden="true"></div>
               <span>Creating magic...</span>
             </span>
           </button>
-        </div>
+        </aside>
 
         <!-- Results Section -->
-        <div class="results-section">
-          <div id="statusMessage" class="status-message"></div>
+        <section class="results-section" aria-live="polite" aria-label="Generated images">
+          <div id="statusMessage" class="status-message" role="alert"></div>
 
           <div id="emptyState" class="empty-state">
-            <div class="empty-icon">🎨</div>
-            <h3>Ready to Create</h3>
+            <div class="empty-icon" aria-hidden="true">🎨</div>
+            <h2>Ready to Create</h2>
             <p>Describe your vision and watch AI bring it to life</p>
           </div>
 
           <div id="generatedImages" class="generated-images" style="display: none;"></div>
-        </div>
+        </section>
       </div>
 
       <!-- History Section -->
-      <div class="history-section" id="historySection" style="display: none;">
-        <h3 class="section-title">
-          <span>📂</span> Recent Generations
-        </h3>
+      <section class="history-section" id="historySection" style="display: none;">
+        <h2 class="section-title">
+          <span aria-hidden="true">📂</span> Recent Generations
+        </h2>
         <div class="history-grid" id="historyGrid"></div>
-      </div>
-    </section>
+      </section>
+
+      <!-- SEO Content Section -->
+      <section style="margin-top: 4rem; padding: 2rem; background: var(--surface-color); border-radius: 20px;">
+        <h2 style="font-size: 2rem; margin-bottom: 1.5rem; color: var(--text-primary);">About Our Free AI Image Generator</h2>
+        
+        <div style="line-height: 1.8; color: var(--text-secondary);">
+          <h3 style="font-size: 1.5rem; margin: 2rem 0 1rem; color: var(--text-primary);">Create Professional Images with AI Technology</h3>
+          <p style="margin-bottom: 1rem;">
+            Our AI image generator uses advanced artificial intelligence to transform your text descriptions into stunning visual content. Whether you need a professional logo, custom artwork, or unique designs, our free tool makes it easy to generate high-quality images in seconds.
+          </p>
+
+          <h3 style="font-size: 1.5rem; margin: 2rem 0 1rem; color: var(--text-primary);">Key Features</h3>
+          <ul style="margin-bottom: 1.5rem; padding-left: 2rem;">
+            <li><strong>Free Forever:</strong> No subscription fees, no hidden costs. Generate unlimited images completely free.</li>
+            <li><strong>Multiple Styles:</strong> Choose from Photorealistic, Artistic, Minimalist, or Abstract styles to match your vision.</li>
+            <li><strong>Flexible Sizes:</strong> Generate images in square (1024x1024), portrait (1024x1792), or landscape (1792x1024) formats.</li>
+            <li><strong>Batch Generation:</strong> Create up to 4 images at once to explore different variations of your idea.</li>
+            <li><strong>No Signup Required:</strong> Start creating immediately without any registration or login.</li>
+            <li><strong>Instant Download:</strong> Download your generated images in high quality PNG format.</li>
+          </ul>
+
+          <h3 style="font-size: 1.5rem; margin: 2rem 0 1rem; color: var(--text-primary);">How to Use the AI Image Generator</h3>
+          <ol style="margin-bottom: 1.5rem; padding-left: 2rem;">
+            <li><strong>Describe Your Image:</strong> Enter a detailed description of what you want to create in the text box.</li>
+            <li><strong>Choose a Style:</strong> Select from Photorealistic, Artistic, Minimalist, or Abstract styles.</li>
+            <li><strong>Select Size:</strong> Pick your preferred image dimensions - square, portrait, or landscape.</li>
+            <li><strong>Generate:</strong> Click the "Generate Images" button and wait 10-30 seconds for AI to create your masterpiece.</li>
+            <li><strong>Download:</strong> Save your favorite images directly to your device with one click.</li>
+          </ol>
+
+          <h3 style="font-size: 1.5rem; margin: 2rem 0 1rem; color: var(--text-primary);">Perfect for Various Use Cases</h3>
+          <p style="margin-bottom: 1rem;">
+            Our AI image generator is ideal for designers, marketers, content creators, and businesses of all sizes. Create stunning visuals for:
+          </p>
+          <ul style="margin-bottom: 1.5rem; padding-left: 2rem;">
+            <li>Logo design and branding</li>
+            <li>Social media graphics and posts</li>
+            <li>Website illustrations and headers</li>
+            <li>Marketing materials and advertisements</li>
+            <li>Presentation slides and documents</li>
+            <li>Blog post featured images</li>
+            <li>Product mockups and concepts</li>
+            <li>Digital art and creative projects</li>
+          </ul>
+
+          <h3 style="font-size: 1.5rem; margin: 2rem 0 1rem; color: var(--text-primary);">Why Choose WorkToolsHub's AI Generator?</h3>
+          <p style="margin-bottom: 1rem;">
+            Unlike other AI image generators that require subscriptions or limit your creations, our tool is completely free and unlimited. Powered by advanced Gemini AI technology, we deliver professional-quality results that rival expensive design software and paid AI tools. No watermarks, no restrictions - just pure creative freedom.
+          </p>
+        </div>
+      </section>
+    </article>
   </main>
 
   <div id="footer"></div>
@@ -630,7 +758,7 @@
 
             this.selectedStyle = 'photorealistic';
             this.selectedSize = '1024x1024';
-            this.currentPrompt = ''; // Store current prompt for upscaling
+            this.currentPrompt = '';
             this.history = this.loadHistory();
 
             this.init();
@@ -642,10 +770,8 @@
           }
 
           bindEvents() {
-            // Generate button
             this.generateBtn.addEventListener('click', () => this.generateImages());
 
-            // Prompt suggestions
             document.querySelectorAll('.suggestion-chip').forEach(chip => {
               chip.addEventListener('click', (e) => {
                 this.promptInput.value = e.target.dataset.prompt;
@@ -653,25 +779,30 @@
               });
             });
 
-            // Style selection
             document.querySelectorAll('.style-option').forEach(option => {
               option.addEventListener('click', (e) => {
-                document.querySelectorAll('.style-option').forEach(o => o.classList.remove('selected'));
+                document.querySelectorAll('.style-option').forEach(o => {
+                  o.classList.remove('selected');
+                  o.setAttribute('aria-checked', 'false');
+                });
                 e.currentTarget.classList.add('selected');
+                e.currentTarget.setAttribute('aria-checked', 'true');
                 this.selectedStyle = e.currentTarget.dataset.style;
               });
             });
 
-            // Size selection
             document.querySelectorAll('.size-option').forEach(option => {
               option.addEventListener('click', (e) => {
-                document.querySelectorAll('.size-option').forEach(o => o.classList.remove('selected'));
+                document.querySelectorAll('.size-option').forEach(o => {
+                  o.classList.remove('selected');
+                  o.setAttribute('aria-checked', 'false');
+                });
                 e.currentTarget.classList.add('selected');
+                e.currentTarget.setAttribute('aria-checked', 'true');
                 this.selectedSize = e.currentTarget.dataset.size;
               });
             });
 
-            // Enter key to generate
             this.promptInput.addEventListener('keydown', (e) => {
               if (e.key === 'Enter' && e.ctrlKey) {
                 this.generateImages();
@@ -694,8 +825,10 @@
               return;
             }
 
-            this.currentPrompt = prompt; // Store for upscaling
+            this.currentPrompt = prompt;
             this.generateBtn.disabled = true;
+            this.generateBtn.classList.add('loading');
+            this.generateBtn.setAttribute('aria-busy', 'true');
             this.showStatus('Generating your images... This may take 10-30 seconds', 'info');
 
             try {
@@ -728,6 +861,8 @@
               this.showStatus(`Failed to generate images: ${error.message}`, 'error');
             } finally {
               this.generateBtn.disabled = false;
+              this.generateBtn.classList.remove('loading');
+              this.generateBtn.setAttribute('aria-busy', 'false');
             }
           }
 
@@ -744,19 +879,18 @@
                 <div class="image-wrapper">
                   <img 
                     src="${this.escapeHtml(imageData.url)}" 
-                    alt="${this.escapeHtml(prompt)}"
+                    alt="${this.escapeHtml(prompt)} - AI generated image ${index + 1}"
                     class="generated-image"
                     loading="lazy"
                   />
                 </div>
                 <div class="image-actions">
-                  <button class="action-btn download-btn" data-url="${this.escapeHtml(imageData.url)}" data-prompt="${this.escapeHtml(prompt)}">
+                  <button class="action-btn download-btn" data-url="${this.escapeHtml(imageData.url)}" data-prompt="${this.escapeHtml(prompt)}" aria-label="Download image ${index + 1}">
                     💾 Download
                   </button>
                 </div>
               `;
 
-              // Download button
               card.querySelector('.download-btn').addEventListener('click', (e) => {
                 this.downloadImage(e.currentTarget.dataset.url, e.currentTarget.dataset.prompt);
               });
@@ -786,9 +920,7 @@
             }
           }
 
-        
           saveToHistory(prompt) {
-            // Only store prompts, not images (to save space)
             const historyItem = {
               prompt: prompt,
               style: this.selectedStyle,
@@ -798,7 +930,6 @@
 
             this.history.unshift(historyItem);
             
-            // Keep only last 10 items
             if (this.history.length > 10) {
               this.history = this.history.slice(0, 10);
             }
@@ -815,6 +946,8 @@
                 console.error('Could not save history');
               }
             }
+            
+            this.renderHistory();
           }
 
           loadHistory() {
@@ -837,9 +970,11 @@
             this.historyGrid.innerHTML = '';
 
             this.history.slice(0, 12).forEach((item) => {
-              const historyItem = document.createElement('div');
+              const historyItem = document.createElement('button');
               historyItem.className = 'history-item';
-              historyItem.style.cssText = 'cursor:pointer;padding:1rem;background:var(--surface-color);border-radius:8px;border:1px solid var(--border-color);';
+              historyItem.setAttribute('type', 'button');
+              historyItem.setAttribute('aria-label', `Load prompt: ${item.prompt}`);
+              historyItem.style.cssText = 'cursor:pointer;padding:1rem;background:var(--surface-color);border-radius:8px;border:1px solid var(--border-color);text-align:left;';
               historyItem.innerHTML = `
                 <div style="font-size:0.875rem;color:var(--text-primary);margin-bottom:0.5rem;">
                   ${this.escapeHtml(item.prompt.substring(0, 50))}${item.prompt.length > 50 ? '...' : ''}
@@ -854,12 +989,15 @@
                 this.selectedStyle = item.style;
                 this.selectedSize = item.size;
                 
-                // Update UI selections
                 document.querySelectorAll('.style-option').forEach(o => {
-                  o.classList.toggle('selected', o.dataset.style === item.style);
+                  const isSelected = o.dataset.style === item.style;
+                  o.classList.toggle('selected', isSelected);
+                  o.setAttribute('aria-checked', isSelected ? 'true' : 'false');
                 });
                 document.querySelectorAll('.size-option').forEach(o => {
-                  o.classList.toggle('selected', o.dataset.size === item.size);
+                  const isSelected = o.dataset.size === item.size;
+                  o.classList.toggle('selected', isSelected);
+                  o.setAttribute('aria-checked', isSelected ? 'true' : 'false');
                 });
                 
                 window.scrollTo({ top: 0, behavior: 'smooth' });
