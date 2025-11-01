@@ -103,57 +103,265 @@
         font-size: 1.5rem;
       }
 
-      /* Instruction Card */
+      /* Instruction Card - Interactive Progress Design */
       .instruction-card {
-        background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
-        border: 2px solid #667eea;
-        border-radius: 12px;
-        padding: 1.5rem;
-        margin-bottom: 2rem;
+        background: white;
+        border-radius: 20px;
+        padding: 0;
+        margin-bottom: 3rem;
+        box-shadow: 0 10px 40px rgba(102, 126, 234, 0.15);
+        overflow: hidden;
+        border: 1px solid rgba(102, 126, 234, 0.1);
+      }
+
+      .instruction-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 2.5rem 2rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .instruction-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+        animation: pulse 4s ease-in-out infinite;
+      }
+
+      @keyframes pulse {
+        0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.5; }
+        50% { transform: scale(1.2) rotate(180deg); opacity: 0.8; }
       }
 
       .instruction-content h3 {
-        margin: 0 0 1rem 0;
-        color: #667eea;
-        font-size: 1.25rem;
+        margin: 0 0 0.5rem 0;
+        color: white;
+        font-size: 2rem;
+        font-weight: 800;
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        justify-content: center;
+        gap: 0.75rem;
+        position: relative;
+        z-index: 1;
+      }
+
+      .instruction-content h3 span:first-child {
+        font-size: 2.5rem;
+        animation: bounce 2s ease-in-out infinite;
+      }
+
+      @keyframes bounce {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        25% { transform: translateY(-8px) rotate(-5deg); }
+        75% { transform: translateY(-8px) rotate(5deg); }
+      }
+
+      .instruction-subtitle {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 1rem;
+        position: relative;
+        z-index: 1;
+      }
+
+      /* Progress Bar */
+      .steps-progress-container {
+        padding: 2rem 2rem 0 2rem;
+        background: white;
+      }
+
+      .steps-progress-bar {
+        position: relative;
+        height: 6px;
+        background: #e5e7eb;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 2rem;
+      }
+
+      .steps-progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        border-radius: 10px;
+        transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        width: 0%;
+        position: relative;
+      }
+
+      .steps-progress-fill::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        animation: shimmer 2s infinite;
+      }
+
+      @keyframes shimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
       }
 
       .instruction-steps {
         display: grid;
-        gap: 0.75rem;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.5rem;
+        padding: 0 2rem 2rem 2rem;
       }
 
       .instruction-step {
         display: flex;
-        align-items: start;
-        gap: 0.75rem;
-        padding: 0.75rem;
-        background: white;
-        border-radius: 8px;
-        border: 1px solid #e5e7eb;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 1.25rem;
+        padding: 2rem 1.5rem;
+        background: #fafbfc;
+        border-radius: 16px;
+        border: 2px solid #e5e7eb;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+      }
+
+      .instruction-step::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        opacity: 0;
+        transition: opacity 0.4s ease;
+        z-index: 0;
+      }
+
+      .instruction-step:hover {
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 15px 40px rgba(102, 126, 234, 0.2);
+        border-color: #667eea;
+      }
+
+      .instruction-step:hover::before {
+        opacity: 0.03;
+      }
+
+      /* Active Step State */
+      .instruction-step.active {
+        background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+        border-color: #667eea;
+        box-shadow: 0 12px 35px rgba(102, 126, 234, 0.25);
+        transform: scale(1.05);
+      }
+
+      .instruction-step.active::before {
+        opacity: 0.05;
+      }
+
+      /* Completed Step State */
+      .instruction-step.completed {
+        background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        border-color: #10b981;
+      }
+
+      .instruction-step.completed .step-number {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      }
+
+      .instruction-step.completed .step-number::after {
+        content: '✓';
+        position: absolute;
+        font-size: 1.75rem;
+        animation: checkmark 0.5s ease;
+      }
+
+      @keyframes checkmark {
+        0% { transform: scale(0) rotate(-45deg); }
+        50% { transform: scale(1.2) rotate(5deg); }
+        100% { transform: scale(1) rotate(0deg); }
+      }
+
+      .step-number-wrapper {
+        position: relative;
       }
 
       .step-number {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        width: 28px;
-        height: 28px;
+        width: 64px;
+        height: 64px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-weight: 700;
-        font-size: 0.875rem;
+        font-weight: 800;
+        font-size: 1.75rem;
         flex-shrink: 0;
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        position: relative;
+        z-index: 1;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .instruction-step:hover .step-number {
+        transform: scale(1.15) rotate(360deg);
+        box-shadow: 0 12px 30px rgba(102, 126, 234, 0.5);
+      }
+
+      .instruction-step.active .step-number {
+        transform: scale(1.2);
+        box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
+        animation: pulse-ring 2s infinite;
+      }
+
+      @keyframes pulse-ring {
+        0%, 100% {
+          box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5), 0 0 0 0 rgba(102, 126, 234, 0.7);
+        }
+        50% {
+          box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5), 0 0 0 15px rgba(102, 126, 234, 0);
+        }
       }
 
       .step-text {
-        color: #6b7280;
-        line-height: 1.5;
+        color: #4b5563;
+        line-height: 1.8;
         font-size: 0.9375rem;
+        position: relative;
+        z-index: 1;
+        transition: all 0.3s ease;
+      }
+
+      .instruction-step.active .step-text {
+        color: #1f2937;
+        font-weight: 500;
+      }
+
+      .instruction-step.completed .step-text {
+        color: #065f46;
+      }
+
+      .step-text strong {
+        color: #667eea;
+        font-weight: 700;
+        position: relative;
+      }
+
+      .instruction-step.active .step-text strong {
+        color: #5a67d8;
+      }
+
+      .instruction-step.completed .step-text strong {
+        color: #059669;
       }
 
       /* Simplified Page Form */
@@ -539,40 +747,256 @@
         background: #94a3b8;
       }
 
-      /* FAQ Section for SEO */
+      /* FAQ Section - Collapsible Accordion Design */
       .faq-section {
         margin-top: 4rem;
-        padding: 2rem;
-        background: #f9fafb;
-        border-radius: 12px;
+        padding: 3rem 2rem;
+        background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+        border-radius: 24px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 8px 30px rgba(102, 126, 234, 0.1);
+      }
+
+      .faq-section::before {
+        content: '';
+        position: absolute;
+        top: -150px;
+        right: -150px;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(102, 126, 234, 0.08) 0%, transparent 70%);
+        border-radius: 50%;
+        animation: float 6s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0%, 100% { transform: translate(0, 0) scale(1); }
+        50% { transform: translate(-20px, 20px) scale(1.1); }
+      }
+
+      .faq-section::after {
+        content: '';
+        position: absolute;
+        bottom: -150px;
+        left: -150px;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(118, 75, 162, 0.08) 0%, transparent 70%);
+        border-radius: 50%;
+        animation: float 8s ease-in-out infinite reverse;
+      }
+
+      .faq-header {
+        text-align: center;
+        margin-bottom: 3rem;
+        position: relative;
+        z-index: 1;
       }
 
       .faq-title {
-        font-size: 2rem;
-        font-weight: 700;
-        margin-bottom: 2rem;
-        text-align: center;
-        color: #1f2937;
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 0.75rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        display: inline-block;
+      }
+
+      .faq-subtitle {
+        color: #6b7280;
+        font-size: 1.125rem;
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
+      .faq-container {
+        position: relative;
+        z-index: 1;
+        max-width: 900px;
+        margin: 0 auto;
       }
 
       .faq-item {
-        margin-bottom: 1.5rem;
+        margin-bottom: 1rem;
         background: white;
-        padding: 1.5rem;
-        border-radius: 8px;
-        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        border: 2px solid #e5e7eb;
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      }
+
+      .faq-item:hover {
+        border-color: #667eea;
+        box-shadow: 0 8px 24px rgba(102, 126, 234, 0.12);
+        transform: translateY(-2px);
+      }
+
+      .faq-item.active {
+        border-color: #667eea;
+        box-shadow: 0 12px 32px rgba(102, 126, 234, 0.18);
+        transform: translateY(-3px);
+      }
+
+      .faq-question-wrapper {
+        padding: 1.75rem 2rem;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1.5rem;
+        user-select: none;
+        transition: all 0.3s ease;
+        position: relative;
+      }
+
+      .faq-item.active .faq-question-wrapper {
+        background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+        padding-bottom: 1.5rem;
+      }
+
+      .faq-question-content {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex: 1;
+      }
+
+      .faq-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+      }
+
+      .faq-item:hover .faq-icon {
+        transform: scale(1.1) rotate(5deg);
+        box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+      }
+
+      .faq-item.active .faq-icon {
+        transform: scale(1.1) rotate(360deg);
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
       }
 
       .faq-question {
         font-weight: 700;
         font-size: 1.125rem;
         color: #1f2937;
-        margin-bottom: 0.5rem;
+        margin: 0;
+        transition: color 0.3s ease;
+        line-height: 1.5;
+      }
+
+      .faq-item:hover .faq-question {
+        color: #667eea;
+      }
+
+      .faq-item.active .faq-question {
+        color: #667eea;
+      }
+
+      .faq-toggle {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: #f3f4f6;
+        color: #6b7280;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 700;
+        flex-shrink: 0;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        line-height: 1;
+      }
+
+      .faq-item:hover .faq-toggle {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+      }
+
+      .faq-item.active .faq-toggle {
+        transform: rotate(180deg) scale(1.1);
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+      }
+
+      .faq-answer-wrapper {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .faq-item.active .faq-answer-wrapper {
+        max-height: 600px;
       }
 
       .faq-answer {
-        color: #6b7280;
-        line-height: 1.6;
+        color: #4b5563;
+        line-height: 1.9;
+        padding: 0 2rem 2rem 6rem;
+        font-size: 1rem;
+        opacity: 0;
+        transform: translateY(-10px);
+        transition: opacity 0.4s ease 0.1s, transform 0.4s ease 0.1s;
+      }
+
+      .faq-item.active .faq-answer {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .faq-answer strong {
+        color: #1f2937;
+        font-weight: 600;
+      }
+
+      /* Responsive FAQ */
+      @media (max-width: 768px) {
+        .faq-question-wrapper {
+          padding: 1.5rem 1.25rem;
+        }
+
+        .faq-item.active .faq-question-wrapper {
+          padding-bottom: 1.25rem;
+        }
+
+        .faq-icon {
+          width: 40px;
+          height: 40px;
+          font-size: 1.25rem;
+        }
+
+        .faq-question {
+          font-size: 1rem;
+        }
+
+        .faq-answer {
+          padding: 0 1.25rem 1.5rem 1.25rem;
+          font-size: 0.9375rem;
+        }
+
+        .faq-toggle {
+          width: 32px;
+          height: 32px;
+          font-size: 1.25rem;
+        }
       }
 
       /* Responsive Design */
@@ -738,28 +1162,44 @@
 
         <!-- Instruction Card -->
         <div class="instruction-card">
-          <div class="instruction-content">
-            <h3>
-              <span>💡</span>
-              <span>How It Works</span>
-            </h3>
-            <div class="instruction-steps">
-              <div class="instruction-step">
+          <div class="instruction-header">
+            <div class="instruction-content">
+              <h3>
+                <span>🚀</span>
+                <span>How It Works</span>
+              </h3>
+              <p class="instruction-subtitle">Follow these simple steps to generate your documentation</p>
+            </div>
+          </div>
+          <div class="steps-progress-container">
+            <div class="steps-progress-bar">
+              <div class="steps-progress-fill" id="stepsProgressFill"></div>
+            </div>
+          </div>
+          <div class="instruction-steps">
+            <div class="instruction-step" data-step="1">
+              <div class="step-number-wrapper">
                 <div class="step-number">1</div>
-                <div class="step-text">Enter the <strong>page URL or name</strong> (e.g., "Homepage" or "https://example.com/about")</div>
               </div>
-              <div class="instruction-step">
+              <div class="step-text">Enter the <strong>page URL or name</strong> (e.g., "Homepage" or "https://example.com/about")</div>
+            </div>
+            <div class="instruction-step" data-step="2">
+              <div class="step-number-wrapper">
                 <div class="step-number">2</div>
-                <div class="step-text">Type <strong>what you changed</strong> in the text box below (e.g., "Updated hero image" or "Fixed contact form")</div>
               </div>
-              <div class="instruction-step">
+              <div class="step-text">Type <strong>what you changed</strong> in the text box below (e.g., "Updated hero image" or "Fixed contact form")</div>
+            </div>
+            <div class="instruction-step" data-step="3">
+              <div class="step-number-wrapper">
                 <div class="step-number">3</div>
-                <div class="step-text">Click <strong>"Add Another Page"</strong> if you modified multiple pages</div>
               </div>
-              <div class="instruction-step">
+              <div class="step-text">Click <strong>"Add Another Page"</strong> if you modified multiple pages</div>
+            </div>
+            <div class="instruction-step" data-step="4">
+              <div class="step-number-wrapper">
                 <div class="step-number">4</div>
-                <div class="step-text">Hit <strong>"Generate"</strong> to get both an internal note and a professional client email!</div>
               </div>
+              <div class="step-text">Hit <strong>"Generate"</strong> to get both an internal note and a professional client email!</div>
             </div>
           </div>
         </div>
@@ -833,33 +1273,70 @@
 
         <!-- FAQ Section for SEO -->
         <div class="faq-section">
-          <h2 class="faq-title">Frequently Asked Questions</h2>
-
-          <div class="faq-item">
-            <div class="faq-question">How do I use this tool?</div>
-            <div class="faq-answer">
-              Using this tool is simple: (1) Click "Add Your First Page" and enter the webpage URL or page name, (2) In the text box that appears, describe what modifications you made on that page, (3) If you modified multiple pages, click "Add Another Page" and repeat, (4) Click the "Generate" button. The AI will instantly create both an internal note and a professional client email.
-            </div>
+          <div class="faq-header">
+            <h2 class="faq-title">Frequently Asked Questions</h2>
+            <p class="faq-subtitle">Everything you need to know about using this tool</p>
           </div>
 
-          <div class="faq-item">
-            <div class="faq-question">What's the difference between the internal note and client email?</div>
-            <div class="faq-answer">
-              The internal note is formatted for your team's fulfillment documentation with technical details and next steps. The client email is written in friendly, professional language that's easy for clients to understand, focusing on the value and completion of the work.
+          <div class="faq-container">
+            <div class="faq-item">
+              <div class="faq-question-wrapper">
+                <div class="faq-question-content">
+                  <div class="faq-icon">💡</div>
+                  <h3 class="faq-question">How do I use this tool?</h3>
+                </div>
+                <div class="faq-toggle">▼</div>
+              </div>
+              <div class="faq-answer-wrapper">
+                <div class="faq-answer">
+                  Using this tool is simple: <strong>(1)</strong> Click "Add Your First Page" and enter the webpage URL or page name, <strong>(2)</strong> In the text box that appears, describe what modifications you made on that page, <strong>(3)</strong> If you modified multiple pages, click "Add Another Page" and repeat, <strong>(4)</strong> Click the "Generate" button. The AI will instantly create both an internal note and a professional client email.
+                </div>
+              </div>
             </div>
-          </div>
 
-          <div class="faq-item">
-            <div class="faq-question">Can I edit the generated content?</div>
-            <div class="faq-answer">
-              Absolutely! Once generated, you can copy the content and edit it in your preferred text editor or email client. The AI provides a professional starting point that you can customize as needed.
+            <div class="faq-item">
+              <div class="faq-question-wrapper">
+                <div class="faq-question-content">
+                  <div class="faq-icon">📝</div>
+                  <h3 class="faq-question">What's the difference between the internal note and client email?</h3>
+                </div>
+                <div class="faq-toggle">▼</div>
+              </div>
+              <div class="faq-answer-wrapper">
+                <div class="faq-answer">
+                  The <strong>internal note</strong> is formatted for your team's fulfillment documentation with technical details and next steps. The <strong>client email</strong> is written in friendly, professional language that's easy for clients to understand, focusing on the value and completion of the work.
+                </div>
+              </div>
             </div>
-          </div>
 
-          <div class="faq-item">
-            <div class="faq-question">How many pages can I document at once?</div>
-            <div class="faq-answer">
-              You can document as many pages as you need! Simply keep clicking "Add Another Page" to add more pages to your documentation. The tool will organize all changes by page in both the internal note and client email.
+            <div class="faq-item">
+              <div class="faq-question-wrapper">
+                <div class="faq-question-content">
+                  <div class="faq-icon">✏️</div>
+                  <h3 class="faq-question">Can I edit the generated content?</h3>
+                </div>
+                <div class="faq-toggle">▼</div>
+              </div>
+              <div class="faq-answer-wrapper">
+                <div class="faq-answer">
+                  <strong>Absolutely!</strong> Once generated, you can copy the content and edit it in your preferred text editor or email client. The AI provides a professional starting point that you can customize as needed.
+                </div>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <div class="faq-question-wrapper">
+                <div class="faq-question-content">
+                  <div class="faq-icon">📄</div>
+                  <h3 class="faq-question">How many pages can I document at once?</h3>
+                </div>
+                <div class="faq-toggle">▼</div>
+              </div>
+              <div class="faq-answer-wrapper">
+                <div class="faq-answer">
+                  You can document <strong>as many pages as you need!</strong> Simply keep clicking "Add Another Page" to add more pages to your documentation. The tool will organize all changes by page in both the internal note and client email.
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -896,14 +1373,17 @@ document.addEventListener('DOMContentLoaded', async () => {
           this.addPageBtn = document.getElementById("addPageBtn");
           this.pagesContainer = document.getElementById("pagesContainer");
           this.emptyState = document.getElementById("emptyState");
+          this.stepsProgressFill = document.getElementById("stepsProgressFill");
 
           this.pageCounter = 0;
+          this.currentStep = 0;
 
           this.init();
         }
 
         init() {
           this.bindEvents();
+          this.initFAQ();
           // Force initial state
           this.resultsContainer.style.display = 'grid';
           console.log('Initial results container display:', this.resultsContainer.style.display);
@@ -918,6 +1398,54 @@ document.addEventListener('DOMContentLoaded', async () => {
             this.copyToClipboard("email")
           );
           this.addPageBtn.addEventListener("click", () => this.addPage());
+          
+          // Track form interactions for step highlighting
+          this.pagesContainer.addEventListener("focus", (e) => {
+            if (e.target.classList.contains('page-url')) {
+              this.updateStep(1);
+            } else if (e.target.classList.contains('page-changes')) {
+              this.updateStep(2);
+            }
+          }, true);
+        }
+
+        initFAQ() {
+          const faqItems = document.querySelectorAll('.faq-item');
+          faqItems.forEach(item => {
+            const questionWrapper = item.querySelector('.faq-question-wrapper');
+            questionWrapper.addEventListener('click', () => {
+              const isActive = item.classList.contains('active');
+              
+              // Close all other FAQ items
+              faqItems.forEach(otherItem => {
+                if (otherItem !== item) {
+                  otherItem.classList.remove('active');
+                }
+              });
+              
+              // Toggle current item
+              item.classList.toggle('active', !isActive);
+            });
+          });
+        }
+
+        updateStep(step) {
+          this.currentStep = step;
+          const steps = document.querySelectorAll('.instruction-step');
+          const progressWidth = (step / steps.length) * 100;
+          
+          this.stepsProgressFill.style.width = `${progressWidth}%`;
+          
+          steps.forEach((stepEl, index) => {
+            const stepNum = index + 1;
+            stepEl.classList.remove('active', 'completed');
+            
+            if (stepNum === step) {
+              stepEl.classList.add('active');
+            } else if (stepNum < step) {
+              stepEl.classList.add('completed');
+            }
+          });
         }
 
         sanitizeUrlInput(url) {
@@ -965,6 +1493,9 @@ document.addEventListener('DOMContentLoaded', async () => {
               <span style="font-size: 1.5rem;">➕</span>
               <span>Add Another Page</span>
             `;
+            this.updateStep(1);
+          } else {
+            this.updateStep(3);
           }
 
           const pageForm = document.createElement("div");
@@ -1044,6 +1575,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                   <span style="font-size: 1.5rem;">➕</span>
                   <span>Add Your First Page</span>
                 `;
+                this.updateStep(0);
               } else {
                 // Renumber remaining pages
                 const remainingPages = this.pagesContainer.querySelectorAll('.page-form-container');
@@ -1065,6 +1597,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
           }
 
+          this.updateStep(4);
           this.setGeneratingState(true);
           this.hideError();
 
@@ -1076,6 +1609,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.log('Received results:', results);
             
             this.showResults(results);
+            
+            // Mark all steps as completed
+            setTimeout(() => {
+              const steps = document.querySelectorAll('.instruction-step');
+              steps.forEach(step => {
+                step.classList.remove('active');
+                step.classList.add('completed');
+              });
+              this.stepsProgressFill.style.width = '100%';
+            }, 500);
           } catch (error) {
             console.error("Generation error:", error);
             this.showError(error.message || 'Something went wrong. Please try again.');
