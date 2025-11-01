@@ -46,29 +46,23 @@
     <link rel="stylesheet" href="../styles/tools.css" />
 
     <style>
-      /* Modern, Intuitive Design System */
+      /* Modern, Intuitive Design System - NO CONFLICTING VARIABLES */
       :root {
-        --step-incomplete: #e5e7eb;
-        --step-active: #3b82f6;
-        --step-complete: #10b981;
-        --warning: #f59e0b;
-        --danger: #ef4444;
-        --info: #06b6d4;
-        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-        --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+        --mod-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        --mod-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        --mod-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        --mod-shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
       }
 
-      /* Hero Section with Clear Value Proposition */
+      /* Hero Section */
       .hero-section {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
         padding: 3rem 1.5rem;
         text-align: center;
-        border-radius: var(--radius-lg);
+        border-radius: 12px;
         margin-bottom: 2rem;
-        box-shadow: var(--shadow-xl);
+        box-shadow: var(--mod-shadow-xl);
       }
 
       .hero-title {
@@ -76,6 +70,7 @@
         font-weight: 800;
         margin-bottom: 1rem;
         line-height: 1.2;
+        color: white;
       }
 
       .hero-subtitle {
@@ -85,6 +80,7 @@
         max-width: 600px;
         margin-left: auto;
         margin-right: auto;
+        color: white;
       }
 
       .hero-features {
@@ -100,6 +96,7 @@
         align-items: center;
         gap: 0.5rem;
         font-size: 1rem;
+        color: white;
       }
 
       .hero-feature-icon {
@@ -110,14 +107,14 @@
       .instruction-card {
         background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
         border: 2px solid #667eea;
-        border-radius: var(--radius-lg);
+        border-radius: 12px;
         padding: 1.5rem;
         margin-bottom: 2rem;
       }
 
       .instruction-content h3 {
         margin: 0 0 1rem 0;
-        color: var(--primary-color);
+        color: #667eea;
         font-size: 1.25rem;
         display: flex;
         align-items: center;
@@ -135,7 +132,7 @@
         gap: 0.75rem;
         padding: 0.75rem;
         background: white;
-        border-radius: var(--radius-md);
+        border-radius: 8px;
         border: 1px solid #e5e7eb;
       }
 
@@ -154,7 +151,7 @@
       }
 
       .step-text {
-        color: var(--text-secondary);
+        color: #6b7280;
         line-height: 1.5;
         font-size: 0.9375rem;
       }
@@ -163,10 +160,10 @@
       .page-form-container {
         background: white;
         border: 2px solid #e5e7eb;
-        border-radius: var(--radius-lg);
+        border-radius: 12px;
         padding: 2rem;
         margin-bottom: 1.5rem;
-        box-shadow: var(--shadow-md);
+        box-shadow: var(--mod-shadow-md);
       }
 
       .page-form-header {
@@ -190,23 +187,23 @@
         font-weight: 700;
         font-size: 1.125rem;
         flex-shrink: 0;
-        box-shadow: var(--shadow-md);
+        box-shadow: var(--mod-shadow-md);
       }
 
       .page-form-title {
         font-size: 1.25rem;
         font-weight: 700;
-        color: var(--primary-color);
+        color: #1f2937;
         margin: 0;
       }
 
       .remove-page-btn {
         margin-left: auto;
         background: #fee2e2;
-        color: var(--danger);
+        color: #ef4444;
         border: none;
         padding: 0.5rem 1rem;
-        border-radius: var(--radius-md);
+        border-radius: 8px;
         cursor: pointer;
         font-size: 0.875rem;
         font-weight: 600;
@@ -217,10 +214,10 @@
       }
 
       .remove-page-btn:hover {
-        background: var(--danger);
+        background: #ef4444;
         color: white;
         transform: translateY(-2px);
-        box-shadow: var(--shadow-md);
+        box-shadow: var(--mod-shadow-md);
       }
 
       /* Input Fields */
@@ -231,7 +228,7 @@
       .input-label {
         display: block;
         font-weight: 600;
-        color: var(--primary-color);
+        color: #1f2937;
         margin-bottom: 0.5rem;
         font-size: 0.9375rem;
         display: flex;
@@ -243,16 +240,18 @@
         width: 100%;
         padding: 0.875rem 1rem;
         border: 2px solid #e5e7eb;
-        border-radius: var(--radius-md);
+        border-radius: 8px;
         font-size: 1rem;
         transition: all 0.2s ease;
         font-family: inherit;
+        background: white;
+        color: #1f2937;
       }
 
       .input-field:focus {
         outline: none;
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         background: #fafafa;
       }
 
@@ -270,7 +269,7 @@
       .input-hint {
         margin-top: 0.5rem;
         font-size: 0.8125rem;
-        color: var(--text-tertiary);
+        color: #9ca3af;
         font-style: italic;
       }
 
@@ -280,7 +279,7 @@
         padding: 1.25rem;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         border: none;
-        border-radius: var(--radius-lg);
+        border-radius: 12px;
         color: white;
         font-weight: 700;
         cursor: pointer;
@@ -291,12 +290,12 @@
         align-items: center;
         justify-content: center;
         gap: 0.75rem;
-        box-shadow: var(--shadow-lg);
+        box-shadow: var(--mod-shadow-lg);
       }
 
       .add-page-btn:hover {
         transform: translateY(-3px);
-        box-shadow: var(--shadow-xl);
+        box-shadow: var(--mod-shadow-xl);
       }
 
       .add-page-btn:active {
@@ -309,7 +308,7 @@
         padding: 1.5rem;
         background: linear-gradient(135deg, #10b981 0%, #059669 100%);
         border: none;
-        border-radius: var(--radius-lg);
+        border-radius: 12px;
         color: white;
         font-weight: 700;
         cursor: pointer;
@@ -320,7 +319,7 @@
         align-items: center;
         justify-content: center;
         gap: 1rem;
-        box-shadow: var(--shadow-xl);
+        box-shadow: var(--mod-shadow-xl);
         position: relative;
         overflow: hidden;
       }
@@ -364,17 +363,22 @@
         to { transform: rotate(360deg); }
       }
 
-      /* Results Section */
+      /* Results Section - FIXED DISPLAY */
       .results-container {
-        display: none;
+        display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 2rem;
         margin-top: 3rem;
-        animation: fadeInUp 0.5s ease;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(20px);
+        transition: opacity 0.5s ease, visibility 0.5s ease, transform 0.5s ease;
       }
 
       .results-container.visible {
-        display: grid;
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
       }
 
       @keyframes fadeInUp {
@@ -391,24 +395,24 @@
       .result-container {
         background: white;
         border: 3px solid #e5e7eb;
-        border-radius: var(--radius-lg);
+        border-radius: 12px;
         padding: 0;
-        box-shadow: var(--shadow-lg);
+        box-shadow: var(--mod-shadow-lg);
         overflow: hidden;
         transition: all 0.3s ease;
       }
 
       .result-container:hover {
         transform: translateY(-5px);
-        box-shadow: var(--shadow-xl);
+        box-shadow: var(--mod-shadow-xl);
       }
 
       .internal-note-container {
-        border-color: var(--warning);
+        border-color: #f59e0b;
       }
 
       .client-email-container {
-        border-color: var(--accent-color);
+        border-color: #10b981;
       }
 
       .result-header {
@@ -446,11 +450,11 @@
       }
 
       .copy-btn {
-        background: var(--primary-color);
+        background: #3b82f6;
         color: white;
         border: none;
         padding: 0.625rem 1.25rem;
-        border-radius: var(--radius-md);
+        border-radius: 8px;
         cursor: pointer;
         font-size: 0.875rem;
         font-weight: 600;
@@ -458,16 +462,16 @@
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        box-shadow: var(--shadow-sm);
+        box-shadow: var(--mod-shadow-sm);
       }
 
       .copy-btn:hover {
         transform: translateY(-2px);
-        box-shadow: var(--shadow-md);
+        box-shadow: var(--mod-shadow-md);
       }
 
       .internal-note-copy {
-        background: var(--warning);
+        background: #f59e0b;
       }
 
       .internal-note-copy:hover {
@@ -480,7 +484,7 @@
         font-family: 'Courier New', monospace;
         font-size: 0.875rem;
         line-height: 1.6;
-        color: var(--text-primary);
+        color: #1f2937;
         background: white;
         max-height: 500px;
         overflow-y: auto;
@@ -509,7 +513,7 @@
         margin-top: 4rem;
         padding: 2rem;
         background: #f9fafb;
-        border-radius: var(--radius-lg);
+        border-radius: 12px;
       }
 
       .faq-title {
@@ -517,26 +521,26 @@
         font-weight: 700;
         margin-bottom: 2rem;
         text-align: center;
-        color: var(--primary-color);
+        color: #1f2937;
       }
 
       .faq-item {
         margin-bottom: 1.5rem;
         background: white;
         padding: 1.5rem;
-        border-radius: var(--radius-md);
+        border-radius: 8px;
         border: 1px solid #e5e7eb;
       }
 
       .faq-question {
         font-weight: 700;
         font-size: 1.125rem;
-        color: var(--primary-color);
+        color: #1f2937;
         margin-bottom: 0.5rem;
       }
 
       .faq-answer {
-        color: var(--text-secondary);
+        color: #6b7280;
         line-height: 1.6;
       }
 
@@ -590,7 +594,7 @@
         text-align: center;
         padding: 3rem 1rem;
         background: #f9fafb;
-        border-radius: var(--radius-lg);
+        border-radius: 12px;
         border: 2px dashed #d1d5db;
       }
 
@@ -602,13 +606,13 @@
 
       .empty-text {
         font-size: 1.125rem;
-        color: var(--text-secondary);
+        color: #6b7280;
         margin-bottom: 0.5rem;
       }
 
       .empty-hint {
         font-size: 0.875rem;
-        color: var(--text-tertiary);
+        color: #9ca3af;
       }
     </style>
 
@@ -746,7 +750,7 @@
           <button type="submit" class="generate-btn" id="generateBtn">
             <span class="btn-content">
               <span class="btn-icon">🚀</span>
-              <span>Generate My Documentation</span>
+              <span>Generate</span>
             </span>
             <span class="loading-spinner">
               <div class="spinner"></div>
@@ -802,7 +806,7 @@
           <div class="faq-item">
             <div class="faq-question">How do I use this tool?</div>
             <div class="faq-answer">
-              Using this tool is simple: (1) Click "Add Your First Page" and enter the webpage URL or page name, (2) In the text box that appears, describe what modifications you made on that page, (3) If you modified multiple pages, click "Add Another Page" and repeat, (4) Click the "Generate My Documentation" button. The AI will instantly create both an internal note and a professional client email.
+              Using this tool is simple: (1) Click "Add Your First Page" and enter the webpage URL or page name, (2) In the text box that appears, describe what modifications you made on that page, (3) If you modified multiple pages, click "Add Another Page" and repeat, (4) Click the "Generate" button. The AI will instantly create both an internal note and a professional client email.
             </div>
           </div>
 
@@ -1135,8 +1139,12 @@ document.addEventListener('DOMContentLoaded', async () => {
           this.notePreview.textContent = results.internalNote;
           this.emailPreview.textContent = results.clientEmail;
 
-          // Show the results container
+          // Show the results container with the visible class
           this.resultsContainer.classList.add("visible");
+          
+          console.log('Results container classes:', this.resultsContainer.classList);
+          console.log('Results container display:', window.getComputedStyle(this.resultsContainer).display);
+          console.log('Results container opacity:', window.getComputedStyle(this.resultsContainer).opacity);
 
           // Scroll to results
           setTimeout(() => {
