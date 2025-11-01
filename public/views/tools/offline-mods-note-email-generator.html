@@ -363,9 +363,37 @@
         to { transform: rotate(360deg); }
       }
 
-      /* Results Section - FIXED DISPLAY */
+      /* Results Section - OVERRIDE ANY CONFLICTING STYLES */
+      #resultsContainer {
+        display: grid !important; 
+        grid-template-columns: 1fr 1fr !important;
+        gap: 2rem !important;
+        margin-top: 3rem !important;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(20px);
+        transition: opacity 0.5s ease, visibility 0.5s ease, transform 0.5s ease;
+      }
+
+      #resultsContainer.visible {
+        opacity: 1 !important;
+        visibility: visible !important;
+        transform: translateY(0) !important;
+      }
+
+      /* Double specificity to override imported styles */
+      .tool-container #resultsContainer {
+        display: grid !important;
+      }
+
+      .tool-container #resultsContainer.visible {
+        display: grid !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+      }
+
       .results-container {
-        display: grid;
+        display: grid !important;
         grid-template-columns: 1fr 1fr;
         gap: 2rem;
         margin-top: 3rem;
@@ -376,9 +404,9 @@
       }
 
       .results-container.visible {
-        opacity: 1;
-        visibility: visible;
-        transform: translateY(0);
+        opacity: 1 !important;
+        visibility: visible !important;
+        transform: translateY(0) !important;
       }
 
       @keyframes fadeInUp {
@@ -393,6 +421,7 @@
       }
 
       .result-container {
+        display: block !important; /* Force display */
         background: white;
         border: 3px solid #e5e7eb;
         border-radius: 12px;
@@ -409,10 +438,12 @@
 
       .internal-note-container {
         border-color: #f59e0b;
+        display: block !important;
       }
 
       .client-email-container {
         border-color: #10b981;
+        display: block !important;
       }
 
       .result-header {
@@ -550,8 +581,9 @@
           font-size: 2rem;
         }
 
+        #resultsContainer,
         .results-container {
-          grid-template-columns: 1fr;
+          grid-template-columns: 1fr !important;
         }
       }
 
@@ -872,6 +904,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         init() {
           this.bindEvents();
+          // Force initial state
+          this.resultsContainer.style.display = 'grid';
+          console.log('Initial results container display:', this.resultsContainer.style.display);
         }
 
         bindEvents() {
@@ -1133,26 +1168,52 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         showResults(results) {
-          console.log('Showing results:', results);
+          console.log('=== SHOWING RESULTS ===');
+          console.log('Results data:', results);
+          
+          // Validate results exist
+          if (!results || !results.internalNote || !results.clientEmail) {
+            console.error('Invalid results structure:', results);
+            this.showError('❌ Received invalid response from server. Please try again.');
+            return;
+          }
           
           // Set the content
           this.notePreview.textContent = results.internalNote;
           this.emailPreview.textContent = results.clientEmail;
-
-          // Show the results container with the visible class
-          this.resultsContainer.classList.add("visible");
           
-          console.log('Results container classes:', this.resultsContainer.classList);
-          console.log('Results container display:', window.getComputedStyle(this.resultsContainer).display);
-          console.log('Results container opacity:', window.getComputedStyle(this.resultsContainer).opacity);
+          console.log('Content set - Note length:', this.notePreview.textContent.length);
+          console.log('Content set - Email length:', this.emailPreview.textContent.length);
 
-          // Scroll to results
+          // Force display to grid with inline style
+          this.resultsContainer.style.display = 'grid';
+          console.log('Forced display to grid');
+          
+          // Force a reflow
+          void this.resultsContainer.offsetHeight;
+          
+          // Add visible class
+          this.resultsContainer.classList.add("visible");
+          console.log('Added visible class');
+          
+          // Debug logging
+          console.log('Results container classes:', this.resultsContainer.classList.toString());
+          console.log('Inline style:', this.resultsContainer.style.cssText);
+          console.log('Computed styles:', {
+            display: window.getComputedStyle(this.resultsContainer).display,
+            opacity: window.getComputedStyle(this.resultsContainer).opacity,
+            visibility: window.getComputedStyle(this.resultsContainer).visibility,
+            transform: window.getComputedStyle(this.resultsContainer).transform
+          });
+
+          // Scroll to results after brief delay
           setTimeout(() => {
             this.resultsContainer.scrollIntoView({ 
               behavior: "smooth", 
               block: "start" 
             });
-          }, 300);
+            console.log('Scrolled to results');
+          }, 100);
         }
 
         setGeneratingState(isGenerating) {
