@@ -7,7 +7,52 @@ class EmailService {
     this.defaultTemperature = 0.3;
   }
 
-    sanitizeForPrompt(text) {
+  // Helper function to decode HTML entities
+  decodeHtmlEntities(text) {
+    if (!text) return text;
+    
+    const entities = {
+      '&#x2F;': '/',
+      '&#x2f;': '/',
+      '&#47;': '/',
+      '&sol;': '/',
+      '&#x3A;': ':',
+      '&#x3a;': ':',
+      '&#58;': ':',
+      '&colon;': ':',
+      '&amp;': '&',
+      '&lt;': '<',
+      '&gt;': '>',
+      '&quot;': '"',
+      '&#x27;': "'",
+      '&#39;': "'",
+      '&#x40;': '@',
+      '&#64;': '@',
+      '&commat;': '@'
+    };
+    
+    let decoded = text;
+    for (const [entity, char] of Object.entries(entities)) {
+      decoded = decoded.split(entity).join(char);
+    }
+    
+    return decoded;
+  }
+
+  // Helper function to normalize URLs
+  normalizeUrl(url) {
+    if (!url) return url;
+    
+    // First decode any HTML entities
+    let cleaned = this.decodeHtmlEntities(url.trim());
+    
+    // Remove extra whitespace
+    cleaned = cleaned.replace(/\s+/g, '');
+    
+    return cleaned;
+  }
+
+  sanitizeForPrompt(text) {
     if (!text) return '';
     
     let cleaned = String(text).trim();
@@ -30,7 +75,6 @@ class EmailService {
 
     const safePrompt = this.sanitizeForPrompt(prompt);
     const safeSystemMessage = this.sanitizeForPrompt(systemMessage);
-
 
     try {
       const response = await fetch(this.baseUrl, {
@@ -66,13 +110,15 @@ class EmailService {
       }
 
       const data = await response.json();
-      console.log("📥 OpenAI response JSON:", data);
+      console.log("📥 OpenAI response received");
 
       if (!data.choices || !data.choices[0] || !data.choices[0].message) {
         throw new Error("Invalid response format from OpenAI API");
       }
 
-      return data.choices[0].message.content;
+      // Decode HTML entities from the AI response
+      const content = data.choices[0].message.content;
+      return this.decodeHtmlEntities(content);
     } catch (error) {
       console.error("OpenAI API call failed:", error);
       throw error;
@@ -163,13 +209,13 @@ Structure it as a formal business update request email that would be sent to a b
     return this.generateEmail(prompt, systemMessage, 800);
   }
 
-generateOBCXCallbackEmail(data) {
-  const { 
-    personnelName, customerName, customerContact, caseId, 
-    formattedTimeframe, briefNotes 
-  } = data;
+  generateOBCXCallbackEmail(data) {
+    const { 
+      personnelName, customerName, customerContact, caseId, 
+      formattedTimeframe, briefNotes 
+    } = data;
 
-  const prompt = `
+    const prompt = `
 Please create a professional internal email to OBCX personnel about a client callback request:
 
 **To:** ${personnelName} (OBCX Personnel)
@@ -196,35 +242,49 @@ Please:
 8. Make it clear this is an action item for the OBCX personnel
 
 Structure it as an internal notification email informing OBCX personnel about a client's callback request.
-  `;
+    `;
 
-  const systemMessage = 'You are a professional internal communication assistant. Generate well-structured, professional internal emails that notify OBCX personnel about client callback requests with proper grammar and clear action items.';
+    const systemMessage = 'You are a professional internal communication assistant. Generate well-structured, professional internal emails that notify OBCX personnel about client callback requests with proper grammar and clear action items.';
 
-  return this.generateEmail(prompt, systemMessage, 800);
-}
+    return this.generateEmail(prompt, systemMessage, 800);
+  }
 
-generateOfflineModifications(data) {
-  const { pages } = data;
+  generateOfflineModifications(data) {
+    const { pages } = data;
 
-  // Prepare all pages and changes for processing
-  const pagesText = pages.map((page, index) => {
-    const changesText = page.changes.map((change, changeIndex) => 
-      `  ${changeIndex + 1}. ${change}`
-    ).join('\n');
-    return `Page ${index + 1}: ${page.url}\n${changesText}`;
-  }).join('\n\n');
+    // Normalize URLs in pages before processing
+    const normalizedPages = pages.map(page => ({
+      ...page,
+      url: this.normalizeUrl(page.url)
+    }));
 
-  // Generate internal note
-  const internalNotePrompt = `
+    // Prepare all pages and changes for processing
+    const pagesText = normalizedPages.map((page, index) => {
+      const changesText = page.changes.map((change, changeIndex) => 
+        `  ${changeIndex + 1}. ${change}`
+      ).join('\n');
+      return `Page ${index + 1}: ${page.url}\n${changesText}`;
+    }).join('\n\n');
+
+    // Generate internal note prompt
+    const internalNotePrompt = `
 Please improve the grammar and clarity of these website changes while maintaining their original meaning:
 
 ${pagesText}
 
-Format the response as organized page-by-page change descriptions that are clear and professional for internal documentation.
-  `;
+IMPORTANT: Return ONLY the improved change descriptions in the same format. Keep URLs exactly as provided without any encoding. Format as:
+Page 1: [url]
+  1. [change description]
+  2. [change description]
 
-  // Generate client email
-  const clientEmailPrompt = `
+Page 2: [url]
+  1. [change description]
+
+Do not add any extra headers, commentary, or formatting beyond the page-by-page list.
+    `;
+
+    // Generate client email prompt
+    const clientEmailPrompt = `
 Please create a professional client-facing email about completed website modifications across multiple pages:
 
 **Pages Modified and Changes:**
@@ -238,28 +298,36 @@ Please:
 5. Add appropriate context about the modifications being live
 6. Include a professional closing with "Best Regards, [Your Name]"
 7. Make it sound professional and reassuring to the client
+8. Keep all URLs exactly as provided without encoding them
 
 Structure it as a professional website modification completion email.
-  `;
+    `;
 
-  const systemMessage = 'You are a professional web development communication assistant. Generate clear, professional content for website modification documentation and client communications.';
+    const systemMessage = 'You are a professional web development communication assistant. Generate clear, professional content for website modification documentation and client communications. Never encode URLs - keep them in their original readable format.';
 
-  // Return both internal note and client email
-  return Promise.all([
-    this.generateInternalNote(pages, internalNotePrompt),
-    this.generateEmail(clientEmailPrompt, systemMessage, 1000)
-  ]).then(([internalNote, clientEmail]) => ({
-    internalNote,
-    clientEmail
-  }));
-}
+    // Return both internal note and client email
+    return Promise.all([
+      this.generateInternalNote(normalizedPages, internalNotePrompt),
+      this.generateEmail(clientEmailPrompt, systemMessage, 1000)
+    ]).then(([internalNote, clientEmail]) => ({
+      internalNote,
+      clientEmail
+    }));
+  }
 
-async generateInternalNote(pages, improvedChangesPrompt) {
-  const improvedChanges = await this.generateEmail(improvedChangesPrompt, 'You are a professional technical writer. Improve grammar and clarity while maintaining the original meaning.', 800);
-  
-  const pagesSection = pages.map((page, index) => `Page ${index + 1}: ${page.url}`).join('\n');
-  
-  return `-- FULFILLMENT MOD COMPLETED --
+  async generateInternalNote(pages, improvedChangesPrompt) {
+    const improvedChanges = await this.generateEmail(
+      improvedChangesPrompt, 
+      'You are a professional technical writer. Improve grammar and clarity while maintaining the original meaning. Never encode URLs - keep them in their original readable format with normal slashes and colons.',
+      800
+    );
+    
+    // Build pages section with normalized URLs
+    const pagesSection = pages.map((page, index) => 
+      `Page ${index + 1}: ${page.url}`
+    ).join('\n');
+    
+    return `-- FULFILLMENT MOD COMPLETED --
 COMPLETED:
 ${pagesSection}
 
@@ -269,7 +337,7 @@ ${improvedChanges}
 Next Steps:
 Advised the client to submit additional changes through site changes form or call in for further support.
 Request closed and being reviewed by quality control.`;
-}
+  }
 }
 
 module.exports = new EmailService();

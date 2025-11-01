@@ -7,8 +7,6 @@ const router = express.Router();
 
 const handleEmailGeneration = (validationFn, generationFn) => {
   return async (req, res) => {
-
-
     try {
       const sanitizedData = Validator.sanitizeData(req.body);
       validationFn(sanitizedData);
@@ -69,12 +67,17 @@ router.post('/generate-obcx-callback',
   )
 );
 
+// Offline Modifications Route
 router.post('/generate-offline-modifications', async (req, res) => {
   try {
     const sanitizedData = Validator.sanitizeData(req.body);
     Validator.validateOfflineModifications(sanitizedData);
     
+    console.log(`📝 Generating offline modifications for ${sanitizedData.pages.length} page(s)`);
+    
     const results = await emailService.generateOfflineModifications(sanitizedData);
+    
+    console.log('✅ Successfully generated both note and email');
     
     res.json({ 
       internalNote: results.internalNote,
@@ -83,13 +86,27 @@ router.post('/generate-offline-modifications', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Offline modifications generation error:', error);
+    console.error('❌ Offline modifications generation error:', error);
     
     if (error instanceof ValidationError) {
       return res.status(400).json({ 
         error: 'Validation failed',
         message: error.message,
         field: error.field
+      });
+    }
+
+    if (error.message.includes('OpenAI API key')) {
+      return res.status(503).json({
+        error: 'Service configuration error',
+        message: 'AI service is not properly configured'
+      });
+    }
+
+    if (error.message.includes('quota') || error.message.includes('rate limit')) {
+      return res.status(429).json({
+        error: 'Rate limit exceeded',
+        message: 'Too many requests. Please try again later.'
       });
     }
     
@@ -103,12 +120,16 @@ router.post('/generate-offline-modifications', async (req, res) => {
 // Health check for email service
 router.get('/health', (req, res) => {
   res.json({
-    status: 'OK',
+    status: process.env.OPENAI_API_KEY ? 'OK' : 'Misconfigured',
     service: 'Email Generation API',
     timestamp: new Date().toISOString(),
+    openai: process.env.OPENAI_API_KEY ? 'Configured' : 'Not configured',
     routes: [
       '/api/email/generate-escalation-email',
-      '/api/email/generate-lbl-email'
+      '/api/email/generate-lbl-email',
+      '/api/email/generate-obcx-callback',
+      '/api/email/generate-offline-modifications',
+      '/api/email/health'
     ]
   });
 });
