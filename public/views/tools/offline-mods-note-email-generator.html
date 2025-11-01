@@ -106,174 +106,70 @@
         font-size: 1.5rem;
       }
 
-      /* Step-by-Step Progress Indicator */
-      .steps-progress {
-        display: flex;
-        justify-content: space-between;
-        margin: 2rem 0;
-        position: relative;
-        padding: 0 2rem;
-      }
-
-      .steps-progress::before {
-        content: '';
-        position: absolute;
-        top: 20px;
-        left: 2rem;
-        right: 2rem;
-        height: 3px;
-        background: var(--step-incomplete);
-        z-index: 0;
-      }
-
-      .step {
-        position: relative;
-        z-index: 1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.5rem;
-      }
-
-      .step-circle {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: var(--step-incomplete);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        font-size: 1.25rem;
-        transition: all 0.3s ease;
-        border: 3px solid white;
-        box-shadow: var(--shadow-md);
-      }
-
-      .step.active .step-circle {
-        background: var(--step-active);
-        color: white;
-        transform: scale(1.1);
-        animation: pulse 2s infinite;
-      }
-
-      .step.completed .step-circle {
-        background: var(--step-complete);
-        color: white;
-      }
-
-      .step-label {
-        font-size: 0.875rem;
-        font-weight: 600;
-        text-align: center;
-        color: var(--text-secondary);
-      }
-
-      .step.active .step-label {
-        color: var(--step-active);
-      }
-
-      @keyframes pulse {
-        0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
-        50% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
-      }
-
-      /* Instructional Cards */
+      /* Instruction Card */
       .instruction-card {
         background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
         border: 2px solid #667eea;
         border-radius: var(--radius-lg);
         padding: 1.5rem;
         margin-bottom: 2rem;
-        display: flex;
-        align-items: start;
-        gap: 1rem;
-      }
-
-      .instruction-icon {
-        font-size: 2rem;
-        flex-shrink: 0;
       }
 
       .instruction-content h3 {
-        margin: 0 0 0.5rem 0;
+        margin: 0 0 1rem 0;
         color: var(--primary-color);
         font-size: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
       }
 
-      .instruction-content p {
-        margin: 0;
-        color: var(--text-secondary);
-        line-height: 1.6;
+      .instruction-steps {
+        display: grid;
+        gap: 0.75rem;
       }
 
-      /* Enhanced Pages Container */
-      .pages-container {
+      .instruction-step {
+        display: flex;
+        align-items: start;
+        gap: 0.75rem;
+        padding: 0.75rem;
         background: white;
-        border: 3px dashed var(--border-color);
-        border-radius: var(--radius-lg);
-        padding: 2rem;
-        margin-top: 1rem;
-        min-height: 200px;
-        transition: all 0.3s ease;
+        border-radius: var(--radius-md);
+        border: 1px solid #e5e7eb;
       }
 
-      .pages-container:hover {
-        border-color: var(--accent-color);
-        background: #fafafa;
-      }
-
-      .empty-state {
-        text-align: center;
-        padding: 3rem 1rem;
-      }
-
-      .empty-state-icon {
-        font-size: 4rem;
-        margin-bottom: 1rem;
-        opacity: 0.3;
-      }
-
-      .empty-state-text {
-        color: var(--text-secondary);
-        font-size: 1.125rem;
-        margin-bottom: 1rem;
-      }
-
-      .empty-state-hint {
-        color: var(--text-tertiary);
+      .step-number {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
         font-size: 0.875rem;
+        flex-shrink: 0;
       }
 
-      /* Page Item Cards with Visual Hierarchy */
-      .page-item {
+      .step-text {
+        color: var(--text-secondary);
+        line-height: 1.5;
+        font-size: 0.9375rem;
+      }
+
+      /* Simplified Page Form */
+      .page-form-container {
         background: white;
         border: 2px solid #e5e7eb;
         border-radius: var(--radius-lg);
-        padding: 1.5rem;
+        padding: 2rem;
         margin-bottom: 1.5rem;
-        animation: slideInUp 0.3s ease;
-        box-shadow: var(--shadow-sm);
-        transition: all 0.2s ease;
-      }
-
-      .page-item:hover {
         box-shadow: var(--shadow-md);
-        border-color: var(--accent-color);
       }
 
-      @keyframes slideInUp {
-        from {
-          opacity: 0;
-          transform: translateY(20px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      .page-header {
+      .page-form-header {
         display: flex;
         align-items: center;
         gap: 1rem;
@@ -285,59 +181,29 @@
       .page-number-badge {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        width: 36px;
-        height: 36px;
+        width: 40px;
+        height: 40px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         font-weight: 700;
+        font-size: 1.125rem;
         flex-shrink: 0;
         box-shadow: var(--shadow-md);
       }
 
-      .page-url-wrapper {
-        flex: 1;
-        position: relative;
-      }
-
-      .page-url-label {
-        position: absolute;
-        top: -8px;
-        left: 12px;
-        background: white;
-        padding: 0 4px;
-        font-size: 0.75rem;
-        font-weight: 600;
+      .page-form-title {
+        font-size: 1.25rem;
+        font-weight: 700;
         color: var(--primary-color);
-        z-index: 1;
+        margin: 0;
       }
 
-      .page-url-input {
-        width: 100%;
-        padding: 1rem;
-        border: 2px solid #e5e7eb;
-        border-radius: var(--radius-md);
-        font-size: 1rem;
-        transition: all 0.2s ease;
-        font-family: 'Courier New', monospace;
-      }
-
-      .page-url-input:focus {
-        outline: none;
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        background: #fafafa;
-      }
-
-      .page-url-input::placeholder {
-        color: #9ca3af;
-        font-style: italic;
-      }
-
-      .remove-page {
-        background: var(--danger);
-        color: white;
+      .remove-page-btn {
+        margin-left: auto;
+        background: #fee2e2;
+        color: var(--danger);
         border: none;
         padding: 0.5rem 1rem;
         border-radius: var(--radius-md);
@@ -345,171 +211,70 @@
         font-size: 0.875rem;
         font-weight: 600;
         transition: all 0.2s ease;
-        flex-shrink: 0;
         display: flex;
         align-items: center;
         gap: 0.5rem;
       }
 
-      .remove-page:hover {
-        background: #dc2626;
+      .remove-page-btn:hover {
+        background: var(--danger);
+        color: white;
         transform: translateY(-2px);
         box-shadow: var(--shadow-md);
       }
 
-      /* Changes Section with Better UX */
-      .page-changes-section {
-        margin-left: 0;
+      /* Input Fields */
+      .input-group {
+        margin-bottom: 1.5rem;
       }
 
-      .page-changes-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1rem;
-        padding: 0.75rem;
-        background: #f9fafb;
-        border-radius: var(--radius-md);
-      }
-
-      .page-changes-title {
-        font-weight: 700;
-        color: var(--text-primary);
-        font-size: 1rem;
+      .input-label {
+        display: block;
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: 0.5rem;
+        font-size: 0.9375rem;
         display: flex;
         align-items: center;
         gap: 0.5rem;
       }
 
-      .page-changes-count {
-        background: var(--accent-color);
-        color: white;
-        padding: 0.25rem 0.75rem;
-        border-radius: 50px;
-        font-size: 0.75rem;
-        font-weight: 700;
-        box-shadow: var(--shadow-sm);
-      }
-
-      .changes-container {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        min-height: 60px;
-      }
-
-      .change-item {
-        display: flex;
-        gap: 0.75rem;
-        align-items: start;
-        animation: slideInUp 0.2s ease;
-        background: #f9fafb;
-        padding: 0.75rem;
-        border-radius: var(--radius-md);
-        border: 1px solid #e5e7eb;
-        transition: all 0.2s ease;
-      }
-
-      .change-item:hover {
-        background: white;
-        border-color: var(--accent-color);
-        box-shadow: var(--shadow-sm);
-      }
-
-      .change-number {
-        background: var(--accent-color);
-        color: white;
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        font-size: 0.875rem;
-        flex-shrink: 0;
-        margin-top: 0.5rem;
-      }
-
-      .change-content {
-        flex: 1;
-      }
-
-      .change-textarea {
+      .input-field {
         width: 100%;
-        min-height: 80px;
-        padding: 0.75rem;
+        padding: 0.875rem 1rem;
         border: 2px solid #e5e7eb;
         border-radius: var(--radius-md);
-        font-size: 0.9375rem;
-        resize: vertical;
+        font-size: 1rem;
         transition: all 0.2s ease;
-        line-height: 1.5;
+        font-family: inherit;
       }
 
-      .change-textarea:focus {
+      .input-field:focus {
         outline: none;
-        border-color: var(--accent-color);
-        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
-        background: white;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        background: #fafafa;
       }
 
-      .change-textarea::placeholder {
+      .input-field::placeholder {
         color: #9ca3af;
+      }
+
+      .textarea-field {
+        min-height: 120px;
+        resize: vertical;
+        font-family: inherit;
+        line-height: 1.6;
+      }
+
+      .input-hint {
+        margin-top: 0.5rem;
+        font-size: 0.8125rem;
+        color: var(--text-tertiary);
         font-style: italic;
       }
 
-      .remove-change {
-        background: #fee2e2;
-        color: var(--danger);
-        border: none;
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        cursor: pointer;
-        font-size: 1.5rem;
-        font-weight: 700;
-        transition: all 0.2s ease;
-        flex-shrink: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-top: 0.5rem;
-      }
-
-      .remove-change:hover {
-        background: var(--danger);
-        color: white;
-        transform: rotate(90deg) scale(1.1);
-      }
-
-      /* Big, Obvious Action Buttons */
-      .add-change-btn {
-        width: 100%;
-        padding: 0.875rem;
-        background: white;
-        border: 2px dashed var(--accent-color);
-        border-radius: var(--radius-md);
-        color: var(--accent-color);
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        margin-top: 0.75rem;
-        font-size: 0.9375rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-      }
-
-      .add-change-btn:hover {
-        background: var(--accent-color);
-        color: white;
-        border-style: solid;
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-md);
-      }
-
+      /* Add Page Button */
       .add-page-btn {
         width: 100%;
         padding: 1.25rem;
@@ -520,7 +285,7 @@
         font-weight: 700;
         cursor: pointer;
         transition: all 0.3s ease;
-        margin-top: 1rem;
+        margin-bottom: 2rem;
         font-size: 1.125rem;
         display: flex;
         align-items: center;
@@ -538,7 +303,7 @@
         transform: translateY(-1px);
       }
 
-      /* Enhanced Generate Button */
+      /* Generate Button */
       .generate-btn {
         width: 100%;
         padding: 1.5rem;
@@ -570,25 +335,7 @@
         cursor: not-allowed;
       }
 
-      .generate-btn::before {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 0;
-        height: 0;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.3);
-        transform: translate(-50%, -50%);
-        transition: width 0.6s, height 0.6s;
-      }
-
-      .generate-btn:active::before {
-        width: 300px;
-        height: 300px;
-      }
-
-      .generate-btn.loading {
+      .generate-btn.is-generating {
         background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
         pointer-events: none;
       }
@@ -597,47 +344,48 @@
         font-size: 1.5rem;
       }
 
-      /* Pages Count Badge */
-      .pages-header {
-        display: flex;
-        justify-content: space-between;
+      /* Loading Spinner */
+      .loading-spinner {
+        display: none;
         align-items: center;
-        margin-bottom: 1rem;
+        gap: 0.75rem;
       }
 
-      .form-label {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: var(--text-primary);
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
+      .spinner {
+        width: 24px;
+        height: 24px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
       }
 
-      .pages-count {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 0.5rem 1rem;
-        border-radius: 50px;
-        font-size: 0.875rem;
-        font-weight: 700;
-        box-shadow: var(--shadow-md);
+      @keyframes spin {
+        to { transform: rotate(360deg); }
       }
 
-      /* Results Section with Better Visual Separation */
+      /* Results Section */
       .results-container {
-        display: grid;
+        display: none;
         grid-template-columns: 1fr 1fr;
         gap: 2rem;
         margin-top: 3rem;
-        opacity: 0;
-        transform: translateY(20px);
-        transition: all 0.5s ease;
+        animation: fadeInUp 0.5s ease;
       }
 
       .results-container.visible {
-        opacity: 1;
-        transform: translateY(0);
+        display: grid;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
 
       .result-container {
@@ -769,7 +517,7 @@
         font-weight: 700;
         margin-bottom: 2rem;
         text-align: center;
-        color: var(--text-primary);
+        color: var(--primary-color);
       }
 
       .faq-item {
@@ -798,15 +546,6 @@
           font-size: 2rem;
         }
 
-        .steps-progress {
-          flex-wrap: wrap;
-          gap: 1rem;
-        }
-
-        .step {
-          flex: 1 1 45%;
-        }
-
         .results-container {
           grid-template-columns: 1fr;
         }
@@ -826,15 +565,14 @@
           gap: 0.75rem;
         }
 
-        .page-header {
-          flex-direction: column;
-          align-items: stretch;
+        .page-form-header {
+          flex-wrap: wrap;
         }
 
-        .pages-header {
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 0.75rem;
+        .remove-page-btn {
+          width: 100%;
+          margin-left: 0;
+          margin-top: 0.5rem;
         }
 
         .generate-btn {
@@ -845,6 +583,32 @@
         .faq-section {
           padding: 1.5rem;
         }
+      }
+
+      /* Empty State */
+      .empty-pages {
+        text-align: center;
+        padding: 3rem 1rem;
+        background: #f9fafb;
+        border-radius: var(--radius-lg);
+        border: 2px dashed #d1d5db;
+      }
+
+      .empty-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+      }
+
+      .empty-text {
+        font-size: 1.125rem;
+        color: var(--text-secondary);
+        margin-bottom: 0.5rem;
+      }
+
+      .empty-hint {
+        font-size: 0.875rem;
+        color: var(--text-tertiary);
       }
     </style>
 
@@ -892,26 +656,10 @@
         "mainEntity": [
           {
             "@type": "Question",
-            "name": "What is an offline modifications generator?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "An offline modifications generator is a tool that creates professional documentation for website changes. It generates both internal fulfillment notes for your team and client-facing emails explaining the modifications made to their website."
-            }
-          },
-          {
-            "@type": "Question",
             "name": "How do I use this tool?",
             "acceptedAnswer": {
               "@type": "Answer",
               "text": "Simply add the pages you modified, list the changes you made on each page, and click generate. The AI will create professional documentation in seconds - both an internal note and a client email."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "Is this tool free to use?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "Yes, this offline modifications generator is completely free to use. No credit card or signup required."
             }
           }
         ]
@@ -952,71 +700,55 @@
           </div>
         </div>
 
-        <!-- Step Progress Indicator -->
-        <div class="steps-progress">
-          <div class="step active" id="step1">
-            <div class="step-circle">1</div>
-            <div class="step-label">Add Pages</div>
-          </div>
-          <div class="step" id="step2">
-            <div class="step-circle">2</div>
-            <div class="step-label">List Changes</div>
-          </div>
-          <div class="step" id="step3">
-            <div class="step-circle">3</div>
-            <div class="step-label">Generate</div>
-          </div>
-          <div class="step" id="step4">
-            <div class="step-circle">✓</div>
-            <div class="step-label">Copy & Use</div>
-          </div>
-        </div>
-
         <!-- Instruction Card -->
         <div class="instruction-card">
-          <div class="instruction-icon">💡</div>
           <div class="instruction-content">
-            <h3>How It Works</h3>
-            <p>
-              <strong>Step 1:</strong> Click "Add Page" and enter the webpage URL or name.<br>
-              <strong>Step 2:</strong> Click "Add Change" and describe what you modified on that page.<br>
-              <strong>Step 3:</strong> Hit the big green button to generate both an internal note for your team and a professional email for your client!
-            </p>
+            <h3>
+              <span>💡</span>
+              <span>How It Works</span>
+            </h3>
+            <div class="instruction-steps">
+              <div class="instruction-step">
+                <div class="step-number">1</div>
+                <div class="step-text">Enter the <strong>page URL or name</strong> (e.g., "Homepage" or "https://example.com/about")</div>
+              </div>
+              <div class="instruction-step">
+                <div class="step-number">2</div>
+                <div class="step-text">Type <strong>what you changed</strong> in the text box below (e.g., "Updated hero image" or "Fixed contact form")</div>
+              </div>
+              <div class="instruction-step">
+                <div class="step-number">3</div>
+                <div class="step-text">Click <strong>"Add Another Page"</strong> if you modified multiple pages</div>
+              </div>
+              <div class="instruction-step">
+                <div class="step-number">4</div>
+                <div class="step-text">Hit <strong>"Generate"</strong> to get both an internal note and a professional client email!</div>
+              </div>
+            </div>
           </div>
         </div>
 
         <form id="modificationsForm">
-          <div class="form-grid">
-            <div class="form-group required">
-              <div class="pages-header">
-                <label class="form-label">
-                  <span>📄</span>
-                  Pages You Modified
-                </label>
-                <span class="pages-count" id="pagesCount">0 Pages</span>
-              </div>
-
-              <div class="pages-container" id="pagesContainer">
-                <div class="empty-state">
-                  <div class="empty-state-icon">🌐</div>
-                  <div class="empty-state-text">No pages added yet</div>
-                  <div class="empty-state-hint">Click the button below to add your first page</div>
-                </div>
-              </div>
-
-              <button type="button" class="add-page-btn" id="addPageBtn">
-                <span style="font-size: 1.5rem;">➕</span>
-                <span>Add a Page</span>
-              </button>
+          <div id="pagesContainer">
+            <!-- Empty state initially -->
+            <div class="empty-pages" id="emptyState">
+              <div class="empty-icon">🌐</div>
+              <div class="empty-text">Ready to document your changes?</div>
+              <div class="empty-hint">Click the button below to add your first page</div>
             </div>
           </div>
 
+          <button type="button" class="add-page-btn" id="addPageBtn">
+            <span style="font-size: 1.5rem;">➕</span>
+            <span>Add Your First Page</span>
+          </button>
+
           <button type="submit" class="generate-btn" id="generateBtn">
-            <span class="btn-text">
+            <span class="btn-content">
               <span class="btn-icon">🚀</span>
               <span>Generate My Documentation</span>
             </span>
-            <span class="loading-spinner" style="display: none;">
+            <span class="loading-spinner">
               <div class="spinner"></div>
               <span>Creating magic with AI...</span>
             </span>
@@ -1030,7 +762,7 @@
         </form>
 
         <div class="results-container" id="resultsContainer">
-          <div class="result-container internal-note-container" id="noteContainer">
+          <div class="result-container internal-note-container">
             <div class="result-header">
               <h3 class="result-title internal-note-title">
                 <span>📋</span>
@@ -1046,7 +778,7 @@
             </div>
           </div>
 
-          <div class="result-container client-email-container" id="emailContainer">
+          <div class="result-container client-email-container">
             <div class="result-header">
               <h3 class="result-title client-email-title">
                 <span>📧</span>
@@ -1066,25 +798,11 @@
         <!-- FAQ Section for SEO -->
         <div class="faq-section">
           <h2 class="faq-title">Frequently Asked Questions</h2>
-          
-          <div class="faq-item">
-            <div class="faq-question">What is an offline modifications generator?</div>
-            <div class="faq-answer">
-              An offline modifications generator is a tool that creates professional documentation for website changes. It generates both internal fulfillment notes for your team and client-facing emails explaining the modifications made to their website. This tool is perfect for web developers, agencies, and freelancers who need to document their work professionally.
-            </div>
-          </div>
 
           <div class="faq-item">
             <div class="faq-question">How do I use this tool?</div>
             <div class="faq-answer">
-              Using this tool is simple: (1) Click "Add Page" and enter the webpage URL or page name, (2) Click "Add Change" to describe what modifications you made on that page, (3) Repeat for all pages you've modified, (4) Click the "Generate My Documentation" button. The AI will instantly create both an internal note and a professional client email.
-            </div>
-          </div>
-
-          <div class="faq-item">
-            <div class="faq-question">Is this tool free to use?</div>
-            <div class="faq-answer">
-              Yes! This offline modifications generator is completely free to use. No credit card required, no signup needed, and no hidden fees. Generate as many modification notes and emails as you need.
+              Using this tool is simple: (1) Click "Add Your First Page" and enter the webpage URL or page name, (2) In the text box that appears, describe what modifications you made on that page, (3) If you modified multiple pages, click "Add Another Page" and repeat, (4) Click the "Generate My Documentation" button. The AI will instantly create both an internal note and a professional client email.
             </div>
           </div>
 
@@ -1105,7 +823,7 @@
           <div class="faq-item">
             <div class="faq-question">How many pages can I document at once?</div>
             <div class="faq-answer">
-              You can document as many pages as you need! Simply keep clicking "Add Page" to add more pages to your documentation. The tool will organize all changes by page in both the internal note and client email.
+              You can document as many pages as you need! Simply keep clicking "Add Another Page" to add more pages to your documentation. The tool will organize all changes by page in both the internal note and client email.
             </div>
           </div>
         </div>
@@ -1134,8 +852,6 @@ document.addEventListener('DOMContentLoaded', async () => {
           this.generateBtn = document.getElementById("generateBtn");
           this.progressBar = document.getElementById("progressBar");
           this.errorMessage = document.getElementById("errorMessage");
-          this.noteContainer = document.getElementById("noteContainer");
-          this.emailContainer = document.getElementById("emailContainer");
           this.resultsContainer = document.getElementById("resultsContainer");
           this.notePreview = document.getElementById("notePreview");
           this.emailPreview = document.getElementById("emailPreview");
@@ -1143,18 +859,15 @@ document.addEventListener('DOMContentLoaded', async () => {
           this.copyEmailBtn = document.getElementById("copyEmailBtn");
           this.addPageBtn = document.getElementById("addPageBtn");
           this.pagesContainer = document.getElementById("pagesContainer");
-          this.pagesCount = document.getElementById("pagesCount");
+          this.emptyState = document.getElementById("emptyState");
 
-          this.pages = [];
           this.pageCounter = 0;
-          this.changeCounter = 0;
 
           this.init();
         }
 
         init() {
           this.bindEvents();
-          this.updateSteps();
         }
 
         bindEvents() {
@@ -1166,32 +879,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             this.copyToClipboard("email")
           );
           this.addPageBtn.addEventListener("click", () => this.addPage());
-        }
-
-        updateSteps() {
-          const step1 = document.getElementById('step1');
-          const step2 = document.getElementById('step2');
-          const step3 = document.getElementById('step3');
-          const step4 = document.getElementById('step4');
-
-          // Remove all active/completed states
-          [step1, step2, step3, step4].forEach(step => {
-            step.classList.remove('active', 'completed');
-          });
-
-          if (this.pages.length === 0) {
-            step1.classList.add('active');
-          } else {
-            step1.classList.add('completed');
-            
-            const hasChanges = this.pages.some(page => page.changes.length > 0);
-            if (!hasChanges) {
-              step2.classList.add('active');
-            } else {
-              step2.classList.add('completed');
-              step3.classList.add('active');
-            }
-          }
         }
 
         sanitizeUrlInput(url) {
@@ -1232,189 +919,104 @@ document.addEventListener('DOMContentLoaded', async () => {
           this.pageCounter++;
           const pageId = `page_${this.pageCounter}`;
 
-          const pageItem = document.createElement("div");
-          pageItem.className = "page-item";
-          pageItem.setAttribute("data-page-id", pageId);
+          // Remove empty state on first page
+          if (this.pageCounter === 1) {
+            this.emptyState.style.display = 'none';
+            this.addPageBtn.innerHTML = `
+              <span style="font-size: 1.5rem;">➕</span>
+              <span>Add Another Page</span>
+            `;
+          }
 
-          pageItem.innerHTML = `
-            <div class="page-header">
+          const pageForm = document.createElement("div");
+          pageForm.className = "page-form-container";
+          pageForm.setAttribute("data-page-id", pageId);
+          pageForm.style.animation = "fadeInUp 0.3s ease";
+
+          pageForm.innerHTML = `
+            <div class="page-form-header">
               <div class="page-number-badge">${this.pageCounter}</div>
-              <div class="page-url-wrapper">
-                <label class="page-url-label">Page URL or Name</label>
-                <input 
-                  type="text" 
-                  class="page-url-input" 
-                  placeholder="Example: https://www.example.com/about or just 'About Page'"
-                  data-page-id="${pageId}"
-                  required
-                />
-              </div>
-              <button type="button" class="remove-page" onclick="modGenerator.removePage('${pageId}')">
-                <span>🗑️</span>
-                <span>Remove</span>
-              </button>
+              <h3 class="page-form-title">Page ${this.pageCounter}</h3>
+              ${this.pageCounter > 1 ? `
+                <button type="button" class="remove-page-btn" onclick="modGenerator.removePage('${pageId}')">
+                  <span>🗑️</span>
+                  <span>Remove Page</span>
+                </button>
+              ` : ''}
             </div>
             
-            <div class="page-changes-section">
-              <div class="page-changes-header">
-                <span class="page-changes-title">
-                  <span>✏️</span>
-                  <span>Changes Made</span>
-                </span>
-                <span class="page-changes-count" data-page-id="${pageId}">0 Changes</span>
-              </div>
-              
-              <div class="changes-container" data-page-id="${pageId}">
-                <div class="empty-state" style="padding: 2rem 1rem;">
-                  <div class="empty-state-icon" style="font-size: 3rem;">✨</div>
-                  <div class="empty-state-text" style="font-size: 1rem;">No changes added yet</div>
-                  <div class="empty-state-hint">Click "Add a Change" below to describe what you modified</div>
-                </div>
-              </div>
-              
-              <button type="button" class="add-change-btn" onclick="modGenerator.addChange('${pageId}')">
-                <span>➕</span>
-                <span>Add a Change</span>
-              </button>
+            <div class="input-group">
+              <label class="input-label">
+                <span>🌐</span>
+                <span>Page URL or Name</span>
+              </label>
+              <input 
+                type="text" 
+                class="input-field page-url" 
+                placeholder="Example: https://www.example.com/about or just 'About Page'"
+                data-page-id="${pageId}"
+                required
+              />
+              <div class="input-hint">💡 You can paste a full URL or just enter a simple page name</div>
+            </div>
+
+            <div class="input-group">
+              <label class="input-label">
+                <span>✏️</span>
+                <span>What Did You Change?</span>
+              </label>
+              <textarea 
+                class="input-field textarea-field page-changes" 
+                placeholder="Example: Updated the hero banner image to showcase our new product line. Changed the headline from 'Welcome' to 'Discover Innovation'. Fixed the contact form validation issue that was preventing submissions."
+                data-page-id="${pageId}"
+                required
+              ></textarea>
+              <div class="input-hint">💡 Be specific! Describe all the changes you made on this page</div>
             </div>
           `;
 
-          // Remove empty state if this is the first page
-          if (this.pages.length === 0) {
-            this.pagesContainer.innerHTML = "";
-          }
+          this.pagesContainer.appendChild(pageForm);
 
-          this.pagesContainer.appendChild(pageItem);
-          this.pages.push({ id: pageId, changes: [] });
-          this.updatePagesCount();
-          this.updateSteps();
-
-          const urlInput = pageItem.querySelector(".page-url-input");
-          urlInput.focus();
-
-          // Smooth scroll to new page
+          // Focus on the URL input
+          const urlInput = pageForm.querySelector(".page-url");
           setTimeout(() => {
-            pageItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            urlInput.focus();
+            pageForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
           }, 100);
         }
 
         removePage(pageId) {
           const pageElement = document.querySelector(
-            `[data-page-id="${pageId}"].page-item`
+            `[data-page-id="${pageId}"].page-form-container`
           );
+          
           if (pageElement) {
             pageElement.style.opacity = '0';
-            pageElement.style.transform = 'translateX(-20px)';
+            pageElement.style.transform = 'translateY(-20px)';
             
             setTimeout(() => {
               pageElement.remove();
-              this.pages = this.pages.filter((page) => page.id !== pageId);
-              this.updatePagesCount();
-              this.updateSteps();
+              this.pageCounter--;
 
-              if (this.pages.length === 0) {
-                this.pagesContainer.innerHTML = `
-                  <div class="empty-state">
-                    <div class="empty-state-icon">🌐</div>
-                    <div class="empty-state-text">No pages added yet</div>
-                    <div class="empty-state-hint">Click the button below to add your first page</div>
-                  </div>
+              // Show empty state if no pages
+              if (this.pageCounter === 0) {
+                this.emptyState.style.display = 'block';
+                this.addPageBtn.innerHTML = `
+                  <span style="font-size: 1.5rem;">➕</span>
+                  <span>Add Your First Page</span>
                 `;
+              } else {
+                // Renumber remaining pages
+                const remainingPages = this.pagesContainer.querySelectorAll('.page-form-container');
+                remainingPages.forEach((page, index) => {
+                  const badge = page.querySelector('.page-number-badge');
+                  const title = page.querySelector('.page-form-title');
+                  badge.textContent = index + 1;
+                  title.textContent = `Page ${index + 1}`;
+                });
               }
             }, 200);
           }
-        }
-
-        addChange(pageId) {
-          this.changeCounter++;
-          const changeId = `change_${this.changeCounter}`;
-
-          const changesContainer = document.querySelector(
-            `[data-page-id="${pageId}"].changes-container`
-          );
-          const page = this.pages.find((p) => p.id === pageId);
-
-          if (page.changes.length === 0) {
-            changesContainer.innerHTML = "";
-          }
-
-          const changeNumber = page.changes.length + 1;
-          const changeItem = document.createElement("div");
-          changeItem.className = "change-item";
-          changeItem.setAttribute("data-change-id", changeId);
-
-          changeItem.innerHTML = `
-            <div class="change-number">${changeNumber}</div>
-            <div class="change-content">
-              <textarea 
-                class="change-textarea" 
-                placeholder="Example: Updated the hero image to show the new product lineup..."
-                data-change-id="${changeId}"
-                data-page-id="${pageId}"
-              ></textarea>
-            </div>
-            <button type="button" class="remove-change" onclick="modGenerator.removeChange('${pageId}', '${changeId}')">
-              ×
-            </button>
-          `;
-
-          changesContainer.appendChild(changeItem);
-          page.changes.push(changeId);
-          this.updatePageChangesCount(pageId);
-          this.updateSteps();
-
-          const textarea = changeItem.querySelector(".change-textarea");
-          textarea.focus();
-
-          // Smooth scroll to new change
-          setTimeout(() => {
-            changeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-          }, 100);
-        }
-
-        removeChange(pageId, changeId) {
-          const changeElement = document.querySelector(
-            `[data-change-id="${changeId}"]`
-          );
-          if (changeElement) {
-            changeElement.style.opacity = '0';
-            changeElement.style.transform = 'translateX(-10px)';
-            
-            setTimeout(() => {
-              changeElement.remove();
-              const page = this.pages.find((p) => p.id === pageId);
-              page.changes = page.changes.filter((id) => id !== changeId);
-              this.updatePageChangesCount(pageId);
-              this.updateSteps();
-
-              if (page.changes.length === 0) {
-                const changesContainer = document.querySelector(
-                  `[data-page-id="${pageId}"].changes-container`
-                );
-                changesContainer.innerHTML = `
-                  <div class="empty-state" style="padding: 2rem 1rem;">
-                    <div class="empty-state-icon" style="font-size: 3rem;">✨</div>
-                    <div class="empty-state-text" style="font-size: 1rem;">No changes added yet</div>
-                    <div class="empty-state-hint">Click "Add a Change" below to describe what you modified</div>
-                  </div>
-                `;
-              }
-            }, 200);
-          }
-        }
-
-        updatePagesCount() {
-          const count = this.pages.length;
-          this.pagesCount.textContent = `${count} Page${count !== 1 ? "s" : ""}`;
-        }
-
-        updatePageChangesCount(pageId) {
-          const page = this.pages.find((p) => p.id === pageId);
-          const count = page.changes.length;
-          const countElement = document.querySelector(
-            `[data-page-id="${pageId}"].page-changes-count`
-          );
-          countElement.textContent = `${count} Change${count !== 1 ? "s" : ""}`;
         }
 
         async handleSubmit(e) {
@@ -1424,85 +1026,52 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
           }
 
-          this.setLoadingState(true);
+          this.setGeneratingState(true);
           this.hideError();
-
-          // Update steps to show generating
-          const step3 = document.getElementById('step3');
-          step3.classList.add('active');
-          step3.classList.remove('completed');
 
           try {
             const formData = this.getFormData();
-            const results = await this.generateContent(formData);
-            this.showResults(results);
+            console.log('Submitting form data:', formData);
             
-            // Update steps to show complete
-            const step4 = document.getElementById('step4');
-            step3.classList.remove('active');
-            step3.classList.add('completed');
-            step4.classList.add('completed');
+            const results = await this.generateContent(formData);
+            console.log('Received results:', results);
+            
+            this.showResults(results);
           } catch (error) {
             console.error("Generation error:", error);
             this.showError(error.message || 'Something went wrong. Please try again.');
           } finally {
-            this.setLoadingState(false);
+            this.setGeneratingState(false);
           }
         }
 
         validateForm() {
-          if (this.pages.length === 0) {
+          if (this.pageCounter === 0) {
             this.showError("🚨 Oops! Please add at least one page first.");
             this.addPageBtn.focus();
             return false;
           }
 
-          let hasEmptyUrls = false;
-          let hasEmptyChanges = false;
-          let emptyPageNumber = 0;
-
-          for (let i = 0; i < this.pages.length; i++) {
-            const page = this.pages[i];
-            const urlInput = document.querySelector(
-              `[data-page-id="${page.id}"].page-url-input`
-            );
+          const pageContainers = this.pagesContainer.querySelectorAll('.page-form-container');
+          
+          for (let i = 0; i < pageContainers.length; i++) {
+            const container = pageContainers[i];
+            const urlInput = container.querySelector('.page-url');
+            const changesInput = container.querySelector('.page-changes');
             
             if (!urlInput.value.trim()) {
-              hasEmptyUrls = true;
-              emptyPageNumber = i + 1;
+              this.showError(`🚨 Please enter a URL or page name for Page ${i + 1}`);
               urlInput.focus();
-              break;
+              container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              return false;
             }
 
-            if (page.changes.length === 0) {
-              hasEmptyChanges = true;
-              emptyPageNumber = i + 1;
-              break;
+            if (!changesInput.value.trim()) {
+              this.showError(`🚨 Please describe what you changed on Page ${i + 1}`);
+              changesInput.focus();
+              container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              return false;
             }
-
-            for (const changeId of page.changes) {
-              const textarea = document.querySelector(
-                `[data-change-id="${changeId}"] .change-textarea`
-              );
-              if (!textarea.value.trim()) {
-                hasEmptyChanges = true;
-                emptyPageNumber = i + 1;
-                textarea.focus();
-                break;
-              }
-            }
-
-            if (hasEmptyChanges) break;
-          }
-
-          if (hasEmptyUrls) {
-            this.showError(`🚨 Please enter a URL or page name for Page ${emptyPageNumber}`);
-            return false;
-          }
-
-          if (hasEmptyChanges) {
-            this.showError(`🚨 Page ${emptyPageNumber} needs at least one change description`);
-            return false;
           }
 
           return true;
@@ -1510,29 +1079,23 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         getFormData() {
           const data = { pages: [] };
+          const pageContainers = this.pagesContainer.querySelectorAll('.page-form-container');
 
-          for (const page of this.pages) {
-            const urlInput = document.querySelector(
-              `[data-page-id="${page.id}"].page-url-input`
-            );
+          pageContainers.forEach(container => {
+            const urlInput = container.querySelector('.page-url');
+            const changesInput = container.querySelector('.page-changes');
             
             // Sanitize URL before adding to data
             const sanitizedUrl = this.sanitizeUrlInput(urlInput.value.trim());
-            
-            const changes = page.changes
-              .map((changeId) => {
-                const textarea = document.querySelector(
-                  `[data-change-id="${changeId}"] .change-textarea`
-                );
-                return textarea.value.trim();
-              })
-              .filter((change) => change.length > 0);
+            const changes = changesInput.value.trim();
 
-            data.pages.push({
-              url: sanitizedUrl,
-              changes: changes,
-            });
-          }
+            if (sanitizedUrl && changes) {
+              data.pages.push({
+                url: sanitizedUrl,
+                changes: [changes] // Wrap in array to match expected format
+              });
+            }
+          });
 
           return data;
         }
@@ -1555,36 +1118,49 @@ document.addEventListener('DOMContentLoaded', async () => {
           }
 
           const result = await response.json();
+          
+          // Make sure we have the expected format
+          if (!result.internalNote || !result.clientEmail) {
+            console.error('Unexpected response format:', result);
+            throw new Error('Invalid response format from server');
+          }
+          
           return result;
         }
 
         showResults(results) {
+          console.log('Showing results:', results);
+          
+          // Set the content
           this.notePreview.textContent = results.internalNote;
           this.emailPreview.textContent = results.clientEmail;
 
+          // Show the results container
           this.resultsContainer.classList.add("visible");
 
+          // Scroll to results
           setTimeout(() => {
-            this.resultsContainer.scrollIntoView({ behavior: "smooth", block: "start" });
+            this.resultsContainer.scrollIntoView({ 
+              behavior: "smooth", 
+              block: "start" 
+            });
           }, 300);
         }
 
-        setLoadingState(loading) {
-          const btnText = this.generateBtn.querySelector('.btn-text');
+        setGeneratingState(isGenerating) {
+          const btnContent = this.generateBtn.querySelector('.btn-content');
           const loadingSpinner = this.generateBtn.querySelector('.loading-spinner');
           
-          if (loading) {
-            this.generateBtn.classList.add("loading");
+          if (isGenerating) {
+            this.generateBtn.classList.add("is-generating");
             this.generateBtn.disabled = true;
-            btnText.style.display = 'none';
+            btnContent.style.display = 'none';
             loadingSpinner.style.display = 'flex';
-            loadingSpinner.style.gap = '0.5rem';
-            loadingSpinner.style.alignItems = 'center';
             this.progressBar.classList.add("show");
           } else {
-            this.generateBtn.classList.remove("loading");
+            this.generateBtn.classList.remove("is-generating");
             this.generateBtn.disabled = false;
-            btnText.style.display = 'flex';
+            btnContent.style.display = 'flex';
             loadingSpinner.style.display = 'none';
             this.progressBar.classList.remove("show");
           }
