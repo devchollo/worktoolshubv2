@@ -340,6 +340,11 @@
       background: rgba(16, 185, 129, 0.05);
     }
 
+    .rec-item.critical {
+      border-color: #dc2626;
+      background: rgba(220, 38, 38, 0.1);
+    }
+
     .rec-header {
       display: flex;
       align-items: center;
@@ -373,6 +378,22 @@
       color: #065f46;
     }
 
+    .rec-icon.critical {
+      background: #fecaca;
+      color: #7f1d1d;
+    }
+
+    .rec-category {
+      display: inline-block;
+      padding: 0.25rem 0.625rem;
+      background: var(--surface-color);
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+    }
+
     .rec-title {
       font-weight: 600;
       color: var(--text-primary);
@@ -383,6 +404,53 @@
       color: var(--text-secondary);
       font-size: 0.875rem;
       line-height: 1.5;
+      margin-bottom: 0.5rem;
+    }
+
+    .rec-action {
+      color: var(--text-primary);
+      font-size: 0.875rem;
+      font-weight: 500;
+      padding: 0.5rem 0.75rem;
+      background: var(--surface-color);
+      border-radius: 6px;
+      margin-top: 0.5rem;
+      border-left: 3px solid var(--primary-color);
+    }
+
+    .protocol-analysis {
+      background: var(--surface-color);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-xl);
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .vulnerability-list {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .vulnerability-item {
+      background: var(--bg-color);
+      border-left: 4px solid;
+      padding: 1rem;
+      border-radius: var(--radius-md);
+    }
+
+    .vulnerability-item.critical {
+      border-color: #dc2626;
+      background: rgba(220, 38, 38, 0.05);
+    }
+
+    .vulnerability-item.high {
+      border-color: #ef4444;
+      background: rgba(239, 68, 68, 0.05);
+    }
+
+    .vulnerability-item.medium {
+      border-color: #f59e0b;
+      background: rgba(251, 191, 36, 0.05);
     }
 
     .cipher-info {
@@ -449,7 +517,6 @@
 </head>
 <body>
   <div id="header"></div>
-  <div id="bread"></div>
 
   <main>
     <section class="tool-container">
@@ -508,6 +575,9 @@
           <h3 style="margin-bottom: 1.5rem;">TLS Protocol Support</h3>
           <div class="tls-grid" id="tlsGrid"></div>
         </div>
+
+        <!-- Protocol Analysis -->
+        <div class="protocol-analysis" id="protocolAnalysis"></div>
 
         <!-- Recommendations -->
         <div class="recommendations">
@@ -579,16 +649,16 @@
               body: JSON.stringify({ domain })
             });
 
+            const data = await response.json();
+
             if (!response.ok) {
-              const error = await response.json();
-              throw new Error(error.error || 'Failed to check SSL');
+              throw new Error(data.message || data.error || 'Failed to check SSL');
             }
 
-            const data = await response.json();
             this.displayResults(data);
           } catch (error) {
             console.error('SSL check error:', error);
-            this.showError(error.message);
+            this.showError(error.message || 'Failed to check SSL certificate. Please verify the domain and try again.');
           } finally {
             this.hideLoading();
           }
@@ -609,6 +679,11 @@
           // Display TLS versions
           this.displayTLSVersions(data.tlsVersions);
 
+          // Display protocol analysis
+          if (data.protocolAnalysis) {
+            this.displayProtocolAnalysis(data.protocolAnalysis);
+          }
+
           // Display recommendations
           this.displayRecommendations(data.recommendations, data.grading.issues);
         }
@@ -616,19 +691,23 @@
         displayGradeBanner(grading, domain) {
           const gradeClass = grading.grade.toLowerCase().replace('+', '-plus');
           const descriptions = {
-            'A+': 'Excellent SSL/TLS configuration with best practices',
-            'A': 'Strong SSL/TLS security configuration',
-            'B': 'Good security with minor improvements needed',
-            'C': 'Adequate security with several issues',
-            'D': 'Poor security configuration',
-            'F': 'Critical security issues detected'
+            'A+': 'Exceptional SSL/TLS configuration - exceeds industry standards',
+            'A': 'Excellent SSL/TLS security configuration',
+            'B': 'Good security with minor improvements recommended',
+            'C': 'Fair security with several issues to address',
+            'D': 'Poor security configuration - immediate action required',
+            'E': 'Very poor security - critical vulnerabilities present',
+            'F': 'Failing grade - critical security issues detected'
           };
 
           document.getElementById('gradeBanner').innerHTML = `
             <div class="grade-circle ${gradeClass}">
               ${grading.grade}
             </div>
-            <div class="grade-score">Security Score: ${grading.score}/100</div>
+            <div class="grade-score">
+              Security Score: ${grading.score}/100 
+              <span style="margin-left: 1rem; color: var(--text-secondary);">(${grading.securityLevel})</span>
+            </div>
             <h2 style="margin-bottom: 0.5rem;">${domain}</h2>
             <p class="grade-description">${descriptions[grading.grade]}</p>
           `;
@@ -638,9 +717,14 @@
           const daysRemainingColor = cert.daysRemaining < 0 ? '#ef4444' : 
                                      cert.daysRemaining < 30 ? '#f59e0b' : '#10b981';
 
+          // Format alt names
+          const altNamesHtml = cert.subjectAltNames && cert.subjectAltNames.length > 0 
+            ? cert.subjectAltNames.slice(0, 5).join(', ') + (cert.subjectAltNames.length > 5 ? '...' : '')
+            : 'None';
+
           document.getElementById('certGrid').innerHTML = `
             <div class="cert-item">
-              <div class="cert-label">Subject</div>
+              <div class="cert-label">Common Name</div>
               <div class="cert-value">${cert.subject.CN || 'N/A'}</div>
             </div>
             <div class="cert-item">
@@ -649,33 +733,47 @@
             </div>
             <div class="cert-item">
               <div class="cert-label">Valid From</div>
-              <div class="cert-value">${new Date(cert.validFrom).toLocaleDateString()}</div>
+              <div class="cert-value">${new Date(cert.validFrom).toLocaleDateString('en-US', { 
+                year: 'numeric', month: 'short', day: 'numeric' 
+              })}</div>
             </div>
             <div class="cert-item">
               <div class="cert-label">Valid Until</div>
-              <div class="cert-value">${new Date(cert.validTo).toLocaleDateString()}</div>
+              <div class="cert-value">${new Date(cert.validTo).toLocaleDateString('en-US', { 
+                year: 'numeric', month: 'short', day: 'numeric' 
+              })}</div>
             </div>
             <div class="cert-item">
               <div class="cert-label">Days Remaining</div>
               <div class="cert-value" style="color: ${daysRemainingColor}; font-weight: 600;">
-                ${cert.daysRemaining} days
+                ${cert.daysRemaining} days ${cert.daysRemaining < 30 ? '⚠️' : '✓'}
               </div>
+            </div>
+            <div class="cert-item">
+              <div class="cert-label">Key Type & Size</div>
+              <div class="cert-value">${cert.signatureAlgorithm} ${cert.keySize} bits</div>
             </div>
             <div class="cert-item">
               <div class="cert-label">Serial Number</div>
-              <div class="cert-value" style="font-family: monospace; font-size: 0.75rem;">
+              <div class="cert-value" style="font-family: monospace; font-size: 0.75rem; word-break: break-all;">
                 ${cert.serialNumber}
-              </div>
-            </div>
-            <div class="cert-item">
-              <div class="cert-label">Fingerprint (SHA-256)</div>
-              <div class="cert-value" style="font-family: monospace; font-size: 0.7rem; word-break: break-all;">
-                ${cert.fingerprint256}
               </div>
             </div>
             <div class="cert-item">
               <div class="cert-label">Protocol</div>
               <div class="cert-value">${cert.protocol}</div>
+            </div>
+            <div class="cert-item" style="grid-column: 1 / -1;">
+              <div class="cert-label">Alternative Names</div>
+              <div class="cert-value" style="word-break: break-all;">
+                ${altNamesHtml}
+              </div>
+            </div>
+            <div class="cert-item" style="grid-column: 1 / -1;">
+              <div class="cert-label">Fingerprint (SHA-256)</div>
+              <div class="cert-value" style="font-family: monospace; font-size: 0.7rem; word-break: break-all;">
+                ${cert.fingerprint256}
+              </div>
             </div>
           `;
         }
@@ -689,16 +787,44 @@
           }
 
           const ratingColors = {
+            'A+': '#10b981',
             'A': '#10b981',
             'B': '#f59e0b',
+            'C': '#fb923c',
+            'D': '#f87171',
             'F': '#ef4444'
           };
+
+          const detailsHtml = analysis.details ? `
+            <div style="margin-top: 1rem; padding: 1rem; background: var(--surface-color); border-radius: 8px;">
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                <div>
+                  <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Forward Secrecy</div>
+                  <div style="font-weight: 600; color: ${analysis.details.forwardSecrecy ? '#10b981' : '#ef4444'};">
+                    ${analysis.details.forwardSecrecy ? '✓ Yes' : '✗ No'}
+                  </div>
+                </div>
+                <div>
+                  <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem;">AEAD Mode</div>
+                  <div style="font-weight: 600; color: ${analysis.details.aeadMode ? '#10b981' : '#f59e0b'};">
+                    ${analysis.details.aeadMode ? '✓ Yes' : '○ No'}
+                  </div>
+                </div>
+                <div>
+                  <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Cipher Strength</div>
+                  <div style="font-weight: 600;">${analysis.details.keySize} bits</div>
+                </div>
+              </div>
+            </div>
+          ` : '';
 
           document.getElementById('cipherCard').innerHTML = `
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
               <div>
                 <div class="cert-label">Cipher Suite</div>
-                <div class="cert-value" style="font-family: monospace;">${cipher.name}</div>
+                <div class="cert-value" style="font-family: monospace; font-size: 0.875rem; word-break: break-all;">
+                  ${cipher.name}
+                </div>
               </div>
               <div>
                 <div class="cert-label">Key Length</div>
@@ -706,16 +832,29 @@
               </div>
               <div>
                 <div class="cert-label">Security Rating</div>
-                <div class="cert-value" style="color: ${ratingColors[analysis.rating]}; font-weight: 600;">
+                <div class="cert-value" style="color: ${ratingColors[analysis.rating]}; font-weight: 700; font-size: 1.5rem;">
                   ${analysis.rating}
                 </div>
               </div>
+              <div>
+                <div class="cert-label">Security Score</div>
+                <div class="cert-value">${analysis.score}/100</div>
+              </div>
             </div>
+            ${detailsHtml}
             ${analysis.issues.length > 0 ? `
-              <div style="margin-top: 1rem; padding: 1rem; background: rgba(239, 68, 68, 0.1); border-radius: 8px;">
-                <div style="font-weight: 600; color: #991b1b; margin-bottom: 0.5rem;">Issues Detected:</div>
+              <div style="margin-top: 1rem; padding: 1rem; background: rgba(239, 68, 68, 0.1); border-radius: 8px; border-left: 4px solid #ef4444;">
+                <div style="font-weight: 600; color: #991b1b; margin-bottom: 0.5rem;">🔴 Issues Detected:</div>
                 ${analysis.issues.map(issue => `
                   <div style="color: #991b1b; font-size: 0.875rem; margin-bottom: 0.25rem;">• ${issue}</div>
+                `).join('')}
+              </div>
+            ` : ''}
+            ${analysis.warnings && analysis.warnings.length > 0 ? `
+              <div style="margin-top: 1rem; padding: 1rem; background: rgba(251, 191, 36, 0.1); border-radius: 8px; border-left: 4px solid #f59e0b;">
+                <div style="font-weight: 600; color: #92400e; margin-bottom: 0.5rem;">⚠️ Warnings:</div>
+                ${analysis.warnings.map(warning => `
+                  <div style="color: #92400e; font-size: 0.875rem; margin-bottom: 0.25rem;">• ${warning}</div>
                 `).join('')}
               </div>
             ` : ''}
@@ -792,42 +931,117 @@
           document.getElementById('tlsGrid').innerHTML = html;
         }
 
+        displayProtocolAnalysis(analysis) {
+          const container = document.getElementById('protocolAnalysis');
+          
+          if (!analysis.vulnerabilities.length && !analysis.warnings.length) {
+            container.style.display = 'none';
+            return;
+          }
+
+          container.style.display = 'block';
+
+          const vulnHtml = analysis.vulnerabilities.length > 0 ? `
+            <div class="vulnerability-list">
+              ${analysis.vulnerabilities.map(vuln => `
+                <div class="vulnerability-item ${vuln.severity.toLowerCase()}">
+                  <div style="display: flex; justify-content: between; align-items: start; margin-bottom: 0.75rem;">
+                    <div style="flex: 1;">
+                      <div style="font-weight: 600; color: var(--text-primary); font-size: 1rem; margin-bottom: 0.25rem;">
+                        ${vuln.name}
+                      </div>
+                      <div style="display: inline-block; padding: 0.25rem 0.625rem; background: rgba(239, 68, 68, 0.1); border-radius: 4px; font-size: 0.75rem; font-weight: 600; color: #991b1b;">
+                        ${vuln.severity}
+                      </div>
+                    </div>
+                  </div>
+                  <div style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 0.5rem;">
+                    ${vuln.description}
+                  </div>
+                  ${vuln.cve ? `
+                    <div style="color: var(--text-secondary); font-size: 0.75rem; margin-bottom: 0.5rem;">
+                      <strong>CVE:</strong> ${vuln.cve.join(', ')}
+                    </div>
+                  ` : ''}
+                  <div style="padding: 0.5rem 0.75rem; background: var(--surface-color); border-radius: 6px; border-left: 3px solid #ef4444; font-size: 0.875rem; color: var(--text-primary); font-weight: 500;">
+                    💡 ${vuln.recommendation}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          ` : '';
+
+          const warningsHtml = analysis.warnings.length > 0 ? `
+            <div class="vulnerability-list" style="margin-top: ${analysis.vulnerabilities.length > 0 ? '1rem' : '0'};">
+              ${analysis.warnings.map(warn => `
+                <div class="vulnerability-item medium">
+                  <div style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">
+                    ${warn.name}
+                    <span style="display: inline-block; padding: 0.25rem 0.625rem; background: rgba(251, 191, 36, 0.1); border-radius: 4px; font-size: 0.75rem; font-weight: 600; color: #92400e; margin-left: 0.5rem;">
+                      ${warn.severity}
+                    </span>
+                  </div>
+                  <div style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 0.5rem;">
+                    ${warn.description}
+                  </div>
+                  <div style="padding: 0.5rem 0.75rem; background: var(--surface-color); border-radius: 6px; border-left: 3px solid #f59e0b; font-size: 0.875rem; color: var(--text-primary); font-weight: 500;">
+                    💡 ${warn.recommendation}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          ` : '';
+
+          container.innerHTML = `
+            <h3 style="margin-bottom: 1.5rem;">
+              Security Analysis
+              ${analysis.vulnerabilities.length > 0 ? `
+                <span style="display: inline-block; padding: 0.375rem 0.875rem; background: #fee2e2; color: #991b1b; border-radius: 50px; font-size: 0.875rem; margin-left: 0.75rem;">
+                  ${analysis.vulnerabilities.length} ${analysis.vulnerabilities.length === 1 ? 'Vulnerability' : 'Vulnerabilities'}
+                </span>
+              ` : ''}
+            </h3>
+            ${vulnHtml}
+            ${warningsHtml}
+          `;
+        }
+
         displayRecommendations(recommendations, issues) {
           const container = document.getElementById('recommendationsContainer');
 
-          if (recommendations.length === 0 && issues.length === 0) {
+          if (recommendations.length === 0 && (!issues || issues.length === 0)) {
             container.innerHTML = `
               <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
                 <div style="font-size: 3rem; margin-bottom: 1rem;">✓</div>
-                <div style="font-size: 1.125rem; font-weight: 600;">No issues detected</div>
+                <div style="font-size: 1.125rem; font-weight: 600; color: var(--text-primary);">
+                  Excellent Configuration
+                </div>
                 <div style="font-size: 0.875rem; margin-top: 0.5rem;">
-                  Your SSL/TLS configuration follows best practices
+                  Your SSL/TLS configuration follows security best practices
                 </div>
               </div>
             `;
             return;
           }
 
-          const allItems = [
-            ...recommendations.map(rec => ({
-              severity: rec.severity,
-              title: rec.issue,
-              description: rec.description
-            })),
-            ...issues.map(issue => ({
-              severity: 'high',
-              title: 'Security Issue',
-              description: issue
-            }))
-          ];
+          const severityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
+          const sortedRecs = [...recommendations].sort((a, b) => 
+            severityOrder[a.severity] - severityOrder[b.severity]
+          );
 
-          container.innerHTML = allItems.map(item => `
+          container.innerHTML = sortedRecs.map(item => `
             <div class="rec-item ${item.severity}">
+              <div class="rec-category">${item.category || 'General'}</div>
               <div class="rec-header">
                 <div class="rec-icon ${item.severity}">!</div>
-                <div class="rec-title">${item.title}</div>
+                <div class="rec-title">${item.issue}</div>
               </div>
               <div class="rec-description">${item.description}</div>
+              ${item.action ? `
+                <div class="rec-action">
+                  <strong>Recommended Action:</strong> ${item.action}
+                </div>
+              ` : ''}
             </div>
           `).join('');
         }
