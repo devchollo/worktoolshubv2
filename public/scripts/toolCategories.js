@@ -86,7 +86,7 @@ export const toolCategories = {
       },
       {
   name: "SSL Certificate Checker",
-  path: "/views/tools/ssl-checker.html",
+  path: "/views/tools/ssl-checker",
   internal: false,
   public: true
 },
