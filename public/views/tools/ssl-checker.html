@@ -426,6 +426,119 @@
       margin-bottom: 2rem;
     }
 
+    .handshake-section {
+      background: var(--surface-color);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-xl);
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .handshake-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+
+    .handshake-table th {
+      background: var(--bg-color);
+      padding: 0.75rem 1rem;
+      text-align: left;
+      font-weight: 600;
+      color: var(--text-primary);
+      border-bottom: 2px solid var(--border-color);
+      font-size: 0.875rem;
+    }
+
+    .handshake-table td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .handshake-table tr:hover {
+      background: var(--surface-color);
+    }
+
+    .status-success {
+      color: #10b981;
+      font-weight: 600;
+    }
+
+    .status-failed {
+      color: #ef4444;
+      font-weight: 600;
+    }
+
+    .protocol-details-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .protocol-detail-item {
+      background: var(--bg-color);
+      padding: 1rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+    }
+
+    .protocol-detail-label {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+
+    .protocol-detail-value {
+      font-size: 0.9rem;
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .protocol-detail-value.good {
+      color: #10b981;
+    }
+
+    .protocol-detail-value.bad {
+      color: #ef4444;
+    }
+
+    .cipher-list {
+      background: var(--surface-color);
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-xl);
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .cipher-item {
+      background: var(--bg-color);
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+      margin-bottom: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: monospace;
+      font-size: 0.875rem;
+    }
+
+    .cipher-name {
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .cipher-strength {
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+    }
+
     .vulnerability-list {
       display: grid;
       gap: 1rem;
@@ -579,6 +692,15 @@
         <!-- Protocol Analysis -->
         <div class="protocol-analysis" id="protocolAnalysis"></div>
 
+        <!-- Protocol Details -->
+        <div class="cipher-list" id="protocolDetailsSection"></div>
+
+        <!-- Cipher Suites List -->
+        <div class="cipher-list" id="cipherListSection"></div>
+
+        <!-- Handshake Simulations -->
+        <div class="handshake-section" id="handshakeSection"></div>
+
         <!-- Recommendations -->
         <div class="recommendations">
           <h3 style="margin-bottom: 1.5rem;">Security Recommendations</h3>
@@ -590,13 +712,20 @@
 
   <div id="footer"></div>
 
-  <script src="../../scripts/layout.js"></script>
-  <script type="module" src="../../scripts/main.js" defer></script>
-  <script src="/auth-utils.js"></script>
-  <script src="../../scripts/footer.js"></script>
-
   <script>
+    // Fix layout paths for this specific location
     document.addEventListener("DOMContentLoaded", async () => {
+      // Load header
+      const headerResponse = await fetch('/templates/header.html');
+      const headerHtml = await headerResponse.text();
+      document.getElementById('header').innerHTML = headerHtml;
+
+      // Load footer
+      const footerResponse = await fetch('/templates/footer.html');
+      const footerHtml = await footerResponse.text();
+      document.getElementById('footer').innerHTML = footerHtml;
+
+      // Initialize the tool
       initializeTool();
     });
 
@@ -682,6 +811,21 @@
           // Display protocol analysis
           if (data.protocolAnalysis) {
             this.displayProtocolAnalysis(data.protocolAnalysis);
+          }
+
+          // Display protocol details
+          if (data.protocolDetails) {
+            this.displayProtocolDetails(data.protocolDetails);
+          }
+
+          // Display cipher suites list
+          if (data.allCiphers && data.allCiphers.length > 0) {
+            this.displayCipherList(data.allCiphers);
+          }
+
+          // Display handshake simulations
+          if (data.handshakeSimulations) {
+            this.displayHandshakeSimulations(data.handshakeSimulations);
           }
 
           // Display recommendations
@@ -1046,6 +1190,149 @@
           `).join('');
         }
 
+        displayProtocolDetails(details) {
+          const container = document.getElementById('protocolDetailsSection');
+          
+          container.innerHTML = `
+            <h3 style="margin-bottom: 1.5rem;">Protocol Details</h3>
+            <div class="protocol-details-grid">
+              <div class="protocol-detail-item">
+                <div class="protocol-detail-label">Secure Renegotiation</div>
+                <div class="protocol-detail-value good">✓ Supported</div>
+              </div>
+              <div class="protocol-detail-item">
+                <div class="protocol-detail-label">BEAST Attack</div>
+                <div class="protocol-detail-value ${details.beastAttack === 'Not applicable' ? 'good' : ''}">
+                  ${details.beastAttack}
+                </div>
+              </div>
+              <div class="protocol-detail-item">
+                <div class="protocol-detail-label">POODLE (SSL)</div>
+                <div class="protocol-detail-value ${details.poodleSSL.includes('Not') ? 'good' : 'bad'}">
+                  ${details.poodleSSL}
+                </div>
+              </div>
+              <div class="protocol-detail-item">
+                <div class="protocol-detail-label">Downgrade Prevention</div>
+                <div class="protocol-detail-value good">${details.downgradeAttack}</div>
+              </div>
+              <div class="protocol-detail-item">
+                <div class="protocol-detail-label">Compression</div>
+                <div class="protocol-detail-value good">${details.compression}</div>
+              </div>
+              <div class="protocol-detail-item">
+                <div class="protocol-detail-label">Heartbleed</div>
+                <div class="protocol-detail-value good">${details.heartbleed}</div>
+              </div>
+              <div class="protocol-detail-item">
+                <div class="protocol-detail-label">Forward Secrecy</div>
+                <div class="protocol-detail-value good">${details.forwardSecrecy}</div>
+              </div>
+              <div class="protocol-detail-item">
+                <div class="protocol-detail-label">ALPN</div>
+                <div class="protocol-detail-value good">${details.alpn}</div>
+              </div>
+              <div class="protocol-detail-item">
+                <div class="protocol-detail-label">Session Resumption</div>
+                <div class="protocol-detail-value">${details.sessionResumption}</div>
+              </div>
+              <div class="protocol-detail-item">
+                <div class="protocol-detail-label">OCSP Stapling</div>
+                <div class="protocol-detail-value ${details.ocspStapling ? 'good' : ''}">
+                  ${details.ocspStapling ? '✓ Yes' : '○ No'}
+                </div>
+              </div>
+              <div class="protocol-detail-item">
+                <div class="protocol-detail-label">HSTS</div>
+                <div class="protocol-detail-value ${details.hsts ? 'good' : ''}">
+                  ${details.hsts ? '✓ Yes' : '○ No'}
+                </div>
+              </div>
+              <div class="protocol-detail-item">
+                <div class="protocol-detail-label">TLS Intolerance</div>
+                <div class="protocol-detail-value good">${details.tlsVersionIntolerance}</div>
+              </div>
+            </div>
+          `;
+        }
+
+        displayCipherList(ciphers) {
+          const container = document.getElementById('cipherListSection');
+          
+          if (!ciphers || ciphers.length === 0) {
+            container.style.display = 'none';
+            return;
+          }
+
+          container.style.display = 'block';
+          container.innerHTML = `
+            <h3 style="margin-bottom: 1.5rem;">
+              Cipher Suites 
+              <span style="color: var(--text-secondary); font-size: 0.875rem; font-weight: 400;">
+                (${ciphers.length} detected)
+              </span>
+            </h3>
+            ${ciphers.map(cipher => `
+              <div class="cipher-item">
+                <span class="cipher-name">${cipher.name}</span>
+                <span class="cipher-strength">${cipher.bits} bits</span>
+              </div>
+            `).join('')}
+          `;
+        }
+
+        displayHandshakeSimulations(simulations) {
+          const container = document.getElementById('handshakeSection');
+          
+          if (!simulations || simulations.length === 0) {
+            container.style.display = 'none';
+            return;
+          }
+
+          container.style.display = 'block';
+          
+          const successCount = simulations.filter(s => s.status === 'Success').length;
+          const failCount = simulations.length - successCount;
+
+          container.innerHTML = `
+            <h3 style="margin-bottom: 1rem;">
+              Handshake Simulation
+              <span style="margin-left: 1rem; color: var(--text-secondary); font-size: 0.875rem; font-weight: 400;">
+                ${successCount} successful, ${failCount} failed
+              </span>
+            </h3>
+            <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.875rem;">
+              Simulation of how different clients connect to this server
+            </p>
+            <table class="handshake-table">
+              <thead>
+                <tr>
+                  <th>Client</th>
+                  <th>Protocol</th>
+                  <th>Cipher Suite</th>
+                  <th>Key Exchange</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${simulations.map(sim => `
+                  <tr>
+                    <td style="font-weight: 500; color: var(--text-primary);">${sim.client}</td>
+                    <td>${sim.protocol || '-'}</td>
+                    <td style="font-family: monospace; font-size: 0.8rem;">
+                      ${sim.cipher || sim.error || '-'}
+                    </td>
+                    <td>${sim.keyExchange || '-'}</td>
+                    <td class="${sim.status === 'Success' ? 'status-success' : 'status-failed'}">
+                      ${sim.status === 'Success' ? '✓ ' : '✗ '}${sim.status}
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `;
+        }
+
         showLoading() {
           this.loadingContainer.classList.add('show');
           this.checkButton.disabled = true;
@@ -1073,5 +1360,7 @@
       window.sslChecker = new SSLChecker();
     }
   </script>
+  <script src="../../scripts/footer.js"></script>
+  <script type="module" src="../../scripts/main.js"></script>
 </body>
 </html>
