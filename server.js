@@ -32,6 +32,7 @@ const metaRoutes = require('./routes/metaRoutes');
 const imageRoutes = require('./routes/imageRoutes');
 const altTextRoutes = require('./routes/altTextRoutes');
 const conversionRoutes = require('./routes/conversionRoutes');
+const sslRoutes = require('./routes/sslRoutes');
 
 // Import Admin model
 const Admin = require("./models/Admin");
@@ -274,6 +275,8 @@ app.use('/api/images', imageRoutes);
 
 app.use('/api/alt-text', altTextRoutes);
 app.use('/api/convert', conversionRoutes);
+
+app.use('/api/ssl', sslRoutes);
 
 // Test MongoDB connection
 app.get("/api/test-db", async (req, res) => {

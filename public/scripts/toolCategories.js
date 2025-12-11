@@ -84,6 +84,12 @@ export const toolCategories = {
         path: "/tools/dns-checker",
         public: true,
       },
+      {
+  name: "SSL Certificate Checker",
+  path: "/views/tools/ssl-checker.html",
+  internal: false,
+  public: true
+},
     ],
   },
   "file-tools": {
