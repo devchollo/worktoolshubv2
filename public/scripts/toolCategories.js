@@ -9,6 +9,11 @@ export const toolCategories = {
     color: "#10b981",
     tools: [
       {
+        name: "PEGA Note Generator",
+        path: "/tools/pega-note-generator",
+        public: true,
+      },
+      {
         name: "Technical Support & Site Launch",
         path: "/tools/osad-live-generator",
         internal: true,

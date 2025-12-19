@@ -67,6 +67,10 @@ class NotesService {
 // Create instance of notes service
 const notesService = new NotesService();
 
+// =====================================================
+// EXISTING ROUTES - OSAD AND SITE LAUNCH
+// =====================================================
+
 // Generate OSAD or Site Launch notes
 router.post('/generate', async (req, res) => {
   try {
@@ -267,13 +271,169 @@ function getDomainVerificationDetails(verification) {
   }
 }
 
+// =====================================================
+// NEW ROUTE - PEGA NOTE TEXT IMPROVEMENT
+// =====================================================
+
+// XSS Protection function
+function sanitizeInput(input) {
+  if (!input) return '';
+  
+  return String(input)
+    .replace(/[<>]/g, '')
+    .replace(/javascript:/gi, '')
+    .replace(/on\w+=/gi, '')
+    .replace(/data:text\/html/gi, '')
+    .replace(/vbscript:/gi, '')
+    .trim()
+    .substring(0, 2000);
+}
+
+// Validate PEGA input
+function validatePEGAInput(data) {
+  const errors = [];
+  
+  if (!data.concern || data.concern.trim().length < 5) {
+    errors.push('Concern must be at least 5 characters');
+  }
+  
+  if (!data.actionDone || data.actionDone.trim().length < 5) {
+    errors.push('Action Done must be at least 5 characters');
+  }
+  
+  if (data.concern && data.concern.length > 2000) {
+    errors.push('Concern is too long (max 2000 characters)');
+  }
+  
+  if (data.actionDone && data.actionDone.length > 2000) {
+    errors.push('Action Done is too long (max 2000 characters)');
+  }
+  
+  if (data.nextAction && data.nextAction.length > 2000) {
+    errors.push('Next Action is too long (max 2000 characters)');
+  }
+  
+  return errors;
+}
+
+// POST /api/notes/improve-pega-text - Improve PEGA note text with AI
+router.post('/improve-pega-text', async (req, res) => {
+  try {
+    const { concern, actionDone, nextAction } = req.body;
+    
+    // Sanitize inputs
+    const sanitizedData = {
+      concern: sanitizeInput(concern),
+      actionDone: sanitizeInput(actionDone),
+      nextAction: sanitizeInput(nextAction)
+    };
+    
+    // Validate
+    const validationErrors = validatePEGAInput(sanitizedData);
+    if (validationErrors.length > 0) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: validationErrors
+      });
+    }
+    
+    // Build prompt for AI
+    let prompt = `Please improve the grammar and clarity of the following support note sections. Maintain technical accuracy and professional tone. Return ONLY a JSON object with keys: concern, actionDone, and nextAction.
+
+CONCERN:
+${sanitizedData.concern}
+
+ACTION DONE:
+${sanitizedData.actionDone}`;
+
+    if (sanitizedData.nextAction && sanitizedData.nextAction.trim()) {
+      prompt += `
+
+NEXT ACTION:
+${sanitizedData.nextAction}`;
+    }
+
+    prompt += `
+
+Return format: {"concern": "improved text", "actionDone": "improved text", "nextAction": "improved text or empty string"}`;
+    
+    const systemMessage = `You are a professional support documentation assistant. Your task is to improve grammar, clarity, and professionalism of support notes while maintaining the original meaning and technical accuracy. Keep the tone professional but friendly. Do not add information that wasn't provided. Always return valid JSON.`;
+    
+    // Use existing NotesService
+    try {
+      const aiResponse = await notesService.generateNote(prompt, systemMessage, 800);
+      
+      // Parse AI response
+      let improvedText;
+      try {
+        // Try to extract JSON from the response
+        const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          improvedText = JSON.parse(jsonMatch[0]);
+        } else {
+          throw new Error('No JSON found in response');
+        }
+      } catch (parseError) {
+        console.warn('Failed to parse AI response as JSON, using original text');
+        improvedText = {
+          concern: sanitizedData.concern,
+          actionDone: sanitizedData.actionDone,
+          nextAction: sanitizedData.nextAction
+        };
+      }
+      
+      // Sanitize AI output as well (defense in depth)
+      const finalOutput = {
+        concern: sanitizeInput(improvedText.concern || sanitizedData.concern),
+        actionDone: sanitizeInput(improvedText.actionDone || sanitizedData.actionDone),
+        nextAction: sanitizeInput(improvedText.nextAction || sanitizedData.nextAction || '')
+      };
+      
+      res.json(finalOutput);
+      
+    } catch (aiError) {
+      console.error('AI enhancement failed for PEGA text:', aiError);
+      
+      // Fallback to original text
+      return res.json({
+        concern: sanitizedData.concern,
+        actionDone: sanitizedData.actionDone,
+        nextAction: sanitizedData.nextAction,
+        fallback: true,
+        message: 'AI enhancement unavailable, returning original text'
+      });
+    }
+    
+  } catch (error) {
+    console.error('PEGA text improvement error:', error);
+    
+    // Return original text as fallback
+    res.status(500).json({
+      error: 'AI service temporarily unavailable',
+      concern: sanitizeInput(req.body.concern || ''),
+      actionDone: sanitizeInput(req.body.actionDone || ''),
+      nextAction: sanitizeInput(req.body.nextAction || ''),
+      fallback: true
+    });
+  }
+});
+
+// =====================================================
+// HEALTH CHECK
+// =====================================================
+
 // Health check endpoint
 router.get('/health', (req, res) => {
   res.json({
     status: 'OK',
     service: 'Notes Generation API',
     timestamp: new Date().toISOString(),
-    openai: process.env.OPENAI_API_KEY ? 'Configured' : 'Not configured'
+    openai: process.env.OPENAI_API_KEY ? 'Configured' : 'Not configured',
+    endpoints: {
+      '/generate': 'Generate OSAD or Site Launch notes',
+      '/improve-pega-text': 'Improve PEGA note text with AI',
+      '/health': 'Health check'
+    }
   });
 });
 
